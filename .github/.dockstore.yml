@@ -1,0 +1,7 @@
+# Dockstore config version, not pipeline version
+# Use the same formate as https://github.com/dhslab/nf-core-wgsnano (2024-12-10)
+version: 1.2
+workflows:
+  - subclass: nfl
+    primaryDescriptorPath: /nextflow.config
+    publish: True
