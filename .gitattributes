@@ -1,0 +1,5 @@
+## use the formate from https://github.com/dhslab/nf-core-wgsnano (2024-12-10)
+*.config linguist-language=nextflow
+*.nf.test linguist-language=nextflow
+modules/nf-core/** linguist-generated
+subworkflows/nf-core/** linguist-generated

@@ -1,0 +1,13 @@
+## formate based on https://github.com/nf-core/nanoseq (2024-12-10)
+email_template.html
+adaptivecard.json
+slackreport.json
+.nextflow*
+work/
+data/
+results/
+.DS_Store
+testing/
+testing*
+*.pyc
+bin/
