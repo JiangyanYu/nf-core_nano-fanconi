@@ -14,18 +14,18 @@ import numpy as np
 # Define nodes and their positions
 nodes = {
     "Input": (1, 1),
-    "QC": (3, 2),
-    "Alignment": (5, 3),
-    "Analysis": (7, 2),
-    "Report": (9, 1),
+    "Base calling (dorado)": (3, 2),
+    "Alignment (minimap2)": (5, 3),
+    "Haplotyping": (7, 2),
+    "Structure variants (sniffels2)": (9, 1),
 }
 
 # Define edges (connections)
 edges = [
-    ("Input", "QC"),
-    ("QC", "Alignment"),
-    ("Alignment", "Analysis"),
-    ("Analysis", "Report"),
+    ("Input", "Base calling (dorado)"),
+    ("QBase calling (dorado)", "Alignment (minimap2)"),
+    ("Alignment (minimap2)", "Haplotyping"),
+    ("Haplotyping", "Structure variants (sniffels2)"),
 ]
 
 # Define curved paths for edges
@@ -50,7 +50,7 @@ for start, end in edges:
 for label, (x, y) in nodes.items():
     ax.scatter(x, y, s=100, color="red", zorder=3)  # Node
     ax.text(x, y, label, fontsize=12, ha="center", va="center", color="white", zorder=4, 
-            bbox=dict(boxstyle="circle", facecolor="red", edgecolor="none"))
+            bbox=dict(boxstyle="circle", facecolor="pink", edgecolor="none"))
 
 # Customize plot appearance
 ax.set_xlim(0, 10)
@@ -58,6 +58,6 @@ ax.set_ylim(0, 5)
 ax.axis("off")  # Hide axes
 
 # Save and show the figure
-plt.savefig("subway_map.png", dpi=300)
+plt.savefig("structure.png", dpi=300)
 plt.show()
 
