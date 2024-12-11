@@ -1,12 +1,12 @@
 #!/usr/bin/env nextflow
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    nf-core/wgsnano
+    nf-core_nano-fanconi
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    Github : https://github.com/nf-core/wgsnano
+    Github : https://github.com/jiangyanyu/nf-core_nano-fanconi
 
-    Website: https://nf-co.re/wgsnano
-    Slack  : https://nfcore.slack.com/channels/wgsnano
+    Website: 
+    Slack  : 
 ----------------------------------------------------------------------------------------
 */
 
@@ -34,15 +34,15 @@ WorkflowMain.initialise(workflow, params, log)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
-include { WGSNANO } from './workflows/nano-fanconi'
+include { NANOFANCONI } from './workflows/nano-fanconi'
 
 //
-// WORKFLOW: Run main nf-core/wgsnano analysis pipeline
+// WORKFLOW: Run main nf-core_nano-fanconi analysis pipeline
 //
-workflow NFCORE_WGSNANO {
-    WGSNANO ()
+workflow NANO_FANCONI {
+    NANOFANCONI ()
     // Emit for testing purpose
-    // emit: WGSNANO.out
+    // emit: 
 }
 
 /*
@@ -56,9 +56,9 @@ workflow NFCORE_WGSNANO {
 // See: https://github.com/nf-core/rnaseq/issues/619
 //
 workflow {
-    NFCORE_WGSNANO ()
+    NANO_FANCONI ()
     // Emit for testing purpose
-    // emit: NFCORE_WGSNANO.out.view()
+    // emit: 
 }
 
 /*
