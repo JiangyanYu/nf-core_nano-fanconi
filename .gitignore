@@ -1,1 +1,23 @@
 ## use the formate from https://github.com/dhslab/nf-core-wgsnano (2024-12-10)
+.nextflow*
+work/
+test_data/
+results/
+.DS_Store
+testing/
+testing*
+test
+test*
+*.pyc
+stub-data
+conf/dhslab_test.config
+._nextflow*
+._README.md
+stub-test
+.vscode
+.devcontainer
+.editorconfig
+.prettierignore
+.prettierrc.yml
+modules/.dir_bash_history
+**/.dir_bash_history

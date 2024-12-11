@@ -34,7 +34,7 @@ WorkflowMain.initialise(workflow, params, log)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
-include { WGSNANO } from './workflows/wgsnano'
+include { WGSNANO } from './workflows/nano-fanconi'
 
 //
 // WORKFLOW: Run main nf-core/wgsnano analysis pipeline
