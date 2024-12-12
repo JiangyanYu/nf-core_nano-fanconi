@@ -115,7 +115,9 @@ workflow NANOFANCONI {
         INPUT_CHECK
         .out
         .reads
-        .map { meta, fast5_path -> 
+        .map { meta, files -> 
+            def fast5_path = meta.fast5_path
+            
             // Debug print
             println "Meta: ${meta}, Fast5 Path: ${fast5_path}"
     
