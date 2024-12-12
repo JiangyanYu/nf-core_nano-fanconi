@@ -1,7 +1,4 @@
-group,replicate,barcode,input_file,genome,transcriptome
-MCF7,1,,MCF7_directcDNA_replicate1.fastq.gz,genome.fa,genes.gtf
-MCF7,2,,MCF7_directcDNA_replicate2.fastq.gz,genome.fa,genes.gtf
-MCF7,3,,MCF7_directRNA_replicate3.fastq.gz,genome.fa,genes.gtf
-K562,1,,K562_directcDNA_replicate1.fastq.gz,genome.fa,genes.gtf
-K562,2,,K562_directcDNA_replicate2.fastq.gz,genome.fa,genes.gtf
-K562,3,,K562_directRNA_replicate3.fastq.gz,genome.fa,genes.gtf
+id,sample,flowcell,fast5_path,batch,kit
+run_1,sample_1,flowcell1,$projectDir/assets/test_data/4927609a-57ea-4d8b-ac25-ac198b2a8e79.fast5',20221220,LSK114
+run_2,sample_2,flowcell2,$projectDir/assets/test_data/056c66f4-e2fd-483a-b058-ff44843cf8a3.fast5',20221220,LSK114
+run_3,sample_3,flowcell3,$projectDir/assets/test_data/6e5da275-c263-46e2-a2b6-c7d0eaa3324a.fast5',20221220,LSK114
