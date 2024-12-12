@@ -107,18 +107,27 @@ workflow NANOFANCONI {
         .out
         .reads
         .map { meta, fast5_path -> 
+            
+            // Check if fast5_path is null or empty
+            if (!fast5_path) {
+                throw new IllegalArgumentException("fast5_path is null or empty")
+            }
         
             def fast5_files = []
     
-            // If the path is a URL, download the file using wget/curl
+            // If the path is a URL (HTTP/S), download the file using wget
             if (fast5_path.startsWith("http://") || fast5_path.startsWith("https://")) {
-                def fileName = fast5_path.split('/').last()  // Extract file name from URL
-                fast5_files = [file(fileName)]  // Define the file name locally
+                def fileName = fast5_path.split('/').last()  // Extract the file name from the URL
+                def downloadDir = "${baseDir}/downloads"  // Set custom download directory
+                file(downloadDir).mkdirs()  // Create the download directory if it doesn't exist
     
-                // Download the file to the local machine
+                // Define the local file name within the download directory
+                fast5_files = [file("${downloadDir}/${fileName}")] 
+    
+                // Download the file using wget
                 script:
                 """
-                wget -O ${fileName} ${fast5_path}  // Download the file from GitHub or other URLs
+                wget -O ${downloadDir}/${fileName} ${fast5_path}  // Download file from URL to the download directory
                 """
             }
             
