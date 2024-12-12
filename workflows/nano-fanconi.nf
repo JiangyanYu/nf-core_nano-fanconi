@@ -135,9 +135,9 @@ workflow NANOFANCONI {
                 // Download the file using wget
                 script:
                 """
-                # Ensure the directory is writable
-                chmod -R u+w ${downloadDir}
-                wget -h
+                # Install wget if it's not present
+                apt-get update && apt-get install -y wget
+        
                 wget -O ${downloadDir}/${fileName} ${fast5_path} || { echo "Failed to download ${fast5_path}"; exit 1; }  // Download file from URL to the download directory
                 """
                 
