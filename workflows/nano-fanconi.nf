@@ -7,7 +7,7 @@
 def summary_params = NfcoreSchema.paramsSummaryMap(workflow, params)
 
 // Validate input parameters
-WorkflowWgsnano.initialise(params, log)
+WorkflowNanofanconi.initialise(params, log)
 
 // TODO nf-core: Add all file path parameters for the pipeline to the list below
 // Check input path parameters to see if they exist
@@ -76,13 +76,13 @@ include { SAMTOOLS_STATS                                } from '../modules/local
 // Info required for completion email and summary
 def multiqc_report = []
 
-workflow NANO-FANCONI {
+workflow NANO_FANCONI {
 
     ch_versions = Channel.empty()
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    NANO-FANCONI: input check
+    NANO_FANCONI: input check
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
@@ -97,7 +97,7 @@ workflow NANO-FANCONI {
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    NANO-FANCONI: fast5-pod5
+    NANO_FANCONI: fast5-pod5
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
@@ -332,10 +332,10 @@ if (params.reads_format == 'bam' ) {
     //
     // MODULE: MultiQC
     //
-    workflow_summary    = WorkflowWgsnano.paramsSummaryMultiqc(workflow, summary_params)
+    workflow_summary    = WorkflowNanofanconi.paramsSummaryMultiqc(workflow, summary_params)
     ch_workflow_summary = Channel.value(workflow_summary)
 
-    methods_description    = WorkflowWgsnano.methodsDescriptionText(workflow, ch_multiqc_custom_methods_description)
+    methods_description    = WorkflowNanofanconi.methodsDescriptionText(workflow, ch_multiqc_custom_methods_description)
     ch_methods_description = Channel.value(methods_description)
 
     ch_multiqc_files = Channel.empty()
