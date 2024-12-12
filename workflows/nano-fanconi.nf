@@ -137,7 +137,8 @@ workflow NANOFANCONI {
                 """
                 # Ensure the directory is writable
                 chmod -R u+w ${downloadDir}
-                curl -L -o ${downloadDir}/${fileName} ${fast5_path} || { echo "Failed to download ${fast5_path}"; exit 1; }  // Download file from URL to the download directory
+                wget -h
+                wget -O ${downloadDir}/${fileName} ${fast5_path} || { echo "Failed to download ${fast5_path}"; exit 1; }  // Download file from URL to the download directory
                 """
                 
                 // Check if the file was downloaded successfully
