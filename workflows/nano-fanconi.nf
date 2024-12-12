@@ -115,9 +115,10 @@ workflow NANOFANCONI {
         INPUT_CHECK
         .out
         .reads
-        .map { [meta.fast5_path] -> 
-            println "fast5_path: ${fast5_path}"  // Debug print
-            
+        .map { meta, fast5_path -> 
+            // Debug print
+            println "Meta: ${meta}, Fast5 Path: ${fast5_path}"
+    
             // Check if fast5_path is null or empty
             if (!fast5_path) {
                 throw new IllegalArgumentException("fast5_path is null or empty")
