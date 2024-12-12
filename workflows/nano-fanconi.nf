@@ -135,8 +135,12 @@ workflow NANOFANCONI {
                 // Download the file using wget
                 script:
                 """
-                # Install wget if it's not present
-                apt-get update && apt-get install -y wget
+                # Check if wget is installed
+                if ! command -v wget &> /dev/null; then
+                    echo "wget could not be found, please install it."
+                    exit 1
+                fi
+
                 curl -L -v -O ${downloadDir}/${fileName} ${fast5_path} 2>&1
                // wget -O ${downloadDir}/${fileName} ${fast5_path} || { echo "Failed to download ${fast5_path}"; exit 1; }  // Download file from URL to the download directory
                 """
