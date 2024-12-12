@@ -135,8 +135,8 @@ workflow NANOFANCONI {
                 // Download the file using wget
                 script:
                 """
-                echo "Running wget check..." 
-                echo "Running wget check..." > check_log.txt
+                def logFile = "${launchDir}/check_log.txt"
+                echo "Running wget check..." > $logFile
                 
                 # Check if wget is installed
                 if ! command -v wget &> /dev/null; then
