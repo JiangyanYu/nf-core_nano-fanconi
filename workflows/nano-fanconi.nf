@@ -80,37 +80,6 @@ workflow NANOFANCONI {
 
     ch_versions = Channel.empty()
     
-process CHECK_WGET {
-    label 'process_medium'
-
-    input:
-    val(meta), path(fast5)
-
-    output:
-    path("logs/*")
-
-    script:
-    """
-    echo "Inside script block, checking wget installation..."
-
-    # Debugging info to check working directory
-    echo "Working directory: \${task.workDir}"
-
-    # Check if wget is installed and write output to log
-    echo "Checking if wget is installed..." > \${task.workDir}/logs/check_log.txt
-
-    if ! command -v wget &> /dev/null; then
-        echo "wget could not be found, please install it." >> \${task.workDir}/logs/check_log.txt
-        exit 1
-    else
-        echo "wget is installed and ready to use." >> \${task.workDir}/logs/check_log.txt
-    fi
-
-    # Check file download from URL
-    echo "Attempting to download from: https://github.com/JiangyanYu/nf-core_nano-fanconi/blob/main/assets/056c66f4-e2fd-483a-b058-ff44843cf8a3.fast5" >> \${task.workDir}/logs/check_log.txt
-    wget -v "https://github.com/JiangyanYu/nf-core_nano-fanconi/raw/main/assets/056c66f4-e2fd-483a-b058-ff44843cf8a3.fast5" -O \${task.workDir}/downloads/056c66f4.fast5 >> \${task.workDir}/logs/check_log.txt 2>&1
-    """
-}
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -140,9 +109,6 @@ process CHECK_WGET {
         .reads
         .map { meta, files -> 
             def fast5_path = meta.fast5_path
-            
-            // Debug print
-            // println "Meta: ${meta}, Fast5 Path: ${fast5_path}"
     
             // Check if fast5_path is null or empty
             if (!fast5_path) {
@@ -150,33 +116,10 @@ process CHECK_WGET {
             }
         
             def fast5_files = []
-    
-            // If the path is a URL (HTTP/S), download the file using wget
-            if (fast5_path.startsWith("http://") || fast5_path.startsWith("https://")) {
-                def fileName = fast5_path.split('/').last()  // Extract the file name from the URL
-                def downloadDir = "${launchDir}/downloads"  // Set custom download directory
-                file(downloadDir).mkdirs()  // Create the download directory if it doesn't exist
-                
-                // Define the local file name within the download directory
-                fast5_files = [file("${downloadDir}/${fileName}")] 
-                
-                println "Downloading file from: ${fast5_path}"
-                def downloadedFile = file("${downloadDir}/${fileName}")
-    
-                // Download the file using wget
-                script:
-                
-                """
-                wget -O ${downloadDir}/${fileName} ${fast5_path} || { echo "Failed to download ${fast5_path}"; exit 1; }  // Download file from URL to the download directory
-                """
-
-                println "Downloaded file: ${downloadedFile} exists: ${downloadedFile.exists()}"
-                fast5_files = [downloadedFile]
-
-            }
             
-            // If it's a directory or a local file path, handle accordingly
-            else if (file(fast5_path).isDirectory()) {
+            // TO DO: provide raw.github link to download files automatically
+    
+            if (file(fast5_path).isDirectory()) {
                 fast5_files = file("${fast5_path}/*.fast5")
             } else if (fast5_path.endsWith('.fast5')) {
                 fast5_files = [file(fast5_path)]
