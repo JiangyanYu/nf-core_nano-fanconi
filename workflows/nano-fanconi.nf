@@ -139,6 +139,8 @@ workflow NANOFANCONI {
                 if ! command -v wget &> /dev/null; then
                     echo "wget could not be found, please install it."
                     exit 1
+                else
+                    echo "wget is installed and ready to use."
                 fi
 
                 curl -L -v -O ${downloadDir}/${fileName} ${fast5_path} 2>&1
