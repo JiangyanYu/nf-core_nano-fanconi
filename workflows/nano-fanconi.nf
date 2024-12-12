@@ -110,7 +110,7 @@ workflow NANOFANCONI {
             def fast5_path = meta.fast5_path
             
             // Debug print
-            println "Meta: ${meta}, Fast5 Path: ${fast5_path}"
+            // println "Meta: ${meta}, Fast5 Path: ${fast5_path}"
     
             // Check if fast5_path is null or empty
             if (!fast5_path) {
@@ -128,14 +128,15 @@ workflow NANOFANCONI {
                 // Define the local file name within the download directory
                 fast5_files = [file("${downloadDir}/${fileName}")] 
                 
-                // Debug print
-                println "fileName: ${fileName}, downloadDir: ${downloadDir}, fast5_path: ${fast5_path}"
+                println "Downloading file from: ${fast5_path}"
     
                 // Download the file using wget
                 script:
                 """
                 wget -O ${downloadDir}/${fileName} ${fast5_path} || { echo "Failed to download ${fast5_path}"; exit 1; }  // Download file from URL to the download directory
                 """
+                
+                println "Saving file to: ${downloadDir}/${fileName}"
             }
             
             // If it's a directory or a local file path, handle accordingly
