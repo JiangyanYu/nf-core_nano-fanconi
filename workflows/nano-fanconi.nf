@@ -127,6 +127,9 @@ workflow NANOFANCONI {
     
                 // Define the local file name within the download directory
                 fast5_files = [file("${downloadDir}/${fileName}")] 
+                
+                // Debug print
+                println "fileName: ${fileName}, downloadDir: ${downloadDir}, fast5_path: ${fast5_path}"
     
                 // Download the file using wget
                 script:
