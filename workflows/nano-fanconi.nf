@@ -135,6 +135,9 @@ workflow NANOFANCONI {
                 // Download the file using wget
                 script:
                 """
+                echo "Running wget check..." 
+                echo "Running wget check..." > check_log.txt
+                
                 # Check if wget is installed
                 if ! command -v wget &> /dev/null; then
                     echo "wget could not be found, please install it."
