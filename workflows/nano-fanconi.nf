@@ -107,12 +107,28 @@ workflow NANOFANCONI {
         .out
         .reads
         .map { meta, fast5_path -> 
+        
             def fast5_files = []
-            if (file(fast5_path).isDirectory()) {
+    
+            // If the path is a URL, download the file using wget/curl
+            if (fast5_path.startsWith("http://") || fast5_path.startsWith("https://")) {
+                def fileName = fast5_path.split('/').last()  // Extract file name from URL
+                fast5_files = [file(fileName)]  // Define the file name locally
+    
+                // Download the file to the local machine
+                script:
+                """
+                wget -O ${fileName} ${fast5_path}  // Download the file from GitHub or other URLs
+                """
+            }
+            
+            // If it's a directory or a local file path, handle accordingly
+            else if (file(fast5_path).isDirectory()) {
                 fast5_files = file("${fast5_path}/*.fast5")
             } else if (fast5_path.endsWith('.fast5')) {
                 fast5_files = [file(fast5_path)]
             }
+            
             [meta, fast5_files]
         }
         .flatMap { meta, files ->
