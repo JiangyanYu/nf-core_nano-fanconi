@@ -123,8 +123,9 @@ workflow NANOFANCONI {
             if (fast5_path.startsWith("http://") || fast5_path.startsWith("https://")) {
                 def fileName = fast5_path.split('/').last()  // Extract the file name from the URL
                 def downloadDir = "${launchDir}/downloads"  // Set custom download directory
-                chmod -R u+w ${downloadDir}
+                
                 file(downloadDir).mkdirs()  // Create the download directory if it doesn't exist
+                
     
                 // Define the local file name within the download directory
                 fast5_files = [file("${downloadDir}/${fileName}")] 
@@ -135,6 +136,8 @@ workflow NANOFANCONI {
                 // Download the file using wget
                 script:
                 """
+                # Ensure the directory is writable
+                chmod -R u+w ${downloadDir}
                 wget -O ${downloadDir}/${fileName} ${fast5_path} || { echo "Failed to download ${fast5_path}"; exit 1; }  // Download file from URL to the download directory
                 """
                 
