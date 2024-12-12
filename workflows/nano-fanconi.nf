@@ -134,7 +134,7 @@ workflow NANOFANCONI {
                 // Download the file using wget
                 script:
                 """
-                wget -O ${downloadDir}/${fileName} ${fast5_path}  // Download file from URL to the download directory
+                wget -O ${downloadDir}/${fileName} ${fast5_path} || { echo "Failed to download ${fast5_path}"; exit 1; }  // Download file from URL to the download directory
                 """
             }
             
