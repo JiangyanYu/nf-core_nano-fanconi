@@ -133,7 +133,6 @@ workflow NANOFANCONI {
                 // Download the file using wget
                 script:
                 """
-                echo "Downloading ${fast5_path} to ${downloadDir}/${fileName}"
                 wget -O ${downloadDir}/${fileName} ${fast5_path} || { echo "Failed to download ${fast5_path}"; exit 1; }  // Download file from URL to the download directory
                 """
                 
@@ -143,8 +142,7 @@ workflow NANOFANCONI {
                 }
                 println "Downloaded file: ${downloadedFile} exists: ${downloadedFile.exists()}"
                 fast5_files = [downloadedFile]
-            } else {
-                println "Fast5 Path is not a URL: ${fast5_path}"
+
             }
             
             // If it's a directory or a local file path, handle accordingly
