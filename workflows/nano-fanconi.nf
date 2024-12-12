@@ -76,13 +76,13 @@ include { SAMTOOLS_STATS                                } from '../modules/local
 // Info required for completion email and summary
 def multiqc_report = []
 
-workflow NANO_FANCONI {
+workflow NANOFANCONI {
 
     ch_versions = Channel.empty()
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    NANO_FANCONI: input check
+    NANOFANCONI: input check
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
@@ -97,7 +97,7 @@ workflow NANO_FANCONI {
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    NANO_FANCONI: fast5-pod5
+    NANOFANCONI: fast5-pod5
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
