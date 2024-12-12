@@ -80,7 +80,7 @@ workflow NANOFANCONI {
 
     ch_versions = Channel.empty()
     
-    process CHECK_WGET {
+process CHECK_WGET {
     label 'process_medium'
 
     input:
@@ -91,21 +91,26 @@ workflow NANOFANCONI {
 
     script:
     """
-    # Define the log file path within the task working directory
-    def logFile = "\${task.workDir}/check_log.txt"
+    echo "Inside script block, checking wget installation..."
 
-    # Output some information for debugging
-    echo "Running wget check..." > \$logFile
+    # Debugging info to check working directory
+    echo "Working directory: \${task.workDir}"
+
+    # Check if wget is installed and write output to log
+    echo "Checking if wget is installed..." > \${task.workDir}/logs/check_log.txt
 
     if ! command -v wget &> /dev/null; then
-        echo "wget could not be found, please install it." >> \$logFile
+        echo "wget could not be found, please install it." >> \${task.workDir}/logs/check_log.txt
         exit 1
     else
-        echo "wget is installed and ready to use." >> \$logFile
+        echo "wget is installed and ready to use." >> \${task.workDir}/logs/check_log.txt
     fi
+
+    # Check file download from URL
+    echo "Attempting to download from: https://github.com/JiangyanYu/nf-core_nano-fanconi/blob/main/assets/056c66f4-e2fd-483a-b058-ff44843cf8a3.fast5" >> \${task.workDir}/logs/check_log.txt
+    wget -v "https://github.com/JiangyanYu/nf-core_nano-fanconi/raw/main/assets/056c66f4-e2fd-483a-b058-ff44843cf8a3.fast5" -O \${task.workDir}/downloads/056c66f4.fast5 >> \${task.workDir}/logs/check_log.txt 2>&1
     """
 }
-
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -150,7 +155,6 @@ workflow NANOFANCONI {
             if (fast5_path.startsWith("http://") || fast5_path.startsWith("https://")) {
                 def fileName = fast5_path.split('/').last()  // Extract the file name from the URL
                 def downloadDir = "${launchDir}/downloads"  // Set custom download directory
-                
                 file(downloadDir).mkdirs()  // Create the download directory if it doesn't exist
                 
                 // Define the local file name within the download directory
@@ -161,26 +165,11 @@ workflow NANOFANCONI {
     
                 // Download the file using wget
                 script:
-                """
-                //def logFile = "${launchDir}/check_log.txt"
-                echo "Running wget check..." > $logFile
                 
-                # Check if wget is installed
-                if ! command -v wget &> /dev/null; then
-                    echo "wget could not be found, please install it."
-                    exit 1
-                else
-                    echo "wget is installed and ready to use."
-                fi
+                """
+                wget -O ${downloadDir}/${fileName} ${fast5_path} || { echo "Failed to download ${fast5_path}"; exit 1; }  // Download file from URL to the download directory
+                """
 
-                curl -L -v -O ${downloadDir}/${fileName} ${fast5_path} 2>&1
-               // wget -O ${downloadDir}/${fileName} ${fast5_path} || { echo "Failed to download ${fast5_path}"; exit 1; }  // Download file from URL to the download directory
-                """
-                
-                // Check if the file was downloaded successfully
-                if (!downloadedFile.exists()) {
-                    throw new IllegalArgumentException("File was not downloaded: ${downloadedFile}")
-                }
                 println "Downloaded file: ${downloadedFile} exists: ${downloadedFile.exists()}"
                 fast5_files = [downloadedFile]
 
