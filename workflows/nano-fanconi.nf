@@ -129,6 +129,7 @@ workflow NANOFANCONI {
                 fast5_files = [file("${downloadDir}/${fileName}")] 
                 
                 println "Downloading file from: ${fast5_path}"
+                def downloadedFile = file("${downloadDir}/${fileName}")
     
                 // Download the file using wget
                 script:
