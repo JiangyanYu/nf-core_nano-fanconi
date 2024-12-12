@@ -134,20 +134,17 @@ workflow NANOFANCONI {
                 script:
                 """
                 echo "Downloading ${fast5_path} to ${downloadDir}/${fileName}"
-                wget -O ${downloadDir}/${fileName} ${fast5_path} || { echo "Failed to download ${fast5_path}"; exit 1; }
+                wget -O ${downloadDir}/${fileName} ${fast5_path} || { echo "Failed to download ${fast5_path}"; exit 1; }  // Download file from URL to the download directory
                 """
-            
+                
                 // Check if the file was downloaded successfully
                 if (!downloadedFile.exists()) {
                     throw new IllegalArgumentException("File was not downloaded: ${downloadedFile}")
                 }
-                    println "Downloaded file: ${downloadedFile} exists: ${downloadedFile.exists()}"
-                    fast5_files = [downloadedFile]
-                } else {
-                    println "Fast5 Path is not a URL: ${fast5_path}"
-                }
-                
-                
+                println "Downloaded file: ${downloadedFile} exists: ${downloadedFile.exists()}"
+                fast5_files = [downloadedFile]
+            } else {
+                println "Fast5 Path is not a URL: ${fast5_path}"
             }
             
             // If it's a directory or a local file path, handle accordingly
