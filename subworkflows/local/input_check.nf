@@ -27,6 +27,7 @@ def create_reads_channel(LinkedHashMap row) {
     meta.id         = row.id
     meta.sample         = row.sample
     meta.flowcell         = row.flowcell
+    meta.fast5_path         = row.fast5_path
     meta.batch         = row.batch
     meta.kit         = row.kit
     meta.vcf          = row.vcf ?: "$projectDir/assets/NO_FILE.vcf"
