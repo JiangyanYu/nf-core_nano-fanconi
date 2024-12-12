@@ -1,4 +1,4 @@
 id,sample,flowcell,fast5_path,batch,kit
-run_1,sample_1,flowcell1,$projectDir/assets/test_data/4927609a-57ea-4d8b-ac25-ac198b2a8e79.fast5',20221220,LSK114
-run_2,sample_2,flowcell2,$projectDir/assets/test_data/056c66f4-e2fd-483a-b058-ff44843cf8a3.fast5',20221220,LSK114
-run_3,sample_3,flowcell3,$projectDir/assets/test_data/6e5da275-c263-46e2-a2b6-c7d0eaa3324a.fast5',20221220,LSK114
+run_1,sample_1,flowcell1,"""${baseDir}/assets/test_data/4927609a-57ea-4d8b-ac25-ac198b2a8e79.fast5""",20221220,LSK114
+run_2,sample_2,flowcell2,"""${baseDir}/assets/test_data/056c66f4-e2fd-483a-b058-ff44843cf8a3.fast5""",20221220,LSK114
+run_3,sample_3,flowcell3,"""${baseDir}/assets/test_data/6e5da275-c263-46e2-a2b6-c7d0eaa3324a.fast5""",20221220,LSK114
