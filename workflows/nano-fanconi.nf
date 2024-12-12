@@ -115,7 +115,7 @@ workflow NANOFANCONI {
         INPUT_CHECK
         .out
         .reads
-        .map { meta, fast5_path -> 
+        .map { [meta.fast5_path] -> 
             println "fast5_path: ${fast5_path}"  // Debug print
             
             // Check if fast5_path is null or empty
