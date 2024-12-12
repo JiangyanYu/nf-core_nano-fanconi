@@ -273,7 +273,13 @@ if (params.reads_format == 'bam' ) {
     ch_versions = ch_versions.mix(PEPPER.out.versions)
     */
 
-    
+/*
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    NANOFANCONI: currently remove whatshap
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+*/
+
+/*
     if (params.run_whatshap) {
         //
         // MODULE: Index PEPPER bam
@@ -324,6 +330,7 @@ if (params.reads_format == 'bam' ) {
             ch_versions = ch_versions.mix(SAMTOOLS_STATS.out.versions)
         }
     }
+*/
 
     CUSTOM_DUMPSOFTWAREVERSIONS (
         ch_versions.unique().collectFile(name: 'collated_versions.yml')
