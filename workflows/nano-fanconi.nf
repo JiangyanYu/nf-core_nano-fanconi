@@ -79,6 +79,33 @@ def multiqc_report = []
 workflow NANOFANCONI {
 
     ch_versions = Channel.empty()
+    
+    process CHECK_WGET {
+    label 'process_medium'
+
+    input:
+    val(meta), path(fast5)
+
+    output:
+    path("logs/*")
+
+    script:
+    """
+    # Define the log file path within the task working directory
+    def logFile = "\${task.workDir}/check_log.txt"
+
+    # Output some information for debugging
+    echo "Running wget check..." > \$logFile
+
+    if ! command -v wget &> /dev/null; then
+        echo "wget could not be found, please install it." >> \$logFile
+        exit 1
+    else
+        echo "wget is installed and ready to use." >> \$logFile
+    fi
+    """
+}
+
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -135,7 +162,7 @@ workflow NANOFANCONI {
                 // Download the file using wget
                 script:
                 """
-                def logFile = "${launchDir}/check_log.txt"
+                //def logFile = "${launchDir}/check_log.txt"
                 echo "Running wget check..." > $logFile
                 
                 # Check if wget is installed
