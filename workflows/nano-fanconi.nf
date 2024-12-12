@@ -93,7 +93,16 @@ workflow NANOFANCONI {
         ch_input
     )
     ch_versions = ch_versions.mix(INPUT_CHECK.out.versions)
-    ch_phased_vcf = INPUT_CHECK.out.reads.map{ meta, files -> [[sample: meta.sample], meta.vcf, meta.vcf_tbi] }.dump(tag: "ch_phased_vcf")
+    //ch_phased_vcf = INPUT_CHECK.out.reads.map{ meta, files -> [[sample: meta.sample], meta.vcf, meta.vcf_tbi] }.dump(tag: "ch_phased_vcf")
+    ch_phased_vcf = INPUT_CHECK.out.reads.map { meta, files -> 
+        // Prepare output data structure
+        def result = [[sample: meta.sample], meta.vcf, meta.vcf_tbi]
+        
+        // Print the result to the console for debugging
+        println "Mapped data: ${result}"
+
+        return result  // Ensure you return the processed data
+    }.dump(tag: "ch_phased_vcf")
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
