@@ -126,7 +126,6 @@ workflow NANOFANCONI {
                 
                 file(downloadDir).mkdirs()  // Create the download directory if it doesn't exist
                 
-    
                 // Define the local file name within the download directory
                 fast5_files = [file("${downloadDir}/${fileName}")] 
                 
@@ -138,7 +137,7 @@ workflow NANOFANCONI {
                 """
                 # Ensure the directory is writable
                 chmod -R u+w ${downloadDir}
-                wget -O ${downloadDir}/${fileName} ${fast5_path} || { echo "Failed to download ${fast5_path}"; exit 1; }  // Download file from URL to the download directory
+                curl -L -o ${downloadDir}/${fileName} ${fast5_path} || { echo "Failed to download ${fast5_path}"; exit 1; }  // Download file from URL to the download directory
                 """
                 
                 // Check if the file was downloaded successfully
