@@ -15,8 +15,6 @@ process FAST5_TO_POD5 {
 
     script:
         """
-	# Install wget if it's not present
-        apt-get update && apt-get install -y wget
 	
         mkdir -p fast5_dir
         mv *.fast5 fast5_dir
