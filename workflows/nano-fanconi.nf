@@ -256,7 +256,11 @@ if (params.reads_format == 'bam' ) {
     )
     ch_versions = ch_versions.mix(MERGE_BASECALL_SAMPLE.out.versions)
     
-
+/*
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    NANOFANCONI: Dorado-aligner
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+*/
     DORADO_ALIGNER (
         MERGE_BASECALL_SAMPLE.out.merged_bam,
         file(params.fasta)
