@@ -7,57 +7,59 @@ Created on Tue Dec 10 09:29:11 2024
 """
 
 import matplotlib.pyplot as plt
-from matplotlib.patches import PathPatch
-from matplotlib.path import Path
-import numpy as np
+import itertools
 
 # Define nodes and their positions
 nodes = {
-    "Input": (1, 1),
-    "Base calling (dorado)": (3, 2),
-    "Alignment (minimap2)": (5, 3),
-    "Haplotyping": (7, 2),
-    "Structure variants (sniffels2)": (9, 1),
+    "fast5": (1, 4),
+    "dorado": (1, 3),
+    "pycoqc": (1, 2),
+    "minimap2": (2.5, 2),
+    "samtools": (4, 2),
+    "sniffels": (5, 3),
+    "AnnotSV": (6, 3),
+    "whatshap": (5, 1),
+    "DeepVariant": (7, 1),
 }
 
-# Define edges (connections)
+# Define edges (connections) as provided
 edges = [
-    ("Input", "Base calling (dorado)"),
-    ("QBase calling (dorado)", "Alignment (minimap2)"),
-    ("Alignment (minimap2)", "Haplotyping"),
-    ("Haplotyping", "Structure variants (sniffels2)"),
+    ("fast5", "dorado"),
+    ("dorado", "pycoqc"),
+    ("pycoqc", "minimap2"),
+    ("minimap2", "samtools"),
+    ("samtools", "sniffels"),
+    ("samtools", "whatshap"),
+    ("sniffels","AnnotSV"),
+    ("whatshap","DeepVariant")
 ]
 
-# Define curved paths for edges
-def curved_path(start, end, curvature=0.3):
-    x1, y1 = start
-    x2, y2 = end
-    mid_x, mid_y = (x1 + x2) / 2, (y1 + y2) / 2 + curvature
-    vertices = [start, (mid_x, mid_y), end]
-    codes = [Path.MOVETO, Path.CURVE3, Path.CURVE3]
-    return Path(vertices, codes)
-
 # Initialize the plot
-fig, ax = plt.subplots(figsize=(10, 5))
+fig, ax = plt.subplots(figsize=(8, 5))
 
-# Plot edges with curved lines
+# Plot edges with straight lines
 for start, end in edges:
-    path = curved_path(nodes[start], nodes[end], curvature=0.5)
-    patch = PathPatch(path, edgecolor="blue", linewidth=2, linestyle="--", facecolor="none")
-    ax.add_patch(patch)
+    x1, y1 = nodes[start]
+    x2, y2 = nodes[end]
+    ax.plot([x1, x2], [y1, y2], color="blue", linewidth=2)
 
 # Plot nodes
 for label, (x, y) in nodes.items():
     ax.scatter(x, y, s=100, color="red", zorder=3)  # Node
-    ax.text(x, y, label, fontsize=12, ha="center", va="center", color="white", zorder=4, 
-            bbox=dict(boxstyle="circle", facecolor="pink", edgecolor="none"))
+    ax.text(
+        x, y, label, fontsize=12, ha="center", va="center", color="black", zorder=4,
+        bbox=dict(boxstyle="circle", facecolor="pink", edgecolor="none")
+    )
+
+# Add "nano-Fanconi" text at coordinates (3, 3)
+ax.text(3, 3.5, "nano-Fanconi", fontsize=20, ha="center", va="center", color="green", zorder=4)
+
 
 # Customize plot appearance
-ax.set_xlim(0, 10)
+ax.set_xlim(0, 7)
 ax.set_ylim(0, 5)
 ax.axis("off")  # Hide axes
 
 # Save and show the figure
-plt.savefig("structure.png", dpi=300)
+plt.savefig("workflow_complete_graph.png", dpi=300)
 plt.show()
-
