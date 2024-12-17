@@ -60,6 +60,10 @@ include { SAMTOOLS_INDEX                                } from '../modules/local
 include { CUSTOM_DUMPSOFTWAREVERSIONS                   } from '../modules/nf-core/custom/dumpsoftwareversions/main'
 include { MULTIQC                                       } from '../modules/local/MULTIQC'
 include { SAMTOOLS_STATS                                } from '../modules/local/SAMTOOLS_STATS.nf'
+include { SNIFFLES                                      } from '../modules/local/SNIFFLES.nf'
+include { BCFTOOLS_SORT as SNIFFLES_SORT_VCF            } from '../../modules/nf-core/bcftools/sort/main'
+include { TABIX_BGZIP as SNIFFLES_BGZIP_VCF             } from '../../modules/nf-core/tabix/bgzip/main'
+include { TABIX_TABIX as SNIFFLES_TABIX_VCF             } from '../../modules/nf-core/tabix/tabix/main'
 // include { WHATSHAP                                      } from '../modules/local/WHATSHAP.nf'
 // include { PEPPER                                        } from '../modules/local/PEPPER'
 // include { MOSDEPTH                                      } from '../modules/local/MOSDEPTH'
@@ -267,6 +271,11 @@ if (params.reads_format == 'bam' ) {
     )
     ch_versions = ch_versions.mix(DORADO_ALIGNER.out.versions)
 
+/*
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    NANOFANCONI: samtools sort and index
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+*/
 
     //
     // MODULE: Samtools sort and indedx aligned bams
@@ -277,17 +286,36 @@ if (params.reads_format == 'bam' ) {
     ch_versions = ch_versions.mix(SAMTOOLS_SORT.out.versions)
 
 
-    /*
-    // MODULE: PEPPER
-    //
-    ch_pepper_input = SAMTOOLS_SORT.out.bam.mix(SAMTOOLS_SORT.out.bai).groupTuple(size:2).map{ meta, files -> [ meta, files.flatten() ]}
-    ch_pepper_input.dump(tag: "pepper")
-    PEPPER (
-        ch_pepper_input,
-        file(params.fasta)
-    )
-    ch_versions = ch_versions.mix(PEPPER.out.versions)
-    */
+/*
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    NANOFANCONI: Sniffles
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+*/
+
+    if (params.run_sniffles) {
+
+        /*
+         * Call structural variants with sniffles
+         */
+        SNIFFLES( SAMTOOLS_SORT.out.bam )
+        ch_versions = ch_versions.mix(SNIFFLES.out.versions)
+
+        /*
+         * Sort structural variants with bcftools
+         */
+        SNIFFLES_SORT_VCF( SNIFFLES.out.sv_calls )
+        ch_sv_calls_vcf = SNIFFLES_SORT_VCF.out.vcf
+        ch_versions = ch_versions.mix(SNIFFLES_SORT_VCF.out.versions)
+
+        /*
+         * Index sniffles vcf.gz
+         */
+        SNIFFLES_TABIX_VCF( ch_sv_calls_vcf )
+        ch_sv_calls_tbi  = SNIFFLES_TABIX_VCF.out.tbi
+        ch_versions = ch_versions.mix(SNIFFLES_TABIX_VCF.out.versions)
+
+    }
+
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
