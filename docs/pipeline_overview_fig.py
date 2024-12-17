@@ -14,12 +14,12 @@ nodes = {
     "fast5": (1, 4),
     "dorado": (1, 3),
     "pycoqc": (1, 2),
-    "minimap2": (2.5, 2),
-    "samtools": (4, 2),
-    "sniffels": (5, 3),
-    "AnnotSV": (6, 3),
-    "whatshap": (5, 1),
-    "DeepVariant": (7, 1),
+    "minimap2": (2, 2),
+    "samtools": (3, 2),
+    "sniffles": (4, 3),
+    "AnnotSV": (5, 3),
+    "whatshap": (4, 1),
+    "DeepVariant": (5.3, 1),
 }
 
 # Define edges (connections) as provided
@@ -28,14 +28,14 @@ edges = [
     ("dorado", "pycoqc"),
     ("pycoqc", "minimap2"),
     ("minimap2", "samtools"),
-    ("samtools", "sniffels"),
+    ("samtools", "sniffles"),
     ("samtools", "whatshap"),
-    ("sniffels","AnnotSV"),
+    ("sniffles","AnnotSV"),
     ("whatshap","DeepVariant")
 ]
 
 # Initialize the plot
-fig, ax = plt.subplots(figsize=(8, 5))
+fig, ax = plt.subplots(figsize=(9, 5))
 
 # Plot edges with straight lines
 for start, end in edges:
@@ -52,7 +52,7 @@ for label, (x, y) in nodes.items():
     )
 
 # Add "nano-Fanconi" text at coordinates (3, 3)
-ax.text(3, 3.5, "nano-Fanconi", fontsize=20, ha="center", va="center", color="green", zorder=4)
+ax.text(2.5, 3.5, "nano-Fanconi", fontsize=25, ha="center", va="center", color="green", zorder=4)
 
 
 # Customize plot appearance
