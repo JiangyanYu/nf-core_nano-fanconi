@@ -8,7 +8,7 @@ process SNIFFLES {
         'quay.io/biocontainers/sniffles:1.0.12--h8b12597_1' }"
 
     input:
-    tuple val(meta), path(sizes), val(is_transcripts), path(input), path(index)
+    tuple val(meta), path(input)
 
 
     output:
