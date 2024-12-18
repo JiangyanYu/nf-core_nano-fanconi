@@ -322,7 +322,7 @@
           "description": "Specifies the number of files to be processed simultaneously by one Nextflow job in the Dorado basecalling"
         }
       }
-    },
+    },  
     "pepper_options": {
       "title": "PEPPER Options",
       "type": "object",

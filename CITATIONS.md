@@ -34,3 +34,7 @@ The formate is based on https://github.com/dhslab/nf-core-wgsnano
 
 - [Singularity](https://pubmed.ncbi.nlm.nih.gov/28494014/)
   > Kurtzer GM, Sochat V, Bauer MW. Singularity: Scientific containers for mobility of compute. PLoS One. 2017 May 11;12(5):e0177459. doi: 10.1371/journal.pone.0177459. eCollection 2017. PubMed PMID: 28494014; PubMed Central PMCID: PMC5426675.
+
+- [Sniffles](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5990442/)
+
+  > Sedlazeck FJ, Rescheneder P, Smolka M, Fang H, Nattestad M, von Haeseler A, Schatz MC. Accurate detection of complex structural variations using single-molecule sequencing. Nat Methods. 2018 Jun;15(6):461-468. doi: 10 1038/s41592-018-0001-7. Epub 2018 Apr 30. PMID: 29713083; PMCID: PMC5990442.
