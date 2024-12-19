@@ -1,41 +1,34 @@
 #!/bin/bash
 
-# Usage: ./process_bam.sh input.bam output.bam
+# Exit immediately if a command exits with a non-zero status
+set -e 
 
 # Input and output files
-INPUT_BAM=$1
-OUTPUT_BAM=$2
+input_bam="$1"           # Aligned BAM file
+output_bam="filtered.bam"  # Output BAM file
+temp_dir="temp_files"      # Temporary directory for intermediate files
 
-# Temporary files
-READ_NAMES_FILE="all_read_names.txt"
-SAMPLED_READS_FILE="sampled_read_names.txt"
+# Create a temporary directory for intermediate files
+mkdir -p "$temp_dir"
 
-# Ensure required commands are available
-if ! command -v samtools &> /dev/null; then
-    echo "Error: samtools is not installed or not in PATH."
-    exit 1
-fi
+# Step 1: Extract unique read names from the BAM file
+samtools view "$input_bam" | awk '{print $1}' | sort | uniq > "$temp_dir/unique_read_names.txt"
 
-if ! command -v shuf &> /dev/null; then
-    echo "Error: shuf is not installed or not in PATH."
-    exit 1
-fi
+# Step 2: Randomly select 10% of the unique read names
+total_reads=$(wc -l < "$temp_dir/unique_read_names.txt")
+sample_size=$((total_reads / 100))
+shuf -n "$sample_size" "$temp_dir/unique_read_names.txt" > "$temp_dir/sample_read_names.txt"
 
-# Step 1: Extract all read names from the BAM file
-echo "Extracting all read names from the BAM file..."
-samtools view "$INPUT_BAM" | awk '{print $1}' > "$READ_NAMES_FILE"
+# Step 3: Extract aligned records of the selected reads and save them as a new BAM file
+samtools view -H "$input_bam" > "$temp_dir/header.sam"  # Extract header
+samtools view "$input_bam" | grep -F -f "$temp_dir/sample_read_names.txt" > "$temp_dir/body.sam"
+cat "$temp_dir/header.sam" "$temp_dir/body.sam" | samtools view -b - > "$temp_dir/unsorted.bam"
 
-# Step 2: Randomly select 10% of the read names
-echo "Sampling 10% of the read names..."
-TOTAL_READS=$(wc -l < "$READ_NAMES_FILE")
-SAMPLE_SIZE=$((TOTAL_READS / 10))
-shuf -n "$SAMPLE_SIZE" "$READ_NAMES_FILE" > "$SAMPLED_READS_FILE"
+# Step 4: Sort and index the new BAM file
+samtools sort "$temp_dir/unsorted.bam" -o "$output_bam"
+samtools index "$output_bam"
 
-# Step 3: Extract aligned records for the sampled read names
-echo "Extracting aligned records for sampled reads..."
-samtools view -h "$INPUT_BAM" | grep -F -f "$SAMPLED_READS_FILE" | samtools view -bo "$OUTPUT_BAM"
+# Clean up temporary files
+rm -r "$temp_dir"
 
-# Cleanup
-#rm "$READ_NAMES_FILE" "$SAMPLED_READS_FILE"
-
-echo "Process completed. Output BAM file: $OUTPUT_BAM"
+echo "Filtered BAM file created: $output_bam"
