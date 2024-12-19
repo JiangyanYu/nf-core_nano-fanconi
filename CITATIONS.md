@@ -38,3 +38,7 @@ The formate is based on https://github.com/dhslab/nf-core-wgsnano
 - [Sniffles](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5990442/)
 
   > Sedlazeck FJ, Rescheneder P, Smolka M, Fang H, Nattestad M, von Haeseler A, Schatz MC. Accurate detection of complex structural variations using single-molecule sequencing. Nat Methods. 2018 Jun;15(6):461-468. doi: 10 1038/s41592-018-0001-7. Epub 2018 Apr 30. PMID: 29713083; PMCID: PMC5990442.
+
+- [Whatshap](https://doi.org/10.1093/bioinformatics/btw276)
+
+  > Garg S, Martin M, Marschall T. Read-based phasing of related individuals. Bioinformatics 2016; 32 (12): i234-i242. doi: 10.1093/bioinformatics/btw276. PubMed PMID: 27307622; Pubmed Central PMCID: PMC4908360.
