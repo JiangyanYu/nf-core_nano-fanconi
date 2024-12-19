@@ -57,16 +57,16 @@ include { PYCOQC                                        } from '../modules/local
 include { DORADO_ALIGNER                                } from '../modules/local/DORADO_ALIGNER'
 include { SAMTOOLS_SORT                                 } from '../modules/local/SAMTOOLS_SORT'
 include { SAMTOOLS_INDEX                                } from '../modules/local/SAMTOOLS_INDEX'
+include { CUSTOM_DUMPSOFTWAREVERSIONS                   } from '../modules/nf-core/custom/dumpsoftwareversions/main'
+include { MULTIQC                                       } from '../modules/local/MULTIQC'
 include { SAMTOOLS_STATS                                } from '../modules/local/SAMTOOLS_STATS.nf'
 include { SNIFFLES                                      } from '../modules/local/SNIFFLES.nf'
 include { BCFTOOLS_SORT as SNIFFLES_SORT_VCF            } from '../modules/nf-core/bcftools/sort/main.nf'
 include { TABIX_BGZIP as SNIFFLES_BGZIP_VCF             } from '../modules/nf-core/tabix/bgzip/main.nf'
 include { TABIX_TABIX as SNIFFLES_TABIX_VCF             } from '../modules/nf-core/tabix/tabix/main.nf'
-include { WHATSHAP                                      } from '../modules/local/WHATSHAP.nf'
-include { MOSDEPTH                                      } from '../modules/local/MOSDEPTH.nf'
-include { CUSTOM_DUMPSOFTWAREVERSIONS                   } from '../modules/nf-core/custom/dumpsoftwareversions/main'
-include { MULTIQC                                       } from '../modules/local/MULTIQC'
+// include { WHATSHAP                                      } from '../modules/local/WHATSHAP.nf'
 // include { PEPPER                                        } from '../modules/local/PEPPER'
+// include { MOSDEPTH                                      } from '../modules/local/MOSDEPTH'
 // include { MODKIT                                        } from '../modules/local/MODKIT'
 // include { MODKIT_TO_BW                                  } from '../modules/local/MODKIT_TO_BW'
 
@@ -136,7 +136,7 @@ if (params.reads_format == 'bam' ) {
         /*
          * Call structural variants with sniffles
          */
-        SNIFFLES( SAMTOOLS_SORT.out.bam )
+        SNIFFLES( MERGE_BASECALL_SAMPLE.out.merged_bam )
         ch_versions = ch_versions.mix(SNIFFLES.out.versions)
 
         /*
@@ -158,19 +158,17 @@ if (params.reads_format == 'bam' ) {
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    NANOFANCONI: whatshap
+    NANOFANCONI: currently remove whatshap
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
-
+/*
     if (params.run_whatshap) {
         //
         // MODULE: Index PEPPER bam
         //
-        //ch_whatshap_input = SAMTOOLS_SORT.out.bam.mix(SAMTOOLS_SORT.out.bai,PEPPER.out.vcf).groupTuple(size:3).map{ meta, files -> [ meta, files.flatten() ]}
-        //input = ch_whatshap_input.join(ch_phased_vcf).dump(tag: "joined")
-        
-        input = SNIFFLES_TABIX_VCF.out.tbi
+        ch_whatshap_input = SAMTOOLS_SORT.out.bam.mix(SAMTOOLS_SORT.out.bai,PEPPER.out.vcf).groupTuple(size:3).map{ meta, files -> [ meta, files.flatten() ]}
+        input = ch_whatshap_input.join(ch_phased_vcf).dump(tag: "joined")
         ch_whatshap_input.dump(tag: "whatshap")
         WHATSHAP (
             input,
@@ -179,11 +177,6 @@ if (params.reads_format == 'bam' ) {
         )
         ch_versions = ch_versions.mix(WHATSHAP.out.versions)
 
-/*
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    NANOFANCONI: whatshap depth calculation
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-*/
 
         //
         // MODULE: MOSDEPTH for depth calculation
@@ -194,13 +187,7 @@ if (params.reads_format == 'bam' ) {
         )
         ch_versions = ch_versions.mix(MOSDEPTH.out.versions)
 
-/*
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    NANOFANCONI: currently remove methylation
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-*/
 
-/*
         //
         // MODULE: MODKIT to extract methylation data
         //
@@ -226,12 +213,6 @@ if (params.reads_format == 'bam' ) {
             ch_versions = ch_versions.mix(SAMTOOLS_STATS.out.versions)
         }
     }
-*/
-
-/*
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    NANOFANCONI: CUSTOM_DUMPSOFTWAREVERSIONS
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
     CUSTOM_DUMPSOFTWAREVERSIONS (
