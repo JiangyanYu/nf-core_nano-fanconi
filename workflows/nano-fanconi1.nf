@@ -176,9 +176,8 @@ if (params.reads_format == 'bam' ) {
         // MODULE: Index PEPPER bam
         //
         ch_whatshap_input = SAMTOOLS_SORT.out.bam.mix(SAMTOOLS_SORT.out.bai,SNIFFLES_SORT_VCF.out.vcf).groupTuple(size:3).map{ meta, files -> [ meta, files.flatten() ]}
-        input = ch_whatshap_input.join(ch_phased_vcf).dump(tag: "joined")
+        input = ch_whatshap_input.join(SNIFFLES_TABIX_VCF.out.tbi).dump(tag: "joined")
         
-        //input = SNIFFLES_TABIX_VCF.out.tbi
         ch_whatshap_input.dump(tag: "whatshap")
         WHATSHAP (
             input,
