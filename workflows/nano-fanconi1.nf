@@ -175,12 +175,12 @@ if (params.reads_format == 'bam' ) {
         //
         // MODULE: Index PEPPER bam
         //
-        ch_whatshap_input = SAMTOOLS_SORT.out.bam.mix(SAMTOOLS_SORT.out.bai).groupTuple(size:2).map{ meta, files -> [ meta, files.flatten() ]}
         WHATSHAP (
-            ch_whatshap_input,
+            ch_phased_vcf,
             file(params.fasta),
             file(params.fasta_index),
-            SNIFFLES_SORT_VCF.out.vcf
+            SNIFFLES_SORT_VCF.out.vcf,
+            SAMTOOLS_SORT.out.bam
         )
         ch_versions = ch_versions.mix(WHATSHAP.out.versions)
 
