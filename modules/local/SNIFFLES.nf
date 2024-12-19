@@ -12,7 +12,7 @@ process SNIFFLES {
 
 
     output:
-    tuple val(meta), path("*_sniffles.vcf"), emit: sv_calls
+    tuple val(meta), path("${meta.sample}*_sniffles.vcf"), emit: sv_calls
     path "versions.yml"                    , emit: versions
 
     when:
@@ -22,7 +22,7 @@ process SNIFFLES {
     """
     sniffles \
         -m  $input \
-        -v ${meta.id}_sniffles.vcf \
+        -v ${meta.sample}_sniffles.vcf \
         -t $task.cpus
 
     cat <<-END_VERSIONS > versions.yml
