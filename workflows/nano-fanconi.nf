@@ -237,23 +237,23 @@ workflow NANOFANCONI {
 
     }
 
-if (params.reads_format == 'bam' ) {
-    INPUT_CHECK
-    .out
-    .reads
-    .flatMap { meta, bam_path -> 
-        def bam_files = []
-        if (file(bam_path).isDirectory()) {
-            bam_files = file("${bam_path}/*.bam")
-        } else if (bam_path.endsWith('.bam')) {
-            bam_files = [file(bam_path)]
+    if (params.reads_format == 'bam' ) {
+        INPUT_CHECK
+        .out
+        .reads
+        .flatMap { meta, bam_path -> 
+            def bam_files = []
+            if (file(bam_path).isDirectory()) {
+                bam_files = file("${bam_path}/*.bam")
+            } else if (bam_path.endsWith('.bam')) {
+                bam_files = [file(bam_path)]
+            }
+            bam_files.collect { [[sample: meta.sample], it] }  // Create a list of [meta, file] pairs
         }
-        bam_files.collect { [[sample: meta.sample], it] }  // Create a list of [meta, file] pairs
+        .groupTuple(by: 0) // group bams by meta (i.e sample) which is zero-indexed
+        // .dump(tag: 'basecall_sample', pretty: true)
+        .set { ch_basecall_sample_merged_bams } // set channel name
     }
-    .groupTuple(by: 0) // group bams by meta (i.e sample) which is zero-indexed
-    // .dump(tag: 'basecall_sample', pretty: true)
-    .set { ch_basecall_sample_merged_bams } // set channel name
-}
 
     MERGE_BASECALL_SAMPLE (
         ch_basecall_sample_merged_bams
@@ -388,7 +388,6 @@ if (params.reads_format == 'bam' ) {
             )
             ch_versions = ch_versions.mix(SAMTOOLS_STATS.out.versions)
         }
-    }
 */
 
 /*
