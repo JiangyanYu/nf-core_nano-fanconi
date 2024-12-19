@@ -328,14 +328,12 @@ workflow NANOFANCONI {
         //
         // MODULE: Index PEPPER bam
         //
-        ch_whatshap_input = SAMTOOLS_SORT.out.bam.mix(SAMTOOLS_SORT.out.bai,SNIFFLES_SORT_VCF.out.vcf).groupTuple(size:3).map{ meta, files -> [ meta, files.flatten() ]}
-        input = ch_whatshap_input.join(SNIFFLES_TABIX_VCF.out.tbi).dump(tag: "joined")
-        
-        ch_whatshap_input.dump(tag: "whatshap")
+        ch_whatshap_input = SAMTOOLS_SORT.out.bam.mix(SAMTOOLS_SORT.out.bai).groupTuple(size:2).map{ meta, files -> [ meta, files.flatten() ]}
         WHATSHAP (
-            input,
+            ch_whatshap_input,
             file(params.fasta),
-            file(params.fasta_index)
+            file(params.fasta_index),
+            SNIFFLES_SORT_VCF.out.vcf
         )
         ch_versions = ch_versions.mix(WHATSHAP.out.versions)
 
