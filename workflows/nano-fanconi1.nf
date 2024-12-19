@@ -126,6 +126,13 @@ if (params.reads_format == 'bam' ) {
     ch_versions = ch_versions.mix(MERGE_BASECALL_SAMPLE.out.versions)
 
 
+    SAMTOOLS_SORT (
+         MERGE_BASECALL_SAMPLE.out.merged_bam
+    )
+    ch_versions = ch_versions.mix(SAMTOOLS_SORT.out.versions)
+    
+    
+
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     NANOFANCONI: Sniffles
@@ -137,7 +144,7 @@ if (params.reads_format == 'bam' ) {
         /*
          * Call structural variants with sniffles
          */
-        SNIFFLES( MERGE_BASECALL_SAMPLE.out.merged_bam )
+        SNIFFLES( SAMTOOLS_SORT.out.bam )
         ch_versions = ch_versions.mix(SNIFFLES.out.versions)
 
         /*
@@ -168,7 +175,7 @@ if (params.reads_format == 'bam' ) {
         //
         // MODULE: Index PEPPER bam
         //
-        ch_whatshap_input = MERGE_BASECALL_SAMPLE.out.merged_bam.mix(SNIFFLES_SORT_VCF.out.vcf).groupTuple(size:2).map{ meta, files -> [ meta, files.flatten() ]}
+        ch_whatshap_input = MERGE_BASECALL_SAMPLE.out.merged_bam.mix(SAMTOOLS_SORT.out.bai,SNIFFLES_SORT_VCF.out.vcf).groupTuple(size:3).map{ meta, files -> [ meta, files.flatten() ]}
         input = ch_whatshap_input.join(ch_phased_vcf).dump(tag: "joined")
         
         //input = SNIFFLES_TABIX_VCF.out.tbi
