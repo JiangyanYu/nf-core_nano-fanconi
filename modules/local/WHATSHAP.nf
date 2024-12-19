@@ -6,11 +6,7 @@ process WHATSHAP {
         'ghcr.io/dhslab/docker-whatshap:latest' }"
 
     input:
-        tuple val(meta)
-        path(reference_fasta)
-        path(index)
-        path(vcf_file)
-        path(bam_file)
+        tuple val(meta),path(reference_fasta),path(index),path(vcf_file),path(bam_file)
 
     output:
         tuple val(meta), path("${meta.sample}*.haplotagged.bam")     , emit: bam
