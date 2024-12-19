@@ -18,10 +18,10 @@ nodes = {
     "pycoqc": (1, 2),
     "minimap2": (2, 2),
     "samtools": (3, 2),
-    "sniffles": (4, 3),
+    "sniffles": (4, 2),
     "AnnotSV": (5, 3),
-    "whatshap": (4, 1),
-    "DeepVariant": (5.3, 1),
+    "whatshap": (5, 1),
+    "DeepVariant": (6.3, 1),
 }
 
 # Define edges (connections) as provided
@@ -33,7 +33,7 @@ edges = [
     ("pycoqc", "minimap2"),
     ("minimap2", "samtools"),
     ("samtools", "sniffles"),
-    ("samtools", "whatshap"),
+    ("sniffles", "whatshap"),
     ("sniffles","AnnotSV"),
     ("whatshap","DeepVariant")
 ]
