@@ -1,5 +1,5 @@
 process SNIFFLES {
-    tag "$meta.id"
+    tag "$meta.sample"
     label 'process_high'
 
     conda "bioconda::sniffles=1.0.12"
