@@ -63,10 +63,10 @@ include { BCFTOOLS_SORT as SNIFFLES_SORT_VCF            } from '../modules/nf-co
 include { TABIX_BGZIP as SNIFFLES_BGZIP_VCF             } from '../modules/nf-core/tabix/bgzip/main.nf'
 include { TABIX_TABIX as SNIFFLES_TABIX_VCF             } from '../modules/nf-core/tabix/tabix/main.nf'
 include { WHATSHAP                                      } from '../modules/local/WHATSHAP.nf'
+include { MOSDEPTH                                      } from '../modules/local/MOSDEPTH.nf'
 include { CUSTOM_DUMPSOFTWAREVERSIONS                   } from '../modules/nf-core/custom/dumpsoftwareversions/main'
 include { MULTIQC                                       } from '../modules/local/MULTIQC'
 // include { PEPPER                                        } from '../modules/local/PEPPER'
-// include { MOSDEPTH                                      } from '../modules/local/MOSDEPTH'
 // include { MODKIT                                        } from '../modules/local/MODKIT'
 // include { MODKIT_TO_BW                                  } from '../modules/local/MODKIT_TO_BW'
 
