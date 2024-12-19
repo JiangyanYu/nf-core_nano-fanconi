@@ -332,7 +332,7 @@ if (params.reads_format == 'bam' ) {
         //input = ch_whatshap_input.join(ch_phased_vcf).dump(tag: "joined")
         
         input = SNIFFLES_TABIX_VCF.out.tbi
-        ch_whatshap_input.dump(tag: "whatshap")
+        //ch_whatshap_input.dump(tag: "whatshap")
         WHATSHAP (
             input,
             file(params.fasta),
