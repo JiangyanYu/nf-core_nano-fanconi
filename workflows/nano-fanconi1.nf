@@ -137,7 +137,7 @@ if (params.reads_format == 'bam' ) {
         /*
          * Call structural variants with sniffles
          */
-        SNIFFLES( SAMTOOLS_SORT.out.bam )
+        SNIFFLES( MERGE_BASECALL_SAMPLE.out.merged_bam )
         ch_versions = ch_versions.mix(SNIFFLES.out.versions)
 
         /*
