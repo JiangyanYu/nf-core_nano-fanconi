@@ -354,6 +354,8 @@ if (params.reads_format == 'bam' ) {
             ch_mosdepth_input
         )
         ch_versions = ch_versions.mix(MOSDEPTH.out.versions)
+        
+    }
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
