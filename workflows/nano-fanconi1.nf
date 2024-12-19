@@ -237,6 +237,7 @@ if (params.reads_format == 'bam' ) {
         ch_multiqc_files = ch_multiqc_files.mix(PYCOQC.out.json.collect{it[1]}.ifEmpty([]))
     }
 
+/*
     if (params.run_whatshap) {
         ch_multiqc_files = ch_multiqc_files.mix(MOSDEPTH.out.global_txt.collect{it[1]}.ifEmpty([]))
         ch_multiqc_files = ch_multiqc_files.mix(MOSDEPTH.out.summary_txt.collect{it[1]}.ifEmpty([]))
@@ -246,6 +247,7 @@ if (params.reads_format == 'bam' ) {
         ch_multiqc_files = ch_multiqc_files.mix(MOSDEPTH.out.quantized_bed.collect{it[1]}.ifEmpty([]))
         ch_multiqc_files = ch_multiqc_files.mix(MOSDEPTH.out.quantized_csi.collect{it[1]}.ifEmpty([]))
     }
+*/
 
     MULTIQC (
         ch_multiqc_files.collect(),
