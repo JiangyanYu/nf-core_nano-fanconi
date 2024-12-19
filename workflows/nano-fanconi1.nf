@@ -105,6 +105,7 @@ if (params.reads_format == 'bam' ) {
     .out
     .reads
     .flatMap { meta, bam_path -> 
+        def bam_path = meta.fast5_path
         def bam_files = []
         if (file(bam_path).isDirectory()) {
             bam_files = file("${bam_path}/*.bam")
