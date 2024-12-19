@@ -34,7 +34,9 @@ WorkflowMain.initialise(workflow, params, log)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
-include { NANOFANCONI } from './workflows/nano-fanconi'
+//include { NANOFANCONI } from './workflows/nano-fanconi'
+// test the pipeline by using aligned bam file as input. tmp solution
+include { NANOFANCONI } from './workflows/nano-fanconi1'
 
 //
 // WORKFLOW: Run main nf-core_nano-fanconi analysis pipeline
