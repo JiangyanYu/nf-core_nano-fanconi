@@ -43,18 +43,17 @@ node_colors = {
     "fast5": "lightgrey",
     "pod5": "lightgrey",
     "bam": "lightgrey",
-    "sniffles":"green",
     "AnnotSV": "orange",
-    "whatshap":"orange",
+    "whatshap":"lightgreen",
     "DeepVariant":"orange",
     "default": "pink",
 }
 
 # Define legend labels and their colors
 legend_labels = {
-    "Raw data input": "lightgrey",
+    #"Raw data input": "lightgrey",
     "Finished": "pink",
-    "Ongoing": "green",
+    "Ongoing": "lightgreen",
     "Pending": "orange",
 }
 
@@ -65,7 +64,7 @@ fig, ax = plt.subplots(figsize=(9, 5))
 for start, end in edges:
     x1, y1 = nodes[start]
     x2, y2 = nodes[end]
-    ax.plot([x1, x2], [y1, y2], color="blue", linewidth=2)
+    ax.plot([x1, x2], [y1, y2], color="black", linewidth=2)
 
 # Plot nodes
 for label, (x, y) in nodes.items():
@@ -76,13 +75,14 @@ for label, (x, y) in nodes.items():
         x, y, label, fontsize=12, ha="center", va="center", color="black", zorder=4,
         bbox=dict(boxstyle="circle", facecolor=background_color, edgecolor="none")
     )
+    
 # Add "nano-Fanconi" text at coordinates (3, 3)
 ax.text(3, 5, "nano-Fanconi", fontsize=25, ha="center", va="center", color="green", zorder=4)
 
 # Add a legend
 handles = [plt.Line2D([0], [0], marker='o', color='w', markerfacecolor=color, markersize=10, label=label)
            for label, color in legend_labels.items()]
-ax.legend(handles=handles, loc="upper right", title="Status", fontsize=10, title_fontsize=12)
+ax.legend(handles=handles, loc="upper right", title="Developing status", fontsize=10, title_fontsize=12)
 
 
 
