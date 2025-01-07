@@ -2,11 +2,13 @@ process WHATSHAP {
     label 'process_high'
 
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-        'ghcr.io/dhslab/docker-whatshap:latest' :
-        'ghcr.io/dhslab/docker-whatshap:latest' }"
+        'ghcr.io/dhslab/docker-whatshap:240302' :
+        'ghcr.io/dhslab/docker-whatshap:240302' }"
 
     input:
-        tuple val(meta),path(reference_fasta),path(index),path(vcf_file),path(bam_file)
+        tuple val(meta), path(bam_bai_vcf_files), path(phased_vcf), path(phased_vcf_tbi)
+        path(reference_fasta)
+        path(index)
 
     output:
         tuple val(meta), path("${meta.sample}*.haplotagged.bam")     , emit: bam
@@ -14,9 +16,10 @@ process WHATSHAP {
         path  ("versions.yml")                                       , emit: versions
 
     script:
+    def vcf_file = phased_vcf.name != 'NO_FILE.vcf' ? "$phased_vcf" : "${meta.sample}.phased.vcf.gz"
     """
     whatshap haplotag --tag-supplementary --ignore-read-groups --output-threads=${task.cpus} \\
-    -o ${meta.sample}.haplotagged.bam --reference ${reference_fasta} $vcf_file $bam_file && \\
+    -o ${meta.sample}.haplotagged.bam --reference ${reference_fasta} $vcf_file ${meta.sample}.sorted.bam && \\
     samtools index ${meta.sample}.haplotagged.bam
 
     cat <<-END_VERSIONS > versions.yml
