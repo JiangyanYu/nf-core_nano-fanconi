@@ -177,13 +177,17 @@ if (params.reads_format == 'bam' ) {
         //
         sample_meta = INPUT_CHECK.out.reads.map{ meta, files -> [[sample: meta.sample]] }.dump(tag: "sample_meta")
         
-        // Combine inputs into a single channel
+        // Wrap static inputs in broadcast channels
+        fasta_channel = Channel.value(file(params.fasta)).broadcast()
+        fasta_index_channel = Channel.value(file(params.fasta_index)).broadcast()
+    
+        // Combine all channels
         whatshap_input = Channel.zip(
             sample_meta,
             SNIFFLES_SORT_VCF.out.vcf,
             SAMTOOLS_SORT.out.bam,
-            file(params.fasta),
-            file(params.fasta_index)
+            fasta_channel,
+            fasta_index_channel
         )
     
         // Call the process with the combined channel
