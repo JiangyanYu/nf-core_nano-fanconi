@@ -176,30 +176,15 @@ if (params.reads_format == 'bam' ) {
         // MODULE: Index PEPPER bam
         //
         
-        // Dynamic inputs from previous processes
-        sample_meta = INPUT_CHECK.out.reads.map { meta, files -> [meta: [sample: meta.sample]] }.dump(tag: "sample_meta")
-        vcf_channel = SNIFFLES_SORT_VCF.out.vcf
-        bam_channel = SAMTOOLS_SORT.out.bam
-    
-        // Static inputs: fasta and its index
-        fasta_channel = Channel.of(file(params.fasta))
-        fasta_index_channel = Channel.of(file(params.fasta_index))
-    
-        // Combine dynamic and static channels using `Channel.cross`
-        static_inputs = Channel.zip(fasta_channel, fasta_index_channel)
-        whatshap_input = Channel.cross(
-            Channel.zip(sample_meta, vcf_channel, bam_channel),
-            static_inputs
-        ).map { dynamic, static ->
-            def (meta, vcf, bam) = dynamic
-            def (fasta, fasta_index) = static
-            return [meta, vcf, bam, fasta, fasta_index]
-        }
-    
-        // Pass the combined input to the process
-        WHATSHAP(
-            whatshap_input
+        sample_meta = INPUT_CHECK.out.reads.map{ meta, files -> [[sample: meta.sample]] }.dump(tag: "sample_meta")
+        WHATSHAP (
+            sample_meta,
+            SNIFFLES_SORT_VCF.out.vcf,
+            SAMTOOLS_SORT.out.bam,
+            file(params.fasta),
+            file(params.fasta_index)
         )
+
     
         // Combine version outputs
         ch_versions = ch_versions.mix(WHATSHAP.out.versions)
