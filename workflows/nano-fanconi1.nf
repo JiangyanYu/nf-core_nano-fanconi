@@ -182,17 +182,19 @@ if (params.reads_format == 'bam' ) {
         bam_channel = SAMTOOLS_SORT.out.bam
     
         // Static inputs: fasta and its index
-        fasta_channel = Channel.of(file(params.fasta)).repeat()
-        fasta_index_channel = Channel.of(file(params.fasta_index)).repeat()
+        fasta_channel = Channel.of(file(params.fasta))
+        fasta_index_channel = Channel.of(file(params.fasta_index))
     
-        // Combine all inputs into a single channel
-        whatshap_input = Channel.zip(
-            sample_meta,
-            vcf_channel,
-            bam_channel,
-            fasta_channel,
-            fasta_index_channel
-        )
+        // Combine dynamic and static channels using `Channel.cross`
+        static_inputs = Channel.zip(fasta_channel, fasta_index_channel)
+        whatshap_input = Channel.cross(
+            Channel.zip(sample_meta, vcf_channel, bam_channel),
+            static_inputs
+        ).map { dynamic, static ->
+            def (meta, vcf, bam) = dynamic
+            def (fasta, fasta_index) = static
+            return [meta, vcf, bam, fasta, fasta_index]
+        }
     
         // Call the process with the combined channel
         WHATSHAP(
