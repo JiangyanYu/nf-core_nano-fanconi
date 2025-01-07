@@ -175,12 +175,13 @@ if (params.reads_format == 'bam' ) {
         //
         // MODULE: Index PEPPER bam
         //
+        sample_meta = INPUT_CHECK.out.reads.map{ meta, files -> [[sample: meta.sample]] }.dump(tag: "sample_meta")
         WHATSHAP (
-            ch_phased_vcf,
-            file(params.fasta),
-            file(params.fasta_index),
+            sample_meta,
             SNIFFLES_SORT_VCF.out.vcf,
-            SAMTOOLS_SORT.out.bam
+            SAMTOOLS_SORT.out.bam,
+            file(params.fasta),
+            file(params.fasta_index)
         )
         ch_versions = ch_versions.mix(WHATSHAP.out.versions)
 
