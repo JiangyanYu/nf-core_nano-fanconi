@@ -18,7 +18,7 @@ process WHATSHAP {
         path  ("versions.yml")                                       , emit: versions
 
     script:
-    ##def vcf_file = sniffle_vcf_file.name != 'NO_FILE.vcf' ? "$sniffle_vcf_file" : "${meta.sample}.vcf.gz"
+    # def vcf_file = sniffle_vcf_file.name != 'NO_FILE.vcf' ? "$sniffle_vcf_file" : "${meta.sample}.vcf.gz"
     """
     whatshap haplotag --tag-supplementary --ignore-read-groups --output-threads=${task.cpus} \\
     -o ${meta.sample}.haplotagged.bam --reference ${reference_fasta} $sniffle_vcf_file ${sorted_bam} && \\
