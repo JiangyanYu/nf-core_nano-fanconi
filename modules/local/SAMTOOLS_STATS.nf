@@ -1,7 +1,7 @@
 process SAMTOOLS_STATS {
     label 'process_high'
 
-    container 'ghcr.io/dhslab/docker-baseimage:latest'
+    container 'ghcr.io/dhslab/docker-baseimage:241109'
 
     input:
         tuple val(meta), path(haplotagged_bam)
