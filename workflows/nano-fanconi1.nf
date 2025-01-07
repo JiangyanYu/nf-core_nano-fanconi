@@ -176,9 +176,21 @@ if (params.reads_format == 'bam' ) {
         // MODULE: Index PEPPER bam
         //
         sample_meta = INPUT_CHECK.out.reads.map{ meta, files -> [[sample: meta.sample]] }.dump(tag: "sample_meta")
-        WHATSHAP (
-            sample_meta, SNIFFLES_SORT_VCF.out.vcf, SAMTOOLS_SORT.out.bam, file(params.fasta), file(params.fasta_index)
+        
+        // Combine inputs into a single channel
+        whatshap_input = Channel.zip(
+            sample_meta,
+            SNIFFLES_SORT_VCF.out.vcf,
+            SAMTOOLS_SORT.out.bam,
+            file(params.fasta),
+            file(params.fasta_index)
         )
+    
+        // Call the process with the combined channel
+        WHATSHAP(
+            whatshap_input
+        )
+        
         ch_versions = ch_versions.mix(WHATSHAP.out.versions)
 
 /*
