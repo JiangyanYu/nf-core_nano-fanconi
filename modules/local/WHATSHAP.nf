@@ -20,7 +20,7 @@ process WHATSHAP {
     def vcf_file = phased_vcf.name != 'test.vcf' ? "$phased_vcf" : "${meta.sample}.vcf.gz"
     """
     whatshap haplotag --tag-supplementary --ignore-read-groups --output-threads=${task.cpus} \\
-    -o ${meta.sample}.haplotagged.bam --reference ${reference_fasta} $vcf_file ${meta.sample}.sorted.bam && \\
+    -o ${meta.sample}.haplotagged.bam --reference ${reference_fasta} ${meta.sample}.vcf.gz ${meta.sample}.sorted.bam && \\
     samtools index ${meta.sample}.haplotagged.bam
 
     cat <<-END_VERSIONS > versions.yml
