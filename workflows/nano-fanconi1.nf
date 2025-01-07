@@ -175,17 +175,21 @@ if (params.reads_format == 'bam' ) {
         //
         // MODULE: Index PEPPER bam
         //
-        sample_meta = INPUT_CHECK.out.reads.map{ meta, files -> [[sample: meta.sample]] }.dump(tag: "sample_meta")
         
-        // Wrap static inputs in broadcast channels
-        fasta_channel = Channel.of(file(params.fasta))
-        fasta_index_channel = Channel.of(file(params.fasta_index))
+        // Dynamic inputs from previous processes
+        sample_meta = INPUT_CHECK.out.reads.map { meta, files -> [meta: [sample: meta.sample]] }.dump(tag: "sample_meta")
+        vcf_channel = SNIFFLES_SORT_VCF.out.vcf
+        bam_channel = SAMTOOLS_SORT.out.bam
     
-        // Combine all channels
+        // Static inputs: fasta and its index
+        fasta_channel = Channel.of(file(params.fasta)).repeat()
+        fasta_index_channel = Channel.of(file(params.fasta_index)).repeat()
+    
+        // Combine all inputs into a single channel
         whatshap_input = Channel.zip(
             sample_meta,
-            SNIFFLES_SORT_VCF.out.vcf,
-            SAMTOOLS_SORT.out.bam,
+            vcf_channel,
+            bam_channel,
             fasta_channel,
             fasta_index_channel
         )
