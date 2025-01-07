@@ -196,11 +196,12 @@ if (params.reads_format == 'bam' ) {
             return [meta, vcf, bam, fasta, fasta_index]
         }
     
-        // Call the process with the combined channel
+        // Pass the combined input to the process
         WHATSHAP(
             whatshap_input
         )
-        
+    
+        // Combine version outputs
         ch_versions = ch_versions.mix(WHATSHAP.out.versions)
 
 /*
