@@ -178,7 +178,7 @@ if (params.reads_format == 'bam' ) {
         sample_meta = INPUT_CHECK.out.reads.map{ meta, files -> [[sample: meta.sample]] }.dump(tag: "sample_meta")
         
         // Wrap static inputs in broadcast channels
-        fasta_channel = Channel.of(file(params.fasta)).broadcast()
+        fasta_channel = Channel.of(file(params.fasta))
         fasta_index_channel = Channel.value(file(params.fasta_index))
     
         // Combine all channels
