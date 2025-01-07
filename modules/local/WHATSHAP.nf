@@ -26,7 +26,7 @@ process WHATSHAP {
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
-        whatshap: \$(whatshap --version)")
+        whatshap: \$(whatshap --version)
     END_VERSIONS
     """
 }
