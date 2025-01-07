@@ -179,7 +179,7 @@ if (params.reads_format == 'bam' ) {
         
         // Wrap static inputs in broadcast channels
         fasta_channel = Channel.of(file(params.fasta))
-        fasta_index_channel = Channel.value(file(params.fasta_index))
+        fasta_index_channel = Channel.of(file(params.fasta_index))
     
         // Combine all channels
         whatshap_input = Channel.zip(
