@@ -64,9 +64,6 @@ include { TABIX_BGZIP as SNIFFLES_BGZIP_VCF             } from '../modules/nf-co
 include { TABIX_TABIX as SNIFFLES_TABIX_VCF             } from '../modules/nf-core/tabix/tabix/main.nf'
 include { WHATSHAP                                      } from '../modules/local/WHATSHAP.nf'
 include { MOSDEPTH                                      } from '../modules/local/MOSDEPTH.nf'
-include { DEEPVARIANT                                   } from '../modules/local/DEEPVARIANT.nf'
-include { TABIX_TABIX as DEEPVARIANT_TABIX_VCF          } from '../modules/nf-core/tabix/tabix/main.nf'
-include { TABIX_TABIX as DEEPVARIANT_TABIX_GVCF         } from '../modules/nf-core/tabix/tabix/main.nf'
 include { CUSTOM_DUMPSOFTWAREVERSIONS                   } from '../modules/nf-core/custom/dumpsoftwareversions/main'
 include { MULTIQC                                       } from '../modules/local/MULTIQC'
 // include { PEPPER                                        } from '../modules/local/PEPPER'
@@ -103,192 +100,39 @@ workflow NANOFANCONI {
     ch_versions = ch_versions.mix(INPUT_CHECK.out.versions)
     ch_phased_vcf = INPUT_CHECK.out.reads.map{ meta, files -> [[sample: meta.sample],meta.fast5_path, meta.vcf, meta.vcf_tbi] }.dump(tag: "ch_phased_vcf")
 
-/*
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    NANOFANCONI: fast5-pod5
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-*/
-
-    // fast5 input
-    if (params.reads_format == 'fast5') {
-        INPUT_CHECK
-        .out
-        .reads
-        .map { meta, files -> 
-            def fast5_path = meta.fast5_path
-    
-            // Check if fast5_path is null or empty
-            if (!fast5_path) {
-                throw new IllegalArgumentException("fast5_path is null or empty")
-            }
-        
-            def fast5_files = []
-            
-            // TO DO: provide raw.github link to download files automatically
-    
-            if (file(fast5_path).isDirectory()) {
-                fast5_files = file("${fast5_path}/*.fast5")
-            } else if (fast5_path.endsWith('.fast5')) {
-                fast5_files = [file(fast5_path)]
-            }
-            
-            [meta, fast5_files]
-        }
-        .flatMap { meta, files ->
-            def chunks = files.toList().collate(params.dorado_files_chunksize)  // chunk files into groups of 2
-            def chunkList = []
-            for (int i = 0; i < chunks.size(); i++) {
-                def newMeta = meta.clone()  // clone the meta to avoid modifying the original
-                newMeta.chunkNumber = i + 1  // add chunk number, starting from 1
-                chunkList << [newMeta, chunks[i]]
-            }
-            return chunkList
-        }
-        // .dump(tag: 'input', pretty: true)
-        .set { ch_fast5 }
-
-    FAST5_TO_POD5 (
-        ch_fast5
-    )
-
-    FAST5_TO_POD5
-    .out
-    .pod5
-    .set { ch_pod5 } 
-
-    ch_versions = ch_versions.mix(FAST5_TO_POD5.out.versions)
-
-    } else if (params.reads_format == 'pod5') {
+if (params.reads_format == 'bam' ) {
     INPUT_CHECK
     .out
     .reads
-    .map { meta, pod5_path -> 
-        def pod5_files = []
-        if (file(pod5_path).isDirectory()) {
-            pod5_files = file("${pod5_path}/*.pod5")
-        } else if (pod5_path.endsWith('.pod5')) {
-            pod5_files = [file(pod5_path)]
+    .flatMap { meta, files -> 
+        def bam_path = meta.fast5_path
+        def bam_files = []
+        if (file(bam_path).isDirectory()) {
+            bam_files = file("${bam_path}/*.bam")
+        } else if (bam_path.endsWith('.bam')) {
+            bam_files = [file(bam_path)]
         }
-        [meta, pod5_files]
+        bam_files.collect { [[sample: meta.sample], it] }  // Create a list of [meta, file] pairs
     }
-    .flatMap { meta, files ->
-        def chunks = files.toList().collate(params.dorado_files_chunksize)  // chunk files into groups of 2
-        def chunkList = []
-        for (int i = 0; i < chunks.size(); i++) {
-            def newMeta = meta.clone()  // clone the meta to avoid modifying the original
-            newMeta.chunkNumber = i + 1  // add chunk number, starting from 1
-            chunkList << [newMeta, chunks[i]]
-        }
-        return chunkList
-    }
-    // .dump(tag: 'input_pod5', pretty: true)
-    .set { ch_pod5 }
-    }
-
-
-    if (params.reads_format == 'pod5' || params.reads_format == 'fast5') {
-        DORADO_BASECALLER (
-            ch_pod5
-        )
-        ch_versions = ch_versions.mix(DORADO_BASECALLER.out.versions)
-        DORADO_BASECALLER
-        .out
-        .bam
-        .map { meta, bam -> [[id: meta.id, sample: meta.sample, flowcell: meta.flowcell, batch: meta.batch, kit: meta.kit] , bam]} // make sample name the only mets (remove flow cell and other info)
-        .groupTuple(by: 0) // group bams by meta (i.e sample) which zero indexed
-        // .dump(pretty: true)
-        .set { ch_basecall_single_bams }
-
-        MERGE_BASECALL_ID (
-        ch_basecall_single_bams
-        )
-        ch_versions = ch_versions.mix(MERGE_BASECALL_ID.out.versions)
-
-        MERGE_BASECALL_ID
-        .out
-        .merged_bam
-        // .dump(tag: 'basecall_id', pretty: true)
-        .set { ch_basecall_id_merged_bams }
-
-        // Dorado basecall summary
-        DORADO_BASECALL_SUMMARY (
-            ch_basecall_id_merged_bams
-        )
-
-        //
-        // CHANNEL: Channel operation group unaligned bams paths by sample (i.e bams of reads from multiple flow cells but the same sample streamed together to be fed for alignment module)
-        //
-        ch_basecall_id_merged_bams
-        .map { meta, bam -> [[sample: meta.sample] , bam]} // make sample name the only mets (remove flow cell and other info)
-        .groupTuple(by: 0) // group bams by meta (i.e sample) which zero indexed
-        // .dump(tag: 'basecall_sample', pretty: true)
-        .set { ch_basecall_sample_merged_bams } // set channel name
-
-
-        DORADO_BASECALL_SUMMARY
-        .out
-        .summary
-        // .dump(pretty: true)
-        .set { ch_basecall_summary }
-
-
-        // MODULE: PycoQC (QC from Basecall results)
-        PYCOQC (
-            ch_basecall_summary
-        )
-        ch_versions = ch_versions.mix(PYCOQC.out.versions)
-
-    }
-
-    if (params.reads_format == 'bam' ) {
-        INPUT_CHECK
-        .out
-        .reads
-        .flatMap { meta, bam_path -> 
-            def bam_files = []
-            if (file(bam_path).isDirectory()) {
-                bam_files = file("${bam_path}/*.bam")
-            } else if (bam_path.endsWith('.bam')) {
-                bam_files = [file(bam_path)]
-            }
-            bam_files.collect { [[sample: meta.sample], it] }  // Create a list of [meta, file] pairs
-        }
-        .groupTuple(by: 0) // group bams by meta (i.e sample) which is zero-indexed
-        // .dump(tag: 'basecall_sample', pretty: true)
-        .set { ch_basecall_sample_merged_bams } // set channel name
-    }
+    .groupTuple(by: 0) // group bams by meta (i.e sample) which is zero-indexed
+    // .dump(tag: 'basecall_sample', pretty: true)
+    .set { ch_basecall_sample_merged_bams } // set channel name
+}
 
     MERGE_BASECALL_SAMPLE (
         ch_basecall_sample_merged_bams
     )
     ch_versions = ch_versions.mix(MERGE_BASECALL_SAMPLE.out.versions)
-    
-/*
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    NANOFANCONI: Dorado-aligner
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-*/
-    DORADO_ALIGNER (
-        MERGE_BASECALL_SAMPLE.out.merged_bam,
-        file(params.fasta)
-    )
-    ch_versions = ch_versions.mix(DORADO_ALIGNER.out.versions)
-
-/*
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    NANOFANCONI: samtools sort and index
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-*/
 
     //
     // MODULE: Samtools sort and indedx aligned bams
     //
     SAMTOOLS_SORT (
-        DORADO_ALIGNER.out.bam
+        MERGE_BASECALL_SAMPLE.out.merged_bam
     )
     ch_versions = ch_versions.mix(SAMTOOLS_SORT.out.versions)
-
-
+    
+    
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     NANOFANCONI: Sniffles
@@ -362,37 +206,6 @@ workflow NANOFANCONI {
         
     }
 
-/*
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    NANOFANCONI: DeepVariant
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-*/
-
-    if (params.run_deepvariant) {
-        * Call variants with deepvariant
-        */
-        DEEPVARIANT( WHATSHAP.out.bam, file(params.fasta), file(params.fasta_index) )
-        ch_short_calls_vcf  = DEEPVARIANT.out.vcf
-        ch_short_calls_gvcf = DEEPVARIANT.out.gvcf
-        ch_versions = ch_versions.mix(DEEPVARIANT.out.versions)
-
-        /*
-         * Index deepvariant vcf.gz
-         */
-        DEEPVARIANT_TABIX_VCF( ch_short_calls_vcf )
-        ch_short_calls_vcf_tbi  = DEEPVARIANT_TABIX_VCF.out.tbi
-        ch_versions = ch_versions.mix(DEEPVARIANT_TABIX_VCF.out.versions)
-
-        /*
-         * Index deepvariant g.vcf.gz
-         */
-        DEEPVARIANT_TABIX_GVCF( ch_short_calls_gvcf )
-        ch_short_calls_gvcf_tbi  = DEEPVARIANT_TABIX_GVCF.out.tbi
-        ch_versions = ch_versions.mix(DEEPVARIANT_TABIX_VCF.out.versions)
-        
-    }
-    
-    
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     NANOFANCONI: currently remove methylation

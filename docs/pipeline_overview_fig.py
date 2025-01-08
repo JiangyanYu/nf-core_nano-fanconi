@@ -44,8 +44,7 @@ node_colors = {
     "pod5": "lightgrey",
     "bam": "lightgrey",
     "AnnotSV": "orange",
-    "whatshap":"lightgreen",
-    "DeepVariant":"orange",
+    "DeepVariant":"lightgreen",
     "default": "pink",
 }
 

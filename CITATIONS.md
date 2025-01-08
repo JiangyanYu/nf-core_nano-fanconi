@@ -42,3 +42,7 @@ The formate is based on https://github.com/dhslab/nf-core-wgsnano
 - [Whatshap](https://doi.org/10.1093/bioinformatics/btw276)
 
   > Garg S, Martin M, Marschall T. Read-based phasing of related individuals. Bioinformatics 2016; 32 (12): i234-i242. doi: 10.1093/bioinformatics/btw276. PubMed PMID: 27307622; Pubmed Central PMCID: PMC4908360.
+
+- [DeepVariant](https://pubmed.ncbi.nlm.nih.gov/30247488/)
+
+  > Poplin R, Chang PC, Alexander D, Schwartz S, Colthurst T, Ku A, Newburger D, Dijamco J, Nguyen N, Afshar PT, Gross SS, Dorfman L, McLean CY, DePristo MA. A universal SNP and small-indel variant caller using deep neural networks. Nat Biotechnol. 2018 Nov;36(10):983-987. doi: 10.1038/nbt.4235. Epub 2018 Sep 24. PMID: 30247488.

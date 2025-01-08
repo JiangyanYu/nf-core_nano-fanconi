@@ -64,6 +64,9 @@ include { TABIX_BGZIP as SNIFFLES_BGZIP_VCF             } from '../modules/nf-co
 include { TABIX_TABIX as SNIFFLES_TABIX_VCF             } from '../modules/nf-core/tabix/tabix/main.nf'
 include { WHATSHAP                                      } from '../modules/local/WHATSHAP.nf'
 include { MOSDEPTH                                      } from '../modules/local/MOSDEPTH.nf'
+include { DEEPVARIANT                                   } from '../modules/local/DEEPVARIANT.nf'
+include { TABIX_TABIX as DEEPVARIANT_TABIX_VCF          } from '../modules/nf-core/tabix/tabix/main.nf'
+include { TABIX_TABIX as DEEPVARIANT_TABIX_GVCF         } from '../modules/nf-core/tabix/tabix/main.nf'
 include { CUSTOM_DUMPSOFTWAREVERSIONS                   } from '../modules/nf-core/custom/dumpsoftwareversions/main'
 include { MULTIQC                                       } from '../modules/local/MULTIQC'
 // include { PEPPER                                        } from '../modules/local/PEPPER'
@@ -205,7 +208,39 @@ if (params.reads_format == 'bam' ) {
         ch_versions = ch_versions.mix(MOSDEPTH.out.versions)
         
     }
+    
+    
+/*
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    NANOFANCONI: DeepVariant
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+*/
 
+    if (params.run_deepvariant) {
+        * Call variants with deepvariant
+        */
+        DEEPVARIANT( WHATSHAP.out.bam, file(params.fasta), file(params.fasta_index) )
+        ch_short_calls_vcf  = DEEPVARIANT.out.vcf
+        ch_short_calls_gvcf = DEEPVARIANT.out.gvcf
+        ch_versions = ch_versions.mix(DEEPVARIANT.out.versions)
+
+        /*
+         * Index deepvariant vcf.gz
+         */
+        DEEPVARIANT_TABIX_VCF( ch_short_calls_vcf )
+        ch_short_calls_vcf_tbi  = DEEPVARIANT_TABIX_VCF.out.tbi
+        ch_versions = ch_versions.mix(DEEPVARIANT_TABIX_VCF.out.versions)
+
+        /*
+         * Index deepvariant g.vcf.gz
+         */
+        DEEPVARIANT_TABIX_GVCF( ch_short_calls_gvcf )
+        ch_short_calls_gvcf_tbi  = DEEPVARIANT_TABIX_GVCF.out.tbi
+        ch_versions = ch_versions.mix(DEEPVARIANT_TABIX_VCF.out.versions)
+        
+    }
+    
+    
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     NANOFANCONI: currently remove methylation
