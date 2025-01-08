@@ -100,23 +100,24 @@ workflow NANOFANCONI {
     ch_versions = ch_versions.mix(INPUT_CHECK.out.versions)
     ch_phased_vcf = INPUT_CHECK.out.reads.map{ meta, files -> [[sample: meta.sample],meta.fast5_path, meta.vcf, meta.vcf_tbi] }.dump(tag: "ch_phased_vcf")
 
-    if (params.reads_format == 'bam' ) {
-        INPUT_CHECK
-        .out
-        .reads
-        .flatMap { meta, bam_path -> 
-            def bam_files = []
-            if (file(bam_path).isDirectory()) {
-                bam_files = file("${bam_path}/*.bam")
-            } else if (bam_path.endsWith('.bam')) {
-                bam_files = [file(bam_path)]
-            }
-            bam_files.collect { [[sample: meta.sample], it] }  // Create a list of [meta, file] pairs
+if (params.reads_format == 'bam' ) {
+    INPUT_CHECK
+    .out
+    .reads
+    .flatMap { meta, files -> 
+        def bam_path = meta.fast5_path
+        def bam_files = []
+        if (file(bam_path).isDirectory()) {
+            bam_files = file("${bam_path}/*.bam")
+        } else if (bam_path.endsWith('.bam')) {
+            bam_files = [file(bam_path)]
         }
-        .groupTuple(by: 0) // group bams by meta (i.e sample) which is zero-indexed
-        // .dump(tag: 'basecall_sample', pretty: true)
-        .set { ch_basecall_sample_merged_bams } // set channel name
+        bam_files.collect { [[sample: meta.sample], it] }  // Create a list of [meta, file] pairs
     }
+    .groupTuple(by: 0) // group bams by meta (i.e sample) which is zero-indexed
+    // .dump(tag: 'basecall_sample', pretty: true)
+    .set { ch_basecall_sample_merged_bams } // set channel name
+}
 
     MERGE_BASECALL_SAMPLE (
         ch_basecall_sample_merged_bams
