@@ -45,7 +45,7 @@ process ANNOTSV {
 		-includeCI 1 \\
 		-overwrite 1 \\
 		-outputFile ${outputFile} 
-		//${extraArgs}
+
 		
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
