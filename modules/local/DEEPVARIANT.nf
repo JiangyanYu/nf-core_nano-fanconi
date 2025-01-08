@@ -10,7 +10,7 @@ process DEEPVARIANT {
     }
 
     input:
-    tuple val(meta), path(sizes), val(is_transcripts), path(input), path(index)
+    tuple val(meta), path(input)
     path(fasta)
     path(fai)
 
