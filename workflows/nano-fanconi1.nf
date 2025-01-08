@@ -153,7 +153,6 @@ if (params.reads_format == 'bam' ) {
          */
         SNIFFLES_SORT_VCF( SNIFFLES.out.sv_calls )
         ch_sv_calls_vcf = SNIFFLES_SORT_VCF.out.vcf
-        ch_sorted_dir = SNIFFLES_SORT_VCF.out.dir // Capture the directory from SNIFFLES_SORT_VCF
         ch_versions = ch_versions.mix(SNIFFLES_SORT_VCF.out.versions)
 
         /*
@@ -162,10 +161,6 @@ if (params.reads_format == 'bam' ) {
         SNIFFLES_TABIX_VCF( ch_sv_calls_vcf )
         ch_sv_calls_tbi  = SNIFFLES_TABIX_VCF.out.tbi
         ch_versions = ch_versions.mix(SNIFFLES_TABIX_VCF.out.versions)
-        
-        // copy .tbi file in to the same folder as .vcf file. essential step needed in following whatshap step
-        
-        SNIFFLES_COPY_TBI( SNIFFLES_TABIX_VCF.out.tbi, ch_sorted_dir )
 
     }
 
