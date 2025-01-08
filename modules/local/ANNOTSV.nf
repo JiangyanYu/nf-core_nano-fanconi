@@ -51,6 +51,5 @@ process ANNOTSV {
     "${task.process}":
         annotsv: \$(echo \$(AnnotSV --version) | sed 's/^.*version //; s/ .*\$//' )
     END_VERSIONS
-    
 	"""
 }
