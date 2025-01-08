@@ -10,7 +10,7 @@ process DEEPVARIANT {
     }
 
     input:
-    tuple val(meta), path(input)
+    tuple val(meta), path(phased_bam_file), path(phased_bai_file)
     path(fasta)
     path(fai)
 
@@ -31,7 +31,7 @@ process DEEPVARIANT {
     /opt/deepvariant/bin/run_deepvariant \\
         --model_type=WGS \\
         --ref=${fasta} \\
-        --reads=${input} \\
+        --reads=${phased_bam_file} \\
         --output_vcf=${prefix}.vcf.gz \\
         --output_gvcf=${prefix}.g.vcf.gz \\
         ${args} \\
