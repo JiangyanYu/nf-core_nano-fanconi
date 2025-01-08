@@ -48,7 +48,6 @@ include { INPUT_CHECK } from '../subworkflows/local/input_check'
 // MODULE: Installed directly from nf-core/modules
 //
 
-
 include { FAST5_TO_POD5                                 } from '../modules/local/FAST5_TO_POD5'
 include { DORADO_BASECALLER                             } from '../modules/local/DORADO_BASECALLER'
 include { MERGE_BASECALL as MERGE_BASECALL_ID           } from '../modules/local/MERGE_BASECALL'
@@ -101,38 +100,38 @@ workflow NANOFANCONI {
     ch_versions = ch_versions.mix(INPUT_CHECK.out.versions)
     ch_phased_vcf = INPUT_CHECK.out.reads.map{ meta, files -> [[sample: meta.sample],meta.fast5_path, meta.vcf, meta.vcf_tbi] }.dump(tag: "ch_phased_vcf")
 
-if (params.reads_format == 'bam' ) {
-    INPUT_CHECK
-    .out
-    .reads
-    .flatMap { meta, files -> 
-        def bam_path = meta.fast5_path
-        def bam_files = []
-        if (file(bam_path).isDirectory()) {
-            bam_files = file("${bam_path}/*.bam")
-        } else if (bam_path.endsWith('.bam')) {
-            bam_files = [file(bam_path)]
+    if (params.reads_format == 'bam' ) {
+        INPUT_CHECK
+        .out
+        .reads
+        .flatMap { meta, bam_path -> 
+            def bam_files = []
+            if (file(bam_path).isDirectory()) {
+                bam_files = file("${bam_path}/*.bam")
+            } else if (bam_path.endsWith('.bam')) {
+                bam_files = [file(bam_path)]
+            }
+            bam_files.collect { [[sample: meta.sample], it] }  // Create a list of [meta, file] pairs
         }
-        bam_files.collect { [[sample: meta.sample], it] }  // Create a list of [meta, file] pairs
+        .groupTuple(by: 0) // group bams by meta (i.e sample) which is zero-indexed
+        // .dump(tag: 'basecall_sample', pretty: true)
+        .set { ch_basecall_sample_merged_bams } // set channel name
     }
-    .groupTuple(by: 0) // group bams by meta (i.e sample) which is zero-indexed
-    // .dump(tag: 'basecall_sample', pretty: true)
-    .set { ch_basecall_sample_merged_bams } // set channel name
-}
 
     MERGE_BASECALL_SAMPLE (
         ch_basecall_sample_merged_bams
     )
     ch_versions = ch_versions.mix(MERGE_BASECALL_SAMPLE.out.versions)
 
-
+    //
+    // MODULE: Samtools sort and indedx aligned bams
+    //
     SAMTOOLS_SORT (
-         MERGE_BASECALL_SAMPLE.out.merged_bam
+        MERGE_BASECALL_SAMPLE.out.merged_bam
     )
     ch_versions = ch_versions.mix(SAMTOOLS_SORT.out.versions)
     
     
-
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     NANOFANCONI: Sniffles
@@ -160,7 +159,7 @@ if (params.reads_format == 'bam' ) {
         SNIFFLES_TABIX_VCF( ch_sv_calls_vcf )
         ch_sv_calls_tbi  = SNIFFLES_TABIX_VCF.out.tbi
         ch_versions = ch_versions.mix(SNIFFLES_TABIX_VCF.out.versions)
-
+        
     }
 
 
@@ -179,16 +178,14 @@ if (params.reads_format == 'bam' ) {
         ch_whatshap_input = SAMTOOLS_SORT.out.bam.mix(SAMTOOLS_SORT.out.bai,SNIFFLES_SORT_VCF.out.vcf,SNIFFLES_TABIX_VCF.out.tbi).groupTuple(size:4).map{ meta, files -> [ meta, files.flatten() ]}
         input = ch_whatshap_input.join(ch_phased_vcf).dump(tag: "joined")
         ch_whatshap_input.dump(tag: "whatshap")
-        
-        
-        WHATSHAP (
-            input,
-            file(params.fasta),
-            file(params.fasta_index)
-        )
-
-    
-        // Combine version outputs
+         
+         
+         WHATSHAP (
+             input,
+             file(params.fasta),
+             file(params.fasta_index)
+         )
+         
         ch_versions = ch_versions.mix(WHATSHAP.out.versions)
 
 /*
