@@ -62,6 +62,7 @@ include { SNIFFLES                                      } from '../modules/local
 include { BCFTOOLS_SORT as SNIFFLES_SORT_VCF            } from '../modules/nf-core/bcftools/sort/main.nf'
 include { TABIX_BGZIP as SNIFFLES_BGZIP_VCF             } from '../modules/nf-core/tabix/bgzip/main.nf'
 include { TABIX_TABIX as SNIFFLES_TABIX_VCF             } from '../modules/nf-core/tabix/tabix/main.nf'
+include { ANNOTSV                                       } from '../modules/local/ANNOTSV.nf'
 include { WHATSHAP                                      } from '../modules/local/WHATSHAP.nf'
 include { MOSDEPTH                                      } from '../modules/local/MOSDEPTH.nf'
 include { DEEPVARIANT                                   } from '../modules/local/DEEPVARIANT.nf'
@@ -319,6 +320,24 @@ workflow NANOFANCONI {
         
     }
 
+/*
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    NANOFANCONI: AnnotSV
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+*/
+
+    if (params.run_annotsv) {
+    
+        ANNOTSV (
+            SNIFFLES_SORT_VCF.out.vcf,
+            file(params.annotsvDir),
+            val(params.annotsvMode)
+        )
+
+        ch_versions = ch_versions.mix(ANNOTSV.out.versions)
+        
+    }
+    
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -372,11 +391,16 @@ workflow NANOFANCONI {
         /*
         * Call variants with deepvariant
         */
+        
+        ch_deepvariant_input = WHATSHAP.out.bam.mix(WHATSHAP.out.bai).groupTuple(size:2).map{ meta, files -> [ meta, files.flatten() ]}
+        deepvariant_bam_input = ch_deepvariant_input.join(ch_phased_vcf).dump(tag: "joined")
+        
         DEEPVARIANT( 
-            WHATSHAP.out.bam, 
+            deepvariant_bam_input, 
             file(params.fasta), 
             file(params.fasta_index) 
         )
+        
         ch_short_calls_vcf  = DEEPVARIANT.out.vcf
         ch_short_calls_gvcf = DEEPVARIANT.out.gvcf
         ch_versions = ch_versions.mix(DEEPVARIANT.out.versions)
