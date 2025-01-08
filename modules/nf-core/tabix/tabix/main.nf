@@ -22,7 +22,6 @@ process TABIX_TABIX {
     script:
     def args = task.ext.args ?: ''
     """
-    cp $tab ./
     tabix $args $tab
 
     cat <<-END_VERSIONS > versions.yml
