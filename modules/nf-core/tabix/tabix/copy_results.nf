@@ -1,4 +1,4 @@
-process COPY_RESULTS {
+process TABIX_TABIX_COPY {
     input:
     path tbi_file // Input file to copy
     path target_dir // Directory to copy into
