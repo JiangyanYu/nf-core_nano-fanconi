@@ -40,11 +40,7 @@ process ANNOTSV {
 	AnnotSV \\
 		-SVinputFile ${vcf_file} \\
 		-annotationsDir ${params.annotsvAnnotationsDir} \\
-		-bedtools bedtools -bcftools bcftools \\
-		-annotationMode ${params.annotsvMode} \\
 		-genomeBuild ${params.annotsvGenomeBuild} \\
-		-includeCI 1 \\
-		-overwrite 1 \\
 		-outputFile ${outputFile} 
 
 		
