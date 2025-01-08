@@ -19,6 +19,9 @@ process ANNOTSV {
     script:
     def args    = task.ext.args ?: ''
     prefix      = task.ext.prefix ?: "${meta.sample}"
+    
+	// Apply annotation mode flag to command
+	def mode = params.annotsvMode
 	
 	// Change output file name based on annotation mode
 	def outputFile = null
