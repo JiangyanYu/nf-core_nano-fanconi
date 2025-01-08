@@ -62,7 +62,6 @@ include { SNIFFLES                                      } from '../modules/local
 include { BCFTOOLS_SORT as SNIFFLES_SORT_VCF            } from '../modules/nf-core/bcftools/sort/main.nf'
 include { TABIX_BGZIP as SNIFFLES_BGZIP_VCF             } from '../modules/nf-core/tabix/bgzip/main.nf'
 include { TABIX_TABIX as SNIFFLES_TABIX_VCF             } from '../modules/nf-core/tabix/tabix/main.nf'
-include { TABIX_TABIX_COPY as SNIFFLES_COPY_TBI         } from '../modules/nf-core/tabix/tabix/copy_results.nf'
 include { WHATSHAP                                      } from '../modules/local/WHATSHAP.nf'
 include { MOSDEPTH                                      } from '../modules/local/MOSDEPTH.nf'
 include { CUSTOM_DUMPSOFTWAREVERSIONS                   } from '../modules/nf-core/custom/dumpsoftwareversions/main'
@@ -315,10 +314,6 @@ workflow NANOFANCONI {
         ch_sv_calls_tbi  = SNIFFLES_TABIX_VCF.out.tbi
         ch_versions = ch_versions.mix(SNIFFLES_TABIX_VCF.out.versions)
         
-        // copy .tbi file in to the same folder as .vcf file. essential step needed in following whatshap step
-        ch_sorted_dir = SNIFFLES_SORT_VCF.out.dir // Capture the directory from SNIFFLES_SORT_VCF
-        SNIFFLES_COPY_TBI( SNIFFLES_TABIX_VCF.out.tbi, ch_sorted_dir )
-
     }
 
 
@@ -333,7 +328,16 @@ workflow NANOFANCONI {
         //
         // MODULE: whatshap for phasing
         //
-         ch_whatshap_input = SAMTOOLS_SORT.out.bam.mix(SAMTOOLS_SORT.out.bai,SNIFFLES_SORT_VCF.out.vcf).groupTuple(size:3).map{ meta, files -> [ meta, files.flatten() ]}
+        
+        // merge results into one folder
+        Channel.empty()
+            .mix( SNIFFLES_SORT_VCF.out.vcf )
+            .mix( SNIFFLES_TABIX_VCF.out.tbi )
+            .collect()
+            .set { sniffles_vcf_tbi }
+                    
+                    
+         ch_whatshap_input = SAMTOOLS_SORT.out.bam.mix(SAMTOOLS_SORT.out.bai,sniffles_vcf_tbi).groupTuple(size:3).map{ meta, files -> [ meta, files.flatten() ]}
          input = ch_whatshap_input.join(ch_phased_vcf).dump(tag: "joined")
          ch_whatshap_input.dump(tag: "whatshap")
          
