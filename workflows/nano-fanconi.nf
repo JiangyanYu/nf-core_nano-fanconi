@@ -328,16 +328,8 @@ workflow NANOFANCONI {
         //
         // MODULE: whatshap for phasing
         //
-        
-        // merge results into one folder
-        Channel.empty()
-            .mix( SNIFFLES_SORT_VCF.out.vcf )
-            .mix( SNIFFLES_TABIX_VCF.out.tbi )
-            .collect()
-            .set { sniffles_vcf_tbi }
                     
-                    
-         ch_whatshap_input = SAMTOOLS_SORT.out.bam.mix(SAMTOOLS_SORT.out.bai,sniffles_vcf_tbi).groupTuple(size:3).map{ meta, files -> [ meta, files.flatten() ]}
+         ch_whatshap_input = SAMTOOLS_SORT.out.bam.mix(SAMTOOLS_SORT.out.bai,SNIFFLES_TABIX_VCF.out.tbi).groupTuple(size:3).map{ meta, files -> [ meta, files.flatten() ]}
          input = ch_whatshap_input.join(ch_phased_vcf).dump(tag: "joined")
          ch_whatshap_input.dump(tag: "whatshap")
          
