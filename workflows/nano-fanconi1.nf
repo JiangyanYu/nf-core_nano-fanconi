@@ -217,9 +217,14 @@ if (params.reads_format == 'bam' ) {
 */
 
     if (params.run_deepvariant) {
+        /*
         * Call variants with deepvariant
         */
-        DEEPVARIANT( WHATSHAP.out.bam, file(params.fasta), file(params.fasta_index) )
+        DEEPVARIANT( 
+            WHATSHAP.out.bam, 
+            file(params.fasta), 
+            file(params.fasta_index) 
+        )
         ch_short_calls_vcf  = DEEPVARIANT.out.vcf
         ch_short_calls_gvcf = DEEPVARIANT.out.gvcf
         ch_versions = ch_versions.mix(DEEPVARIANT.out.versions)
