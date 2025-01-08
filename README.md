@@ -6,3 +6,6 @@ Basic structure is from following repos (2024-12-10):
 to test the pipeline /root/.local/bin/nextflow run jiangyanyu/nf-core_nano-fanconi -profile test,docker --outdir ./
 
 submit the job to julia, by run_nfcore_nanoseq.sh
+
+Reminder:
+1) Deepvariant model_type is set as WGS

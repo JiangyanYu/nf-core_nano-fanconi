@@ -11,6 +11,7 @@ process DEEPVARIANT {
 
     input:
     tuple val(meta), path(input)
+    path(bai_file)
     path(fasta)
     path(fai)
 

@@ -220,8 +220,11 @@ if (params.reads_format == 'bam' ) {
         /*
         * Call variants with deepvariant
         */
+        
+
         DEEPVARIANT( 
             WHATSHAP.out.bam, 
+            WHATSHAP.out.bai,
             file(params.fasta), 
             file(params.fasta_index) 
         )
