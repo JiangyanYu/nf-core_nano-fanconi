@@ -30,8 +30,8 @@ def create_reads_channel(LinkedHashMap row) {
     meta.fast5_path         = row.fast5_path
     meta.batch         = row.batch
     meta.kit         = row.kit
-    // meta.vcf          = row.vcf ?: "$projectDir/assets/NO_FILE.vcf"
-    // meta.vcf_tbi      = row.vcf_tbi ?: "$projectDir/assets/NO_FILE.vcf.tbi"
+    meta.vcf          = row.vcf ?: "$projectDir/assets/NO_FILE.vcf"
+    meta.vcf_tbi      = row.vcf_tbi ?: "$projectDir/assets/NO_FILE.vcf.tbi"
 
     // add path(s) of the reads files to the meta map
     def reads_meta = []
