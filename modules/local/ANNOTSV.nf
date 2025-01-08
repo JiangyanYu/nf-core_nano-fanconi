@@ -8,7 +8,7 @@ process ANNOTSV {
 
 	input:
 	tuple val(meta), path(vcf_file)
-	path(annotsvDir)
+	val(annotsvGenomeBuild)
 	val(annotsvMode)
 
 	output:
@@ -38,10 +38,9 @@ process ANNOTSV {
 	"""
 	AnnotSV \\
 		-SVinputFile ${vcf_file} \\
-		-annotationsDir ${annotsvDir} \\
 		-bedtools bedtools -bcftools bcftools \\
 		-annotationMode ${annotsvMode} \\
-		-genomeBuild ${params.genomeBuild} \\
+		-genomeBuild ${annotsvGenomeBuild} \\
 		-includeCI 1 \\
 		-overwrite 1 \\
 		-outputFile ${outputFile} ${extraArgs}

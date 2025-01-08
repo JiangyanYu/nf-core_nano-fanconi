@@ -177,7 +177,7 @@ if (params.reads_format == 'bam' ) {
     
         ANNOTSV (
             SNIFFLES_SORT_VCF.out.vcf,
-            file(params.annotsvDir),
+            val(params.annotsvGenomeBuild),
             val(params.annotsvMode)
         )
 
