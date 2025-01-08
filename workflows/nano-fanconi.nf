@@ -331,7 +331,7 @@ workflow NANOFANCONI {
 
     if (params.run_whatshap) {
         //
-        // MODULE: Index PEPPER bam
+        // MODULE: whatshap for phasing
         //
          ch_whatshap_input = SAMTOOLS_SORT.out.bam.mix(SAMTOOLS_SORT.out.bai,SNIFFLES_SORT_VCF.out.vcf).groupTuple(size:3).map{ meta, files -> [ meta, files.flatten() ]}
          input = ch_whatshap_input.join(ch_phased_vcf).dump(tag: "joined")

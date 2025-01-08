@@ -13,6 +13,8 @@ process BCFTOOLS_SORT {
     output:
     tuple val(meta), path("${meta.sample}*.gz"), emit: vcf
     path "versions.yml"           , emit: versions
+    path "${task.workDir}"        , emit: output_dir // Emit the work directory
+
 
     when:
     task.ext.when == null || task.ext.when
