@@ -224,7 +224,6 @@ if (params.reads_format == 'bam' ) {
 
         DEEPVARIANT( 
             WHATSHAP.out.bam, 
-            WHATSHAP.out.bai,
             file(params.fasta), 
             file(params.fasta_index) 
         )
