@@ -176,7 +176,7 @@ if (params.reads_format == 'bam' ) {
         // MODULE: whatshap for phasing
         //
                     
-        ch_whatshap_input = SAMTOOLS_SORT.out.bam.mix(SAMTOOLS_SORT.out.bai,SNIFFLES_SORT_VCF.out.vcf,SNIFFLES_SORT_VCF.out.tbi).groupTuple(size:3).map{ meta, files -> [ meta, files.flatten() ]}
+        ch_whatshap_input = SAMTOOLS_SORT.out.bam.mix(SAMTOOLS_SORT.out.bai,SNIFFLES_SORT_VCF.out.vcf,SNIFFLES_TABIX_VCF.out.tbi).groupTuple(size:3).map{ meta, files -> [ meta, files.flatten() ]}
         input = ch_whatshap_input.join(ch_phased_vcf).dump(tag: "joined")
         ch_whatshap_input.dump(tag: "whatshap")
         
