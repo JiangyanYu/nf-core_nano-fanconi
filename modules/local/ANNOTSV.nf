@@ -8,8 +8,6 @@ process ANNOTSV {
 
 	input:
 	tuple val(meta), path(vcf_file)
-	val(annotsvGenomeBuild)
-	val(annotsvMode)
 
 	output:
     tuple val(meta), path("${prefix}*.tsv"),  emit: tsv
@@ -34,16 +32,17 @@ process ANNOTSV {
                throw new RuntimeException("Invalid option for --annotSV: ${mode}")}
 	
 	//Pass any additional flags to the AnnotSV 
-	def extraArgs = params.extraAnnotsvFlags ?: ''
+	//def extraArgs = params.extraAnnotsvFlags ?: ''
 	"""
 	AnnotSV \\
 		-SVinputFile ${vcf_file} \\
 		-bedtools bedtools -bcftools bcftools \\
-		-annotationMode ${annotsvMode} \\
-		-genomeBuild ${annotsvGenomeBuild} \\
+		-annotationMode ${params.annotsvMode} \\
+		-genomeBuild ${params.annotsvGenomeBuild} \\
 		-includeCI 1 \\
 		-overwrite 1 \\
-		-outputFile ${outputFile} ${extraArgs}
+		-outputFile ${outputFile} 
+		//${extraArgs}
 		
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
