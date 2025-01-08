@@ -43,8 +43,7 @@ node_colors = {
     "fast5": "lightgrey",
     "pod5": "lightgrey",
     "bam": "lightgrey",
-    "AnnotSV": "orange",
-    "DeepVariant":"lightgreen",
+    "AnnotSV": "lightgreen",
     "default": "pink",
 }
 

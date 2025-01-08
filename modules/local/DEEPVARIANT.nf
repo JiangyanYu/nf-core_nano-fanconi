@@ -29,6 +29,7 @@ process DEEPVARIANT {
 
     """
     /opt/deepvariant/bin/run_deepvariant \\
+        --model_type=WGS \\
         --ref=${fasta} \\
         --reads=${input} \\
         --output_vcf=${prefix}.vcf.gz \\
