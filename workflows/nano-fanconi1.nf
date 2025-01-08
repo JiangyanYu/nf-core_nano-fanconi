@@ -159,6 +159,7 @@ if (params.reads_format == 'bam' ) {
          */
         SNIFFLES_TABIX_VCF( ch_sv_calls_vcf )
         ch_sv_calls_tbi  = SNIFFLES_TABIX_VCF.out.tbi
+        ch_sv_calls_vcf  = SNIFFLES_TABIX_VCF.out.vcf
         ch_versions = ch_versions.mix(SNIFFLES_TABIX_VCF.out.versions)
 
     }
