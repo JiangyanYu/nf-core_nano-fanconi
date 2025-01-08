@@ -38,9 +38,11 @@ process ANNOTSV {
 	//def extraArgs = params.extraAnnotsvFlags ?: ''
 	"""
 	AnnotSV \\
-		-SVinputFile ${vcf_file} \\
-		-annotationsDir ${params.annotsvAnnotationsDir} \\
+		-SVinputFile ${vcf_file} -annotationsDir ${params.annotsvAnnotationsDir} -bedtools bedtools -bcftools bcftools \\
+		-annotationMode ${params.annotsvMode} \\
 		-genomeBuild ${params.annotsvGenomeBuild} \\
+		-includeCI 1 \\
+		-overwrite 1 \\
 		-outputFile ${outputFile} 
 
 		
