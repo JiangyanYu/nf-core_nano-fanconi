@@ -11,7 +11,6 @@ process TABIX_TABIX {
     tuple val(meta), path(tab)
 
     output:
-    tuple val(meta), path("${meta.sample}*.vcf.gz"), optional:true, emit: vcf
     tuple val(meta), path("${meta.sample}*.tbi"), optional:true, emit: tbi
     tuple val(meta), path("${meta.sample}*.csi"), optional:true, emit: csi
     path  "versions.yml"          , emit: versions
@@ -22,7 +21,6 @@ process TABIX_TABIX {
     script:
     def args = task.ext.args ?: ''
     """
-    cp $tab ./
     tabix $args $tab
 
     cat <<-END_VERSIONS > versions.yml

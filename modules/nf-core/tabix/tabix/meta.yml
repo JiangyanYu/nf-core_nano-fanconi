@@ -27,10 +27,6 @@ output:
       description: |
         Groovy Map containing sample information
         e.g. [ id:'test', single_end:false ]
-  - vcf:
-      type: file
-      description: orifinal vcf file
-      pattern: "*.{vcf.gz}"
   - tbi:
       type: file
       description: tabix index file
