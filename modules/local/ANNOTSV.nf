@@ -7,8 +7,7 @@ process ANNOTSV {
         'quay.io/biocontainers/annotsv:3.4.4--py312hdfd78af_0' }"
 
 	input:
-	// tuple val(meta), path(vcf_file)
-	tuple val(meta)
+	tuple val(meta), path(vcf_file)
 
 	output:
     tuple val(meta), path("${prefix}*.tsv"),  emit: tsv
