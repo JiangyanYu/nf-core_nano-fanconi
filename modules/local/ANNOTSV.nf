@@ -5,6 +5,10 @@ process ANNOTSV {
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
         'quay.io/biocontainers/annotsv:3.4.4--py312hdfd78af_0' :
         'quay.io/biocontainers/annotsv:3.4.4--py312hdfd78af_0' }"
+        
+    containerOptions {
+        "-v ${params.annotsvAnnotationsDir}:${params.annotsvAnnotationsDir}"
+    }
 
 	input:
 	tuple val(meta), path(vcf_file)
@@ -38,7 +42,8 @@ process ANNOTSV {
 	//def extraArgs = params.extraAnnotsvFlags ?: ''
 	"""
 	AnnotSV \\
-		-SVinputFile ${params.annotsvinput} -annotationsDir ${params.annotsvAnnotationsDir} \\
+		-SVinputFile ${params.annotsvinput} \\
+		-annotationsDir ${params.annotsvAnnotationsDir} \\
 		-bedtools bedtools \\
 		-bcftools bcftools \\
 		-annotationMode ${params.annotsvMode} \\
