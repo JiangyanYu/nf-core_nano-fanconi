@@ -55,7 +55,7 @@ process ANNOTSV {
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
-    annotsv: \$(AnnotSV --version |sed 's/^.*Version: //')
+        annotsv: \$(AnnotSV --version |sed 's/^.*Version: //')
     END_VERSIONS
     """
 }
