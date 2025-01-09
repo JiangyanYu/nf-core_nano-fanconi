@@ -10,10 +10,10 @@ process ANNOTSV {
         "-v ${params.annotsvinput}:${params.annotsvinput} -v ${params.annotsvAnnotationsDir}:${params.annotsvAnnotationsDir}"
     }
 
-	input:
-	tuple val(meta), path(vcf_file)
+    input:
+    tuple val(meta), path(vcf_file)
 
-	output:
+    output:
     tuple val(meta), path("${prefix}*.tsv"),  emit: tsv
     path "versions.yml"                    ,  emit: versions
 
@@ -24,12 +24,12 @@ process ANNOTSV {
     def args    = task.ext.args ?: ''
     prefix      = task.ext.prefix ?: "${meta.sample}"
     
-	// Apply annotation mode flag to command
-	def mode = params.annotsvMode
-	
-	// Change output file name based on annotation mode
-	def outputFile = null
-	    if (mode == 'full') {
+    // Apply annotation mode flag to command
+    def mode = params.annotsvMode
+
+    // Change output file name based on annotation mode
+    def outputFile = null
+        if (mode == 'full') {
                outputFile = "${prefix}_full_AnnotSV.tsv"
             } else if (mode == 'split') {
                outputFile = "${prefix}_split_AnnotSV.tsv"
@@ -37,24 +37,24 @@ process ANNOTSV {
                outputFile = "${prefix}_both_AnnotSV.tsv"
             } else {
                throw new RuntimeException("Invalid option for --annotSV: ${mode}")}
-	
-	//Pass any additional flags to the AnnotSV 
-	//def extraArgs = params.extraAnnotsvFlags ?: ''
-	"""
-    AnnotSV \\
-		-SVinputFile ${params.annotsvinput} \\
-		-annotationsDir ${params.annotsvAnnotationsDir} \\
-		-bedtools bedtools \\
-		-bcftools bcftools \\
-		-annotationMode ${params.annotsvMode} \\
-		-genomeBuild ${params.annotsvGenomeBuild} \\
-		-includeCI 1 \\
-		-overwrite 1 \\
-		-outputFile ${outputFile}
 
-	cat <<-END_VERSIONS > versions.yml
-	"${task.process}":
-    	annotsv: \$(AnnotSV --version |sed 's/^.*Version: //')
+    //Pass any additional flags to the AnnotSV 
+    //def extraArgs = params.extraAnnotsvFlags ?: ''
+    """
+    AnnotSV \\
+        -SVinputFile ${params.annotsvinput} \\
+        -annotationsDir ${params.annotsvAnnotationsDir} \\
+        -bedtools bedtools \\
+        -bcftools bcftools \\
+        -annotationMode ${params.annotsvMode} \\
+        -genomeBuild ${params.annotsvGenomeBuild} \\
+        -includeCI 1 \\
+        -overwrite 1 \\
+        -outputFile ${outputFile}
+
+    cat <<-END_VERSIONS > versions.yml
+    "${task.process}":
+        annotsv: \$(AnnotSV --version |sed 's/^.*Version: //')
     END_VERSIONS
     """
 }
