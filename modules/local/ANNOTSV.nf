@@ -26,6 +26,7 @@ process ANNOTSV {
     
     // Apply annotation mode flag to command
     def mode = params.annotsvMode
+    def outputFile = "${prefix}_AnnotSV.tsv"
     
     //Pass any additional flags to the AnnotSV 
     //def extraArgs = params.extraAnnotsvFlags ?: ''
@@ -35,6 +36,7 @@ process ANNOTSV {
         -annotationsDir ${params.annotsvAnnotationsDir} \\
         -bedtools bedtools \\
         -bcftools bcftools \\
+        -annotationMode ${params.annotsvMode} \\
         -genomeBuild ${params.annotsvGenomeBuild} \\
         -includeCI 1 \\
         -overwrite 1 \\
