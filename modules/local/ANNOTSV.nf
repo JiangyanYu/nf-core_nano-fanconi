@@ -7,7 +7,8 @@ process ANNOTSV {
         'quay.io/biocontainers/annotsv:3.4.4--py312hdfd78af_0' }"
 
 	input:
-	tuple val(meta), path(vcf_file)
+	// tuple val(meta), path(vcf_file)
+	tuple val(meta)
 
 	output:
     tuple val(meta), path("${prefix}*.tsv"),  emit: tsv
@@ -38,7 +39,11 @@ process ANNOTSV {
 	//def extraArgs = params.extraAnnotsvFlags ?: ''
 	"""
 	AnnotSV \\
-		-SVinputFile ${vcf_file} -annotationsDir ${params.annotsvAnnotationsDir} -bedtools bedtools -bcftools bcftools \\
+		// -SVinputFile ${vcf_file} \\
+		-SVinputFile ${params.annotsvinput} \\
+		-annotationsDir ${params.annotsvAnnotationsDir} \\
+		-bedtools bedtools \\
+		-bcftools bcftools \\
 		-annotationMode ${params.annotsvMode} \\
 		-genomeBuild ${params.annotsvGenomeBuild} \\
 		-includeCI 1 \\
