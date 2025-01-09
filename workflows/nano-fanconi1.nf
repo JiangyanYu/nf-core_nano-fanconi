@@ -176,7 +176,7 @@ if (params.reads_format == 'bam' ) {
     if (params.run_annotsv) {
     
         ANNOTSV (
-            SNIFFLES_SORT_VCF.out.vcf
+            // SNIFFLES_SORT_VCF.out.vcf
         )
 
         ch_versions = ch_versions.mix(ANNOTSV.out.versions)
