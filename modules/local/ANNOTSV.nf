@@ -14,7 +14,7 @@ process ANNOTSV {
     tuple val(meta), path(vcf_file)
 
     output:
-    tuple val(meta), path("${prefix}*.tsv"),  emit: tsv
+    tuple val(meta), path("${prefix}_AnnotSV.tsv"),  emit: tsv
     path "versions.yml"                    ,  emit: versions
 
     when:
