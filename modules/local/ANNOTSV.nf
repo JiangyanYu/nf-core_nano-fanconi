@@ -41,7 +41,7 @@ process ANNOTSV {
 	//Pass any additional flags to the AnnotSV 
 	//def extraArgs = params.extraAnnotsvFlags ?: ''
 	"""
-	AnnotSV \\
+    AnnotSV \\
 		-SVinputFile ${params.annotsvinput} \\
 		-annotationsDir ${params.annotsvAnnotationsDir} \\
 		-bedtools bedtools \\
