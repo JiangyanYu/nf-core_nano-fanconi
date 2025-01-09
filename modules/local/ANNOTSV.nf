@@ -14,7 +14,7 @@ process ANNOTSV {
     tuple val(meta), path(vcf_file)
 
     output:
-    tuple val(meta), path("${prefix}_AnnotSV.tsv"),  emit: tsv
+    tuple val(meta), path("${prefix}*_AnnotSV.tsv"),  emit: tsv
     path "versions.yml"                    ,  emit: versions
 
     when:
@@ -26,8 +26,18 @@ process ANNOTSV {
     
     // Apply annotation mode flag to command
     def mode = params.annotsvMode
-    outputFile = "${prefix}_AnnotSV.tsv"
-    
+
+    // Change output file name based on annotation mode
+    def outputFile = null
+        if (mode == 'full') {
+               outputFile = "${prefix}_full_AnnotSV.tsv"
+            } else if (mode == 'split') {
+               outputFile = "${prefix}_split_AnnotSV.tsv"
+            } else if (mode == 'both') {
+               outputFile = "${prefix}_both_AnnotSV.tsv"
+            } else {
+               throw new RuntimeException("Invalid option for --annotSV: ${mode}")}
+
     //Pass any additional flags to the AnnotSV 
     //def extraArgs = params.extraAnnotsvFlags ?: ''
     """
@@ -40,11 +50,12 @@ process ANNOTSV {
         -genomeBuild ${params.annotsvGenomeBuild} \\
         -includeCI 1 \\
         -overwrite 1 \\
-        -outputFile ${outputFile}
+        -outputFile ${outputFile} \\
+        -outputDir ./
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
-        annotsv: \$(AnnotSV --version |sed 's/^.*Version: //')
+    annotsv: \$(AnnotSV --version |sed 's/^.*Version: //')
     END_VERSIONS
     """
 }
