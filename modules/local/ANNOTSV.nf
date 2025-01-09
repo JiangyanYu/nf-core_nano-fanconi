@@ -42,7 +42,7 @@ process ANNOTSV {
     //def extraArgs = params.extraAnnotsvFlags ?: ''
     """
     AnnotSV \\
-        -SVinputFile ${params.annotsvinput} \\
+        -SVinputFile ${vcf_file} \\
         -annotationsDir ${params.annotsvAnnotationsDir} \\
         -bedtools bedtools \\
         -bcftools bcftools \\

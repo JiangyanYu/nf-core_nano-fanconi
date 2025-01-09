@@ -329,9 +329,7 @@ workflow NANOFANCONI {
     if (params.run_annotsv) {
     
         ANNOTSV (
-            SNIFFLES_SORT_VCF.out.vcf,
-            file(params.annotsvDir),
-            val(params.annotsvMode)
+            SNIFFLES_SORT_VCF.out.vcf
         )
 
         ch_versions = ch_versions.mix(ANNOTSV.out.versions)
