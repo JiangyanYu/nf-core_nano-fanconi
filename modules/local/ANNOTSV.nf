@@ -7,7 +7,7 @@ process ANNOTSV {
         'quay.io/biocontainers/annotsv:3.4.4--py312hdfd78af_0' }"
         
     containerOptions {
-        "-v ${params.annotsvAnnotationsDir}:${params.annotsvAnnotationsDir}"
+        "-v ${params.annotsvinput}:${params.annotsvinput} -v ${params.annotsvAnnotationsDir}:${params.annotsvAnnotationsDir}"
     }
 
 	input:
