@@ -26,7 +26,7 @@ process ANNOTSV {
     
     // Apply annotation mode flag to command
     def mode = params.annotsvMode
-    def outputFile = "${prefix}_AnnotSV.tsv"
+    outputFile = "${prefix}_AnnotSV.tsv"
     
     //Pass any additional flags to the AnnotSV 
     //def extraArgs = params.extraAnnotsvFlags ?: ''
