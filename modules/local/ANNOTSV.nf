@@ -42,6 +42,7 @@ process ANNOTSV {
 		-annotationsDir ${params.annotsvAnnotationsDir} \\
 		-bedtools bedtools \\
 		-bcftools bcftools \\
+		-annotationMode ${params.annotsvMode} \\
 		-genomeBuild ${params.annotsvGenomeBuild} \\
 		-includeCI 1 \\
 		-overwrite 1 \\
