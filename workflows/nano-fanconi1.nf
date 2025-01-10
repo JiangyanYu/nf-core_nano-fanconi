@@ -237,7 +237,7 @@ if (params.reads_format == 'bam' ) {
         * Call variants with deepvariant
         */
         
-        ch_deepvariant_input = WHATSHAP.out.bam.mix(WHATSHAP.out.bai).groupTuple(size:2).map{ meta, files -> [ meta, files.flatten() ]}
+        ch_deepvariant_input = WHATSHAP.out.bam.mix(WHATSHAP.out.bai).groupTuple(size:1).map{ meta, files -> [ meta, files.flatten() ]}
         deepvariant_bam_input = ch_deepvariant_input.join(ch_phased_vcf).dump(tag: "joined")
         
         DEEPVARIANT( 
