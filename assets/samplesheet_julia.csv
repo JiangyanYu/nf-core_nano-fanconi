@@ -1,0 +1,2 @@
+id,sample,flowcell,fast5_path,batch,kit
+run_1,sample_25,flowcell1,/home/jiy75qj/nextflow/Downloads/raw,20221220,LSK114
