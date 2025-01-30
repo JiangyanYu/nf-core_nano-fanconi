@@ -8,8 +8,8 @@ process DORADO_BASECALLER {
     label processLabel
 
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-        'jiangyanyu/docker-dorado:241016' :
-        'jiangyanyu/docker-dorado:241016' }"
+        'jiangyanyu/docker-dorado:v241016' :
+        'jiangyanyu/docker-dorado:v241016' }"
 
     input:
 
