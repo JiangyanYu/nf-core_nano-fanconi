@@ -163,9 +163,16 @@ workflow NANOFANCONI {
     INPUT_CHECK
     .out
     .reads
-    .map { meta, pod5_path -> 
+    .map { meta, files -> 
         def pod5_path = meta.pod5_path
+
+        // Check if fast5_path is null or empty
+            if (!pod5_path) {
+                throw new IllegalArgumentException("pod5_path is null or empty")
+            }
+
         def pod5_files = []
+        
         if (file(pod5_path).isDirectory()) {
             pod5_files = file("${pod5_path}/*.pod5")
         } else if (pod5_path.endsWith('.pod5')) {
