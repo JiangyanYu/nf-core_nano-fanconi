@@ -36,7 +36,7 @@ process DORADO_BASECALLER {
                 #--device ${device} \\
                 --cuda:0,1,2 \\
                 --chunksize 10000 \\
-                --batchsize 256 \\
+                --batchsize 0 \\
                 ${mod_model} \\
                 > ${meta.id}.${meta.chunkNumber}.bam
         cat <<-END_VERSIONS > versions.yml
