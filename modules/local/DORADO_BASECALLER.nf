@@ -34,6 +34,7 @@ process DORADO_BASECALLER {
         dorado basecaller ${args} /opt/dorado/models/${params.dorado_model} \\
                 pod5/ \\
                 --device ${device} \\
+                --max_split_size_mb 64 \\
                 --batchsize 125 \\
                 ${mod_model} \\
                 > ${meta.id}.${meta.chunkNumber}.bam
