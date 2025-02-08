@@ -164,6 +164,7 @@ workflow NANOFANCONI {
     .out
     .reads
     .map { meta, pod5_path -> 
+        def pod5_path = meta.pod5_path
         def pod5_files = []
         if (file(pod5_path).isDirectory()) {
             pod5_files = file("${pod5_path}/*.pod5")
