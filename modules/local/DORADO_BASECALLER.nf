@@ -33,10 +33,9 @@ process DORADO_BASECALLER {
         
         dorado basecaller ${args} /opt/dorado/models/${params.dorado_model} \\
                 pod5/ \\
-                #--device ${device} \\
-                --cuda:0,1,2 \\
-                --chunksize 10000 \\
-                --batchsize 24 \\
+                --device ${device} \\
+                #--chunksize 10000 \\
+                #--batchsize 256 \\
                 ${mod_model} \\
                 > ${meta.id}.${meta.chunkNumber}.bam
         cat <<-END_VERSIONS > versions.yml
