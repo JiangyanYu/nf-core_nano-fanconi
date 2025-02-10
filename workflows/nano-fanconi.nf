@@ -361,9 +361,12 @@ workflow NANOFANCONI {
         // MODULE: whatshap for phasing
         //
 
-        ch_whatshap_phase_input = SAMTOOLS_SORT.out.bam.mix(SAMTOOLS_SORT.out.bai,SNIFFLES_SORT_VCF.out.vcf,SNIFFLES_TABIX_VCF.out.tbi).groupTuple(size:4).map{ meta, files -> [ meta, files.flatten() ]}
-        whatshap_phase_input = ch_whatshap_phase_input.join(ch_phased_vcf).dump(tag: "joined")
-        whatshap_phase_input.dump(tag: "whatshap_phase")
+        ch_whatshap_phase_input = SAMTOOLS_SORT.out.bam
+            .mix(SAMTOOLS_SORT.out.bai)
+            .groupTuple(size:2) // Group BAM and BAI
+            .mix(SNIFFLES_SORT_VCF.out.vcf,SNIFFLES_TABIX_VCF.out.tbi) //Separate VCF and TBI files
+            .map{ meta, files -> [ meta, files.flatten() ]}
+
          
          WHATSHAP_PHASE (
              ch_whatshap_phase_input,
@@ -390,7 +393,12 @@ workflow NANOFANCONI {
         // MODULE: whatshap for haplotag
         //
 
-        ch_whatshap_haplotag_input = SAMTOOLS_SORT.out.bam.mix(SAMTOOLS_SORT.out.bai,PHASE_SORT_VCF.out.vcf,PHASE_TABIX_VCF.out.tbi).groupTuple(size:4).map{ meta, files -> [ meta, files.flatten() ]}
+        ch_whatshap_haplotag_input = SAMTOOLS_SORT.out.bam
+            .mix(SAMTOOLS_SORT.out.bai)
+            .groupTuple(size:2)
+            .mix(PHASE_SORT_VCF.out.vcf,PHASE_TABIX_VCF.out.tbi)
+            .map{ meta, files -> [ meta, files.flatten() ]}
+            
         whatshap_haplotag_input = ch_whatshap_haplotag_input.join(ch_phased_vcf).dump(tag: "joined")
         whatshap_phase_input.dump(tag: "whatshap_haplotag")
          
