@@ -6,25 +6,22 @@ process WHATSHAP {
         'jiangyanyu/docker-whatshap:v240302' }"
 
     input:
-        tuple val(meta), path(bam_bai_vcf_files), path(phased_vcf), path(phased_vcf_tbi)
+        tuple val(meta), path(bam_bai_vcf_files), path(sniffles_vcf), path(sniffles_vcf_tbi)
         path(reference_fasta)
         path(index)
 
     output:
-        tuple val(meta), path("${meta.sample}*.haplotagged.bam")     , emit: bam
-        tuple val(meta), path("${meta.sample}*.haplotagged.bam.bai") , emit: bai
+        tuple val(meta), path("${meta.sample}*_phased.vcf")          , emit: phased_vcf
         path  ("versions.yml")                                       , emit: versions
 
     script:
     // def vcf_file = phased_vcf.name != 'NO_FILE.vcf' ? "$phased_vcf" : "${meta.sample}.phased.vcf.gz"
-    def vcf_file = phased_vcf.name != 'test.vcf' ? "$phased_vcf" : "${meta.sample}.vcf.gz"
+    def vcf_file = sniffles_vcf.name != 'test.vcf' ? "$sniffles_vcf" : "${meta.sample}.vcf.gz"
     """
-    
-    #whatshap phase 
-
-    whatshap haplotag --tag-supplementary --ignore-read-groups --output-threads=${task.cpus} \\
-    -o ${meta.sample}.haplotagged.bam --reference ${reference_fasta} ${meta.sample}.vcf.gz ${meta.sample}.sorted.bam && \\
-    samtools index ${meta.sample}.haplotagged.bam
+    whatshap phase \\
+    -o ${meta.sample}_phased.vcf \\
+    --reference ${reference_fasta} \\
+    ${meta.sample}.vcf.gz ${meta.sample}.sorted.bam
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
