@@ -396,7 +396,7 @@ workflow NANOFANCONI {
         ch_whatshap_haplotag_input = SAMTOOLS_SORT.out.bam
             .mix(SAMTOOLS_SORT.out.bai)
             .groupTuple(size:2)
-            .mix(PHASE_SORT_VCF.out.phased_vcf,PHASE_TABIX_VCF.out.tbi)
+            .mix(PHASE_SORT_VCF.out.vcf,PHASE_TABIX_VCF.out.tbi)
             .map{ meta, files -> [ meta, files.flatten() ]}
          
          WHATSHAP_HAPLOTAG (
@@ -439,7 +439,7 @@ workflow NANOFANCONI {
             .mix(WHATSHAP_HAPLOTAG.out.bai)
             .groupTuple(size:1)
             .map{ meta, files -> [ meta, files.flatten() ]}
-            
+
         deepvariant_bam_input = ch_deepvariant_input.join(ch_phased_vcf).dump(tag: "joined")
         
         DEEPVARIANT( 
