@@ -361,7 +361,22 @@ workflow NANOFANCONI {
         // MODULE: whatshap for phasing
         //
 
-        
+
+
+        ch_versions = ch_versions.mix(WHATSHAP_PHASE.out.versions)
+        /*
+         * Sort phased structural variants with bcftools
+         */
+        PHASE_SORT_VCF( SNIFFLES.out.phased_vcf )
+        ch_sv_phase_vcf = PHASE_SORT_VCF.out.vcf
+        ch_versions = ch_versions.mix(PHASE_SORT_VCF.out.versions)
+
+        /*
+         * Index sniffles vcf.gz
+         */
+        PHASE_TABIX_VCF( ch_sv_phase_vcf )
+        ch_sv_calls_tbi  = PHASE_TABIX_VCF.out.tbi
+        ch_versions = ch_versions.mix( PHASE_TABIX_VCF.out.versions)
 
         //
         // MODULE: whatshap for haplotag
