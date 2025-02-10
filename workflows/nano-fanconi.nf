@@ -365,13 +365,9 @@ workflow NANOFANCONI {
             .mix(SAMTOOLS_SORT.out.bai,SNIFFLES_SORT_VCF.out.vcf,SNIFFLES_TABIX_VCF.out.tbi)
             .groupTuple(size:4)
             .map{ meta, files -> [ meta, files.flatten() ]}
-            .dump(tag: "QC_WHATSHAP_PHASE_INPUT")
-
-        // QC: Print expected files before running WHATSHAP_PHASE
-        ch_whatshap_phase_input.view { it -> "QC: WHATSHAP_PHASE INPUT -> ${it}" }
          
          WHATSHAP_PHASE (
-            // ch_whatshap_phase_input,
+             ch_whatshap_phase_input,
              file(params.fasta),
              file(params.fasta_index)
          )
