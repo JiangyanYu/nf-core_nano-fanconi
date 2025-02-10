@@ -409,7 +409,7 @@ workflow NANOFANCONI {
         //
         // MODULE: MOSDEPTH for depth calculation
         //
-        ch_mosdepth_input = WHATSHAP.out.bam.mix(WHATSHAP.out.bai).groupTuple(size:2).map{ meta, files -> [ meta, files.flatten() ]}
+        ch_mosdepth_input = WHATSHAP_HAPLOTAG.out.bam.mix(WHATSHAP_HAPLOTAG.out.bai).groupTuple(size:2).map{ meta, files -> [ meta, files.flatten() ]}
         MOSDEPTH (
             ch_mosdepth_input
         )
