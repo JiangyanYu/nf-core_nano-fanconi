@@ -361,13 +361,19 @@ workflow NANOFANCONI {
         // MODULE: whatshap for phasing
         //
 
+        ch_whatshap_phase_input = SAMTOOLS_SORT.out.bam.mix(SAMTOOLS_SORT.out.bai,SNIFFLES_SORT_VCF.out.vcf,SNIFFLES_TABIX_VCF.out.tbi).groupTuple(size:4).map{ meta, files -> [ meta, files.flatten() ]}
+         
+         WHATSHAP_PHASE (
+             ch_whatshap_phase_input,
+             file(params.fasta),
+             file(params.fasta_index)
+         )
 
-
-        //ch_versions = ch_versions.mix(WHATSHAP_PHASE.out.versions)
+        ch_versions = ch_versions.mix(WHATSHAP_PHASE.out.versions)
         /*
          * Sort phased structural variants with bcftools
          */
-        PHASE_SORT_VCF( SNIFFLES.out.phased_vcf )
+        PHASE_SORT_VCF( WHATSHAP_PHASE.out.phased_vcf )
         ch_sv_phase_vcf = PHASE_SORT_VCF.out.vcf
         ch_versions = ch_versions.mix(PHASE_SORT_VCF.out.versions)
 
@@ -383,11 +389,9 @@ workflow NANOFANCONI {
         //
 
         ch_whatshap_haplotag_input = SAMTOOLS_SORT.out.bam.mix(SAMTOOLS_SORT.out.bai,PHASE_SORT_VCF.out.vcf,PHASE_TABIX_VCF.out.tbi).groupTuple(size:4).map{ meta, files -> [ meta, files.flatten() ]}
-        whatshap_haplotag_input = ch_whatshap_haplotag_input.join(ch_phased_vcf).dump(tag: "joined")
-        whatshap_phase_input.dump(tag: "whatshap_haplotag")
          
          WHATSHAP_HAPLOTAG (
-             ch_whatshap_phase_input,
+             ch_whatshap_haplotag_input,
              file(params.fasta),
              file(params.fasta_index)
          )
