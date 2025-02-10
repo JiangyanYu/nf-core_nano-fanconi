@@ -1,11 +1,10 @@
 process WHATSHAP_PHASE {
     label 'process_high'
 
-    //container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-    //    'jiangyanyu/docker-whatshap:v240302' :
-    //    'jiangyanyu/docker-whatshap:v240302' }"
 
-    container 'jiangyanyu/docker-whatshap:v240302'
+    container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
+        'jiangyanyu/docker-whatshap:v240302' :
+        'jiangyanyu/docker-whatshap:v240302' }"
 
     input:
         tuple val(meta), path(bam_bai_vcf_files), path(sniffles_vcf), path(sniffles_vcf_tbi)
