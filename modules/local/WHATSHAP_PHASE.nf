@@ -5,12 +5,10 @@ process WHATSHAP_PHASE {
     //    'jiangyanyu/docker-whatshap:v240302' :
     //    'jiangyanyu/docker-whatshap:v240302' }"
 
-    container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-        'jiangyanyu/docker-whatshap:v240302' :
-        'jiangyanyu/docker-whatshap:v240302' }"
+    container 'jiangyanyu/docker-whatshap:v240302'
 
     input:
-        tuple val(meta), path(bam_file), path(bam_bai_file), path(sniffles_vcf), path(sniffles_vcf_tbi)
+        tuple val(meta), path(bam_bai_vcf_files), path(sniffles_vcf), path(sniffles_vcf_tbi)
         path(reference_fasta)
         path(index)
 
@@ -21,9 +19,7 @@ process WHATSHAP_PHASE {
     script:
     """
 
-    whatshap phase -o ${meta.sample}_phased.vcf 
-        --reference=${reference_fasta} 
-        ${meta.sample}.vcf.gz ${meta.sample}.sorted.bam
+    whatshap phase -o ${meta.sample}_phased.vcf --reference=${reference_fasta} ${meta.sample}.vcf.gz ${meta.sample}.sorted.bam
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
