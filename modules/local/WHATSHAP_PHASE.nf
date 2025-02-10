@@ -16,16 +16,15 @@ process WHATSHAP_PHASE {
 
     script:
     // def vcf_file = phased_vcf.name != 'NO_FILE.vcf' ? "$phased_vcf" : "${meta.sample}.phased.vcf.gz"
-    // def vcf_file = sniffles_vcf.name != 'test.vcf' ? "$sniffles_vcf" : "${meta.sample}.vcf.gz"
+    def vcf_file = sniffles_vcf.name != 'test.vcf' ? "$sniffles_vcf" : "${meta.sample}.vcf.gz"
     """
-    whatshap phase \\
-    -o ${meta.sample}_phased.vcf \\
-    --reference=${reference_fasta} \\
-    ${meta.sample}.vcf.gz ${meta.sample}.sorted.bam
+
+    whatshap phase -o ${meta.sample}_phased.vcf --reference=${reference_fasta} ${meta.sample}.vcf.gz ${meta.sample}.sorted.bam
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
         whatshap: \$(whatshap --version |sed 's/^.*Version: //')
     END_VERSIONS
+
     """
 }
