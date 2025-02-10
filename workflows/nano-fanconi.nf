@@ -363,7 +363,7 @@ workflow NANOFANCONI {
 
 
 
-        ch_versions = ch_versions.mix(WHATSHAP_PHASE.out.versions)
+        //ch_versions = ch_versions.mix(WHATSHAP_PHASE.out.versions)
         /*
          * Sort phased structural variants with bcftools
          */
