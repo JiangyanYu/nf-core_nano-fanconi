@@ -6,7 +6,7 @@ process WHATSHAP_PHASE {
     //    'jiangyanyu/docker-whatshap:v240302' }"
 
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-        'jiangyanyu/docker-whatshap:v240302' :
+        'https://hub.docker.com/repository/docker/jiangyanyu/docker-whatshap/' :
         'jiangyanyu/docker-whatshap:v240302' }"
 
     input:
