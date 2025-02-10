@@ -6,7 +6,6 @@ def processLabel = determineLabel()
 
 process DORADO_BASECALLER {
     maxForks 2  // Limits the number of concurrent executions of this process to 2
-    
     label processLabel
 
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
@@ -23,7 +22,7 @@ process DORADO_BASECALLER {
 
     script:
         def args = task.ext.args ?: ''
-        def device = params.use_gpu ? "cuda:all": "cpu"
+        def device = params.use_gpu ? "cuda:0": "cpu"
         def mod_model = params.dorado_modifications_model ? "--modified-bases ${params.dorado_modifications_model}" : ''
 
         """
@@ -35,8 +34,7 @@ process DORADO_BASECALLER {
         
         dorado basecaller ${args} /opt/dorado/models/${params.dorado_model} \\
                 pod5/ \\
-                ##--device ${device} \\
-                --device cuda:0 \\
+                --device ${device} \\
                 ${mod_model} \\
                 > ${meta.id}.${meta.chunkNumber}.bam
         cat <<-END_VERSIONS > versions.yml
