@@ -399,7 +399,9 @@ workflow NANOFANCONI {
             .mix(SAMTOOLS_SORT.out.bai)
             .groupTuple(size:2)
             .mix(PHASE_SORT_VCF.out.vcf,PHASE_TABIX_VCF.out.tbi)
-            .map{ meta, files -> [ meta, files.flatten() ]}
+            .map { meta, bam_bai, vcf, vcf_tbi -> 
+                [meta, bam_bai, vcf, vcf_tbi] 
+            }
          
          WHATSHAP_HAPLOTAG (
              ch_whatshap_haplotag_input,
