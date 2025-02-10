@@ -365,7 +365,9 @@ workflow NANOFANCONI {
             .mix(SAMTOOLS_SORT.out.bai)
             .groupTuple(size:2) // Group BAM and BAI
             .mix(SNIFFLES_SORT_VCF.out.vcf,SNIFFLES_TABIX_VCF.out.tbi) //Separate VCF and TBI files
-            .map{ meta, files -> [ meta, files.flatten() ]}
+            .map { meta, bam_bai, vcf, vcf_tbi -> 
+                [meta, bam_bai, vcf, vcf_tbi] 
+            }
 
          
          WHATSHAP_PHASE (
