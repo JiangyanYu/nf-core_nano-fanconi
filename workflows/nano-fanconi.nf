@@ -398,9 +398,9 @@ workflow NANOFANCONI {
             .groupTuple(size:2)
             .mix(PHASE_SORT_VCF.out.vcf,PHASE_TABIX_VCF.out.tbi)
             .map{ meta, files -> [ meta, files.flatten() ]}
-            
+
         whatshap_haplotag_input = ch_whatshap_haplotag_input.join(ch_phased_vcf).dump(tag: "joined")
-        whatshap_phase_input.dump(tag: "whatshap_haplotag")
+        whatshap_haplotag_input.dump(tag: "whatshap_haplotag")
          
          WHATSHAP_HAPLOTAG (
              ch_whatshap_haplotag_input,
