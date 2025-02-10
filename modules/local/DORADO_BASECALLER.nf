@@ -5,6 +5,8 @@ def determineLabel() {
 def processLabel = determineLabel()
 
 process DORADO_BASECALLER {
+    maxForks 2  // Limits the number of concurrent executions of this process to 2
+    
     label processLabel
 
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
