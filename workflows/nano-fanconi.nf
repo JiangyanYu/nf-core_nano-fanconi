@@ -389,7 +389,7 @@ workflow NANOFANCONI {
         //
 
         ch_whatshap_haplotag_input = SAMTOOLS_SORT.out.bam.mix(SAMTOOLS_SORT.out.bai,PHASE_SORT_VCF.out.vcf,PHASE_TABIX_VCF.out.tbi).groupTuple(size:4).map{ meta, files -> [ meta, files.flatten() ]}
-        ch_whatshap_input.dump(tag: "whatshap_haplotag")
+        ch_whatshap_haplotag_input.dump(tag: "whatshap_haplotag")
          
          WHATSHAP_HAPLOTAG (
              ch_whatshap_haplotag_input,
