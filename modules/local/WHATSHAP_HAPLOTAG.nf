@@ -17,7 +17,7 @@ process WHATSHAP_HAPLOTAG {
 
     script:
     // def vcf_file = phased_vcf.name != 'NO_FILE.vcf' ? "$phased_vcf" : "${meta.sample}.phased.vcf.gz"
-    def vcf_file = phased_vcf.name != 'test.vcf' ? "$phased_vcf" : "${meta.sample}.vcf.gz"
+    // def vcf_file = phased_vcf.name != 'test.vcf' ? "$phased_vcf" : "${meta.sample}.vcf.gz"
     """
 
     whatshap haplotag --tag-supplementary --ignore-read-groups --output-threads=${task.cpus} \\
