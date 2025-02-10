@@ -370,6 +370,7 @@ workflow NANOFANCONI {
              file(params.fasta_index)
          )
 
+        ch_versions = ch_versions.mix(WHATSHAP_PHASE.out.versions)
         /*
          * Sort phased structural variants with bcftools
          */
@@ -397,7 +398,7 @@ workflow NANOFANCONI {
              file(params.fasta_index)
          )
          
-        ch_versions = ch_versions.mix(WHATSHAP.out.versions)
+        ch_versions = ch_versions.mix(WHATSHAP_HAPLOTAG.out.versions)
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
