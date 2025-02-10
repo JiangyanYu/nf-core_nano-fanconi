@@ -366,7 +366,7 @@ workflow NANOFANCONI {
         whatshap_phase_input.dump(tag: "whatshap_phase")
          
          WHATSHAP_PHASE (
-             whatshap_phase_input,
+             ch_whatshap_phase_input,
              file(params.fasta),
              file(params.fasta_index)
          )
