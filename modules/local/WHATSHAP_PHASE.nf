@@ -1,10 +1,6 @@
 process WHATSHAP_PHASE {
     label 'process_high'
 
-    //container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-    //    'jiangyanyu/docker-whatshap:v240302' :
-    //    'jiangyanyu/docker-whatshap:v240302' }"
-
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
         'https://hub.docker.com/repository/docker/jiangyanyu/docker-whatshap/' :
         'jiangyanyu/docker-whatshap:v240302' }"
@@ -22,9 +18,9 @@ process WHATSHAP_PHASE {
     """
     echo "getting into phase step"
 
-    whatshap phase -o ${meta.sample}_phased.vcf 
-        --reference=${reference_fasta} 
-        ${meta.sample}.vcf.gz ${meta.sample}.sorted.bam
+    #whatshap phase -o ${meta.sample}_phased.vcf 
+    #    --reference=${reference_fasta} 
+    #    ${meta.sample}.vcf.gz ${meta.sample}.sorted.bam
 
     echo "finished"
 
