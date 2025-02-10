@@ -1,7 +1,6 @@
 process WHATSHAP_PHASE {
     label 'process_high'
 
-
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
         'jiangyanyu/docker-whatshap:v240302' :
         'jiangyanyu/docker-whatshap:v240302' }"
@@ -16,6 +15,8 @@ process WHATSHAP_PHASE {
         path  ("versions.yml")                                       , emit: versions
 
     script:
+    // def vcf_file = phased_vcf.name != 'NO_FILE.vcf' ? "$phased_vcf" : "${meta.sample}.phased.vcf.gz"
+    def vcf_file = sniffles_vcf.name != 'test.vcf' ? "$sniffles_vcf" : "${meta.sample}.vcf.gz"
     """
 
     whatshap phase -o ${meta.sample}_phased.vcf --reference=${reference_fasta} ${meta.sample}.vcf.gz ${meta.sample}.sorted.bam
