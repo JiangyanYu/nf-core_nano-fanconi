@@ -1,4 +1,5 @@
 process WHATSHAP_PHASE {
+    tag "$meta.sample"
     label 'process_high'
 
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
@@ -6,16 +7,17 @@ process WHATSHAP_PHASE {
         'jiangyanyu/docker-whatshap:v240302' }"
 
     input:
-    //tuple val(meta), path(bam_file), path(bam_bai_file)
-    path(reference_fasta)
-    path(index)
+        tuple val(meta), path(bam_file), path(bam_bai_file)
+        path(reference_fasta)
+        path(index)
 
 
     output:
-    //tuple val(meta), path("${meta.sample}*_phased.vcf")          , emit: phased_vcf
-    path  ("versions.yml")                                       , emit: versions
+        //tuple val(meta), path("${meta.sample}*_phased.vcf")          , emit: phased_vcf
+        path  ("versions.yml")                                       , emit: versions
 
     script:
+    prefix      = task.ext.prefix ?: "${meta.sample}"
     """
     echo "getting into phase step"
 
