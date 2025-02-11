@@ -63,7 +63,8 @@ include { BCFTOOLS_SORT as SNIFFLES_SORT_VCF            } from '../modules/nf-co
 include { TABIX_BGZIP as SNIFFLES_BGZIP_VCF             } from '../modules/nf-core/tabix/bgzip/main.nf'
 include { TABIX_TABIX as SNIFFLES_TABIX_VCF             } from '../modules/nf-core/tabix/tabix/main.nf'
 include { ANNOTSV                                       } from '../modules/local/ANNOTSV.nf'
-include { WHATSHAP                                      } from '../modules/local/WHATSHAP.nf'
+include { WHATSHAP_PHASE                                } from '../modules/local/WHATSHAP_PHASE.nf'
+include { WHATSHAP_HAPLOTAG                             } from '../modules/local/WHATSHAP_HAPLOTAG.nf'
 include { MOSDEPTH                                      } from '../modules/local/MOSDEPTH.nf'
 include { DEEPVARIANT                                   } from '../modules/local/DEEPVARIANT.nf'
 include { TABIX_TABIX as DEEPVARIANT_TABIX_VCF          } from '../modules/nf-core/tabix/tabix/main.nf'
@@ -358,17 +359,45 @@ workflow NANOFANCONI {
         // MODULE: whatshap for phasing
         //
 
-        ch_whatshap_input = SAMTOOLS_SORT.out.bam.mix(SAMTOOLS_SORT.out.bai,SNIFFLES_SORT_VCF.out.vcf,SNIFFLES_TABIX_VCF.out.tbi).groupTuple(size:4).map{ meta, files -> [ meta, files.flatten() ]}
-        ch_whatshap_input.dump(tag: "whatshap")
-        
+        ch_whatshap_phase_input = SAMTOOLS_SORT.out.bam
+            .mix(SAMTOOLS_SORT.out.bai,SNIFFLES_SORT_VCF.out.vcf,SNIFFLES_TABIX_VCF.out.tbi)
+            .groupTuple(size:4)
+            .map{ meta, files -> [ meta, files.flatten() ]}
          
-         WHATSHAP (
-             ch_whatshap_input,
+         WHATSHAP_PHASE (
+             ch_whatshap_phase_input,
+             file(params.fasta),
+             file(params.fasta_index)
+         )
+        ch_versions = ch_versions.mix(WHATSHAP_PHASE.out.versions)
+
+        /*
+         * Sort phased structural variants with bcftools
+         */
+        PHASE_SORT_VCF( WHATSHAP_PHASE.out.phased_vcf )
+        ch_sv_phase_vcf = PHASE_SORT_VCF.out.vcf
+        ch_versions = ch_versions.mix(PHASE_SORT_VCF.out.versions)
+
+        /*
+         * Index sniffles vcf.gz
+         */
+        PHASE_TABIX_VCF( ch_sv_phase_vcf )
+        ch_sv_calls_tbi  = PHASE_TABIX_VCF.out.tbi
+        ch_versions = ch_versions.mix( PHASE_TABIX_VCF.out.versions)
+
+        //
+        // MODULE: whatshap for haplotag
+        //
+
+        ch_whatshap_haplotag_input = SAMTOOLS_SORT.out.bam.mix(SAMTOOLS_SORT.out.bai,PHASE_SORT_VCF.out.vcf,PHASE_TABIX_VCF.out.tbi).groupTuple(size:4).map{ meta, files -> [ meta, files.flatten() ]}
+         
+         WHATSHAP_HAPLOTAG (
+             ch_whatshap_haplotag_input,
              file(params.fasta),
              file(params.fasta_index)
          )
          
-        ch_versions = ch_versions.mix(WHATSHAP.out.versions)
+        ch_versions = ch_versions.mix(WHATSHAP_HAPLOTAG.out.versions)
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -379,7 +408,7 @@ workflow NANOFANCONI {
         //
         // MODULE: MOSDEPTH for depth calculation
         //
-        ch_mosdepth_input = WHATSHAP.out.bam.mix(WHATSHAP.out.bai).groupTuple(size:2).map{ meta, files -> [ meta, files.flatten() ]}
+        ch_mosdepth_input = WHATSHAP_HAPLOTAG.out.bam.mix(WHATSHAP_HAPLOTAG.out.bai).groupTuple(size:2).map{ meta, files -> [ meta, files.flatten() ]}
         MOSDEPTH (
             ch_mosdepth_input
         )
@@ -398,7 +427,7 @@ workflow NANOFANCONI {
         * Call variants with deepvariant
         */
         
-        ch_deepvariant_input = WHATSHAP.out.bam.mix(WHATSHAP.out.bai).groupTuple(size:1).map{ meta, files -> [ meta, files.flatten() ]}
+        ch_deepvariant_input = WHATSHAP_HAPLOTAG.out.bam.mix(WHATSHAP_HAPLOTAG.out.bai).groupTuple(size:1).map{ meta, files -> [ meta, files.flatten() ]}
         deepvariant_bam_input = ch_deepvariant_input.join(ch_phased_vcf).dump(tag: "joined")
         
         DEEPVARIANT( 
