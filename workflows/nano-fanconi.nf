@@ -102,7 +102,7 @@ workflow NANOFANCONI {
         ch_input
     )
     ch_versions = ch_versions.mix(INPUT_CHECK.out.versions)
-    ch_phased_vcf = INPUT_CHECK.out.reads.map{ meta, files -> [[sample: meta.sample],meta.fast5_path,meta.pod5_path, meta.vcf, meta.vcf_tbi] }.dump(tag: "ch_phased_vcf")
+    ch_phased_vcf = INPUT_CHECK.out.reads.map{ meta, files -> [[sample: meta.sample],meta.input_path,meta.pod5_path, meta.vcf, meta.vcf_tbi] }.dump(tag: "ch_phased_vcf")
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -116,7 +116,7 @@ workflow NANOFANCONI {
         .out
         .reads
         .map { meta, files -> 
-            def fast5_path = meta.fast5_path
+            def fast5_path = meta.input_path
     
             // Check if fast5_path is null or empty
             if (!fast5_path) {
@@ -164,7 +164,7 @@ workflow NANOFANCONI {
     .out
     .reads
     .map { meta, files -> 
-        def pod5_path = meta.pod5_path
+        def pod5_path = meta.input_path
 
         // Check if fast5_path is null or empty
             if (!pod5_path) {
@@ -253,7 +253,8 @@ workflow NANOFANCONI {
         INPUT_CHECK
         .out
         .reads
-        .flatMap { meta, bam_path -> 
+        .flatMap { meta, files -> 
+            def bam_path = meta.input_path
             def bam_files = []
             if (file(bam_path).isDirectory()) {
                 bam_files = file("${bam_path}/*.bam")

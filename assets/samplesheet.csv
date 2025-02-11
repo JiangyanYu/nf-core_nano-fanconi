@@ -1,2 +1,2 @@
-id,sample,flowcell,fast5_path,batch,kit
+id,sample,flowcell,input_path,batch,kit
 run_1,sample_1,flowcell1,/media/agschlitzer/DATA1/pbfusion/Downloads/sample1.fast5,20221220,LSK114
