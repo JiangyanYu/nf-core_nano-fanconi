@@ -16,7 +16,6 @@ process WHATSHAP_PHASE {
         path  ("versions.yml")                                       , emit: versions
 
     script:
-    prefix      = task.ext.prefix ?: "${meta.sample}"
     """
     echo "getting into phase step"
 
