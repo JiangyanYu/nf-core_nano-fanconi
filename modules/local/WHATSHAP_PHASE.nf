@@ -6,20 +6,20 @@ process WHATSHAP_PHASE {
         'jiangyanyu/docker-whatshap:v240302' }"
 
     input:
-    tuple val(meta), path(bam_file), path(bam_bai_file)
+    tuple val(meta), path(bam_file), path(bam_bai_file), path(sniffles_vcf),path(sniffles_tbi)
     path(reference_fasta)
     path(index)
 
 
     output:
-        //tuple val(meta), path("${meta.sample}*_phased.vcf")          , emit: phased_vcf
+        tuple val(meta), path("${meta.sample}*_phased.vcf")          , emit: phased_vcf
         path  ("versions.yml")                                       , emit: versions
 
     script:
     """
-    echo "getting into phase step"
-
-    echo "finished"
+    whatshap phase -o ${meta.sample}_phased.vcf 
+        --reference=${reference_fasta} 
+        ${sniffles_vcf} ${bam_file}
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
