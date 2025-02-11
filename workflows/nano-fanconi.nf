@@ -376,7 +376,7 @@ workflow NANOFANCONI {
         phase_input2.view()
 
          WHATSHAP_PHASE (
-             //phase_input1,
+             phase_input1,
              file(params.fasta),
              file(params.fasta_index)
          )
