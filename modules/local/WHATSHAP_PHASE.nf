@@ -6,8 +6,6 @@ process WHATSHAP_PHASE {
         'jiangyanyu/docker-whatshap:v240302' }"
 
     input:
-    path(bam_file)
-    path(bam_bai_file)
     path(vcf_file)
     path(vcf_tbi_file)
     path(reference_fasta)
