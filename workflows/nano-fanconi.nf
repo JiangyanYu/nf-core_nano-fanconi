@@ -370,8 +370,10 @@ workflow NANOFANCONI {
         phase_input_vcf.view()
 
          WHATSHAP_PHASE (
-             phase_input_bam,
-             phase_input_vcf,
+             SAMTOOLS_SORT.out.bam,
+             SAMTOOLS_SORT.out.bai,
+             SNIFFLES_SORT_VCF.out.vcf,
+             SNIFFLES_TABIX_VCF.out.tbi,
              file(params.fasta),
              file(params.fasta_index)
          )
