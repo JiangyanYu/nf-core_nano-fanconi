@@ -268,9 +268,9 @@ workflow NANOFANCONI {
         .set { ch_basecall_sample_merged_bams } // set channel name
     }
 
-    MERGE_BASECALL_SAMPLE (
-        ch_basecall_sample_merged_bams
-    )
+    //MERGE_BASECALL_SAMPLE (
+    //    ch_basecall_sample_merged_bams
+    //)
     ch_versions = ch_versions.mix(MERGE_BASECALL_SAMPLE.out.versions)
     
 /*
@@ -279,7 +279,8 @@ workflow NANOFANCONI {
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
     DORADO_ALIGNER (
-        MERGE_BASECALL_SAMPLE.out.merged_bam,
+        ch_basecall_sample_merged_bams
+        //MERGE_BASECALL_SAMPLE.out.merged_bam,
         file(params.fasta)
     )
     ch_versions = ch_versions.mix(DORADO_ALIGNER.out.versions)
