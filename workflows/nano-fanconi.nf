@@ -368,7 +368,6 @@ workflow NANOFANCONI {
             .map{ meta, files -> [ meta, files.flatten() ]}
 
         phase_bam = ch_phase_bam.join(ch_phased_vcf).dump(tag: "joined")
-        phase_bam.view()
 
         ch_phase_vcf = SNIFFLES_SORT_VCF.out.vcf
             .mix(SNIFFLES_TABIX_VCF.out.tbi)
