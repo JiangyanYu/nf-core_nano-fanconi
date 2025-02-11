@@ -371,6 +371,7 @@ workflow NANOFANCONI {
 
         ch_phase_vcf = SNIFFLES_SORT_VCF.out.vcf
             .mix(SNIFFLES_TABIX_VCF.out.tbi)
+            .groupTuple(size:2)
 
 
         ch_phase_vcf.view()
