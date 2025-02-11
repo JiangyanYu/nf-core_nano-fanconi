@@ -19,10 +19,9 @@ process WHATSHAP_PHASE {
     script:
 
     """
-
-    #whatshap phase -o ${meta.sample}_phased.vcf \\
-    #    --reference=${reference_fasta} \\
-    #    ${meta.sample}.vcf.gz ${meta.sample}.sorted.bam
+    whatshap phase -o ${meta.sample}_phased.vcf \\
+        --reference=${reference_fasta} \\
+        ${meta.sample}.vcf.gz ${meta.sample}.sorted.bam
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
