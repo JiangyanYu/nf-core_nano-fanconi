@@ -333,7 +333,7 @@ workflow NANOFANCONI {
     NANOFANCONI: AnnotSV
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
-
+/*
     if (params.run_annotsv) {
     
         ANNOTSV (
@@ -343,7 +343,7 @@ workflow NANOFANCONI {
         ch_versions = ch_versions.mix(ANNOTSV.out.versions)
         
     }
-    
+ */   
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -351,7 +351,7 @@ workflow NANOFANCONI {
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
-
+/*
     if (params.run_whatshap) {
         //
         // MODULE: whatshap for phasing
@@ -368,13 +368,14 @@ workflow NANOFANCONI {
          )
          
         ch_versions = ch_versions.mix(WHATSHAP.out.versions)
+*/
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     NANOFANCONI: whatshap depth calculation
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
-
+/*
         //
         // MODULE: MOSDEPTH for depth calculation
         //
@@ -385,17 +386,17 @@ workflow NANOFANCONI {
         ch_versions = ch_versions.mix(MOSDEPTH.out.versions)
         
     }
-
+*/
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     NANOFANCONI: DeepVariant
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
-
+/*
     if (params.run_deepvariant) {
-        /*
-        * Call variants with deepvariant
-        */
+        
+        // Call variants with deepvariant
+        
         
         ch_deepvariant_input = WHATSHAP.out.bam.mix(WHATSHAP.out.bai).groupTuple(size:1).map{ meta, files -> [ meta, files.flatten() ]}
         deepvariant_bam_input = ch_deepvariant_input.join(ch_phased_vcf).dump(tag: "joined")
@@ -410,22 +411,22 @@ workflow NANOFANCONI {
         ch_short_calls_gvcf = DEEPVARIANT.out.gvcf
         ch_versions = ch_versions.mix(DEEPVARIANT.out.versions)
 
-        /*
-         * Index deepvariant vcf.gz
-         */
+        
+         // Index deepvariant vcf.gz
+         
         DEEPVARIANT_TABIX_VCF( ch_short_calls_vcf )
         ch_short_calls_vcf_tbi  = DEEPVARIANT_TABIX_VCF.out.tbi
         ch_versions = ch_versions.mix(DEEPVARIANT_TABIX_VCF.out.versions)
 
-        /*
-         * Index deepvariant g.vcf.gz
-         */
+        
+         // Index deepvariant g.vcf.gz
+         
         DEEPVARIANT_TABIX_GVCF( ch_short_calls_gvcf )
         ch_short_calls_gvcf_tbi  = DEEPVARIANT_TABIX_GVCF.out.tbi
         ch_versions = ch_versions.mix(DEEPVARIANT_TABIX_VCF.out.versions)
         
     }
-    
+*/    
     
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
