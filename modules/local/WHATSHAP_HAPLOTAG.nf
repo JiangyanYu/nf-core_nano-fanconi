@@ -6,7 +6,8 @@ process WHATSHAP_HAPLOTAG {
         'jiangyanyu/docker-whatshap:v240302' }"
 
     input:
-        tuple val(meta), path(bam_bai_vcf_files), path(phased_vcf), path(phased_vcf_tbi)
+        tuple val(meta), path(bam_file), path(bam_bai_file)
+        tuple val(meta), path(phased_vcf), path(phased_tbi)
         path(reference_fasta)
         path(index)
 
@@ -21,7 +22,7 @@ process WHATSHAP_HAPLOTAG {
     """
 
     whatshap haplotag --tag-supplementary --ignore-read-groups --output-threads=${task.cpus} \\
-    -o ${meta.sample}.haplotagged.bam --reference ${reference_fasta} ${meta.sample}.vcf.gz ${meta.sample}.sorted.bam && \\
+    -o ${meta.sample}.haplotagged.bam --reference ${reference_fasta} ${meta.sample}_phased.vcf ${meta.sample}.sorted.bam && \\
     samtools index ${meta.sample}.haplotagged.bam
 
     cat <<-END_VERSIONS > versions.yml

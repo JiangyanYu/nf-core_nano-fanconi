@@ -395,28 +395,45 @@ workflow NANOFANCONI {
         /*
          * Sort phased structural variants with bcftools
          */
-        //PHASE_SORT_VCF( WHATSHAP_PHASE.out.phased_vcf )
-        //ch_sv_phase_vcf = PHASE_SORT_VCF.out.vcf
-        //ch_versions = ch_versions.mix(PHASE_SORT_VCF.out.versions)
+        PHASE_SORT_VCF( WHATSHAP_PHASE.out.phased_vcf )
+        ch_sv_phase_vcf = PHASE_SORT_VCF.out.vcf
+        ch_versions = ch_versions.mix(PHASE_SORT_VCF.out.versions)
 
         /*
          * Index sniffles vcf.gz
          */
-        //PHASE_TABIX_VCF( ch_sv_phase_vcf )
-        //ch_sv_calls_tbi  = PHASE_TABIX_VCF.out.tbi
-        //ch_versions = ch_versions.mix( PHASE_TABIX_VCF.out.versions)
+        PHASE_TABIX_VCF( ch_sv_phase_vcf )
+        ch_sv_calls_tbi  = PHASE_TABIX_VCF.out.tbi
+        ch_versions = ch_versions.mix( PHASE_TABIX_VCF.out.versions)
 
         //
         // MODULE: whatshap for haplotag
         //
+        ch_haplotag_bam = SAMTOOLS_SORT.out.bam
+            .mix(SAMTOOLS_SORT.out.bai)
+            .groupTuple(size:2)
+            .map{ meta, files -> [ meta, files.flatten() ]}
 
-        //ch_whatshap_haplotag_input = SAMTOOLS_SORT.out.bam.mix(SAMTOOLS_SORT.out.bai,PHASE_SORT_VCF.out.vcf,PHASE_TABIX_VCF.out.tbi).groupTuple(size:4).map{ meta, files -> [ meta, files.flatten() ]}
-         
-         //WHATSHAP_HAPLOTAG (
-         //    ch_whatshap_haplotag_input,
-         //    file(params.fasta),
-         //    file(params.fasta_index)
-         //)
+        haplotag_bam = ch_haplotag_bam.join(ch_phased_vcf).dump(tag: "joined")
+
+
+        test_step = INPUT_CHECK.out.reads
+        .map{ meta, files -> [[sample: meta.sample],meta.vcf_tbi] }
+        .dump(tag: "test_step")
+
+
+        ch_haplotag_vcf = PHASE_SORT_VCF.out.vcf
+            .mix(PHASE_TABIX_VCF.out.tbi)
+            .groupTuple(size:2)
+            .map{ meta, files -> [ meta, files.flatten() ]}
+        haplotag_vcf = ch_haplotag_vcf.join(test_step).dump(tag: "joined")
+     
+         WHATSHAP_HAPLOTAG (
+             haplotag_bam,
+             haplotag_vcf,
+             file(params.fasta),
+             file(params.fasta_index)
+         )
          
         //ch_versions = ch_versions.mix(WHATSHAP_HAPLOTAG.out.versions)
 
@@ -429,11 +446,11 @@ workflow NANOFANCONI {
         //
         // MODULE: MOSDEPTH for depth calculation
         //
-        //ch_mosdepth_input = WHATSHAP_HAPLOTAG.out.bam.mix(WHATSHAP_HAPLOTAG.out.bai).groupTuple(size:2).map{ meta, files -> [ meta, files.flatten() ]}
-        //MOSDEPTH (
-        //    ch_mosdepth_input
-        //)
-        //ch_versions = ch_versions.mix(MOSDEPTH.out.versions)
+        ch_mosdepth_input = WHATSHAP_HAPLOTAG.out.bam.mix(WHATSHAP_HAPLOTAG.out.bai).groupTuple(size:2).map{ meta, files -> [ meta, files.flatten() ]}
+        MOSDEPTH (
+            ch_mosdepth_input
+        )
+        ch_versions = ch_versions.mix(MOSDEPTH.out.versions)
         
     }
 
