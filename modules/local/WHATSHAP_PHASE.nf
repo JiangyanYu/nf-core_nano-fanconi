@@ -6,7 +6,7 @@ process WHATSHAP_PHASE {
         'jiangyanyu/docker-whatshap:v240302' }"
 
     input:
-        tuple val(meta), path(bam_bai_vcf_files), path(sniffles_vcf), path(sniffles_vcf_tbi)
+        tuple val(meta), path(bam_file),path(bam_bai_file), path(sniffles_vcf), path(sniffles_vcf_tbi)
         path(reference_fasta)
         path(index)
 
@@ -18,6 +18,17 @@ process WHATSHAP_PHASE {
     // def vcf_file = phased_vcf.name != 'NO_FILE.vcf' ? "$phased_vcf" : "${meta.sample}.phased.vcf.gz"
     // def vcf_file = sniffles_vcf.name != 'test.vcf' ? "$sniffles_vcf" : "${meta.sample}.vcf.gz"
     """
+    echo "WORKING DIRECTORY: \$(pwd)"
+    echo "META: ${meta}"
+    echo "BAM FILE: $bam_file"
+    echo "BAI FILE: $bam_bai_file"
+    echo "VCF FILE: $sniffles_vcf"
+    echo "TBI FILE: $sniffles_vcf_tbi"
+    echo "REFERENCE FASTA: $reference_fasta"
+    echo "INDEX FILE: $index"
+
+    ls -lh  # List all files in the work directory
+
     whatshap phase \\
     -o ${meta.sample}_phased.vcf \\
     --reference ${reference_fasta} \\
