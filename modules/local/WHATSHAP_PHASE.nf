@@ -14,7 +14,7 @@ process WHATSHAP_PHASE {
 
     output:
         //tuple val(meta), path("${meta.sample}*_phased.vcf")          , emit: phased_vcf
-        //path  ("versions.yml")                                       , emit: versions
+        path  ("versions.yml")                                       , emit: versions
 
     script:
     """
@@ -26,10 +26,10 @@ process WHATSHAP_PHASE {
 
     echo "finished"
 
-    ##cat <<-END_VERSIONS > versions.yml
-    ##"${task.process}":
-    ##    whatshap: \$(whatshap --version |sed 's/^.*Version: //')
-    ##END_VERSIONS
+    cat <<-END_VERSIONS > versions.yml
+    "${task.process}":
+        whatshap: \$(whatshap --version |sed 's/^.*Version: //')
+    END_VERSIONS
 
     """
 }
