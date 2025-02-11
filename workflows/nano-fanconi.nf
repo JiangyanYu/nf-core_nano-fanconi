@@ -372,7 +372,7 @@ workflow NANOFANCONI {
         phase_input_bam = SAMTOOLS_SORT.out.bam.mix(SAMTOOLS_SORT.out.bai).groupTuple(size:2).map{ meta, files -> [ meta, files.flatten() ]}
         phase_input_bam.view()
 
-        phase_input_vcf = SNIFFLES_SORT_VCF.out.vcf.mix(SNIFFLES_TABIX_VCF.out.tbi)
+        phase_input_vcf = SNIFFLES_SORT_VCF.out.vcf.mix(SNIFFLES_TABIX_VCF.out.tbi).groupTuple(size:2)
         phase_input_vcf.view()
 
          WHATSHAP_PHASE (
