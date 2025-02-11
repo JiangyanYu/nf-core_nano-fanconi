@@ -376,10 +376,8 @@ workflow NANOFANCONI {
 
         ch_phase_vcf.view()
 
-        phase_vcf = ch_phase_vcf.join(ch_phased_vcf).dump(tag: "joined")
-        phase_vcf.view()
-
-        println "step3: "
+        //phase_vcf = ch_phase_vcf.join(ch_phased_vcf).dump(tag: "joined")
+        //phase_vcf.view()
 
          WHATSHAP_PHASE (
              phase_bam,

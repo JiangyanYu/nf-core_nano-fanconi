@@ -16,13 +16,13 @@ process WHATSHAP_PHASE {
         path  ("versions.yml")                                       , emit: versions
 
     script:
+
     """
-    println "step1: "
+
     #whatshap phase -o ${meta.sample}_phased.vcf \\
     #    --reference=${reference_fasta} \\
     #    ${meta.sample}.vcf.gz ${meta.sample}.sorted.bam
-    
-    println "step2: "
+
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
         whatshap: \$(whatshap --version |sed 's/^.*Version: //')
