@@ -370,9 +370,9 @@ workflow NANOFANCONI {
         ch_whatshap_phase_input.view()
 
          WHATSHAP_PHASE (
-             ch_whatshap_phase_input,
+             //ch_whatshap_phase_input,
              file(params.fasta),
-             file(params.fasta_index)
+             file(params.fasta_index)‚
          )
         ch_versions = ch_versions.mix(WHATSHAP_PHASE.out.versions)
 
