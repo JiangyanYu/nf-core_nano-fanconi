@@ -20,10 +20,6 @@ process WHATSHAP_PHASE {
     """
     echo "getting into phase step"
 
-    ##whatshap phase -o ${meta.sample}_phased.vcf 
-    ##    --reference=${reference_fasta} 
-    ##    ${meta.sample}.vcf.gz ${meta.sample}.sorted.bam
-
     echo "finished"
 
     cat <<-END_VERSIONS > versions.yml
