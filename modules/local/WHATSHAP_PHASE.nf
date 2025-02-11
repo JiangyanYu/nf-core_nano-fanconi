@@ -8,7 +8,8 @@ process WHATSHAP_PHASE {
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
         'jiangyanyu/docker-dorado:v241016' :
         'jiangyanyu/docker-dorado:v241016' }"
-
+        
+    
     input:
     
         tuple val(meta), path(bam_file),path(bam_bai_file), path(sniffles_vcf), path(sniffles_vcf_tbi)
