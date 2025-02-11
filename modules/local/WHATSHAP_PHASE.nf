@@ -1,9 +1,11 @@
-process WHATSHAP_PHASE {
-    label 'process_high'
+// Function to determine the label
+def determineLabel() {
+    return params.use_gpu ? 'process_gpu_long' : 'process_high'
+}
 
-    //container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-    //    'jiangyanyu/docker-whatshap:v240302' :
-    //    'jiangyanyu/docker-whatshap:v240302' }"
+process WHATSHAP_PHASE {
+    maxForks 2  // Limits the number of concurrent executions of this process to 2
+    label processLabel
 
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
         'jiangyanyu/docker-dorado:v241016' :
@@ -12,7 +14,7 @@ process WHATSHAP_PHASE {
     
     input:
     
-        tuple val(meta), path(bam_file),path(bam_bai_file), path(sniffles_vcf), path(sniffles_vcf_tbi)
+        tuple val(meta), path (bam_file), path (bam_bai_file), path (sniffles_vcf), path (sniffles_vcf_tbi)
         path(reference_fasta)
         path(index)
 
