@@ -106,7 +106,7 @@ workflow NANOFANCONI {
         ch_input
     )
     ch_versions = ch_versions.mix(INPUT_CHECK.out.versions)
-    ch_phased_vcf = INPUT_CHECK.out.reads.map{ meta, files -> [[sample: meta.sample]] }.dump(tag: "ch_phased_vcf")
+    ch_phased_vcf = INPUT_CHECK.out.reads.map{ meta, files -> [[sample: meta.sample],meta.vcf] }.dump(tag: "ch_phased_vcf")
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -374,7 +374,7 @@ workflow NANOFANCONI {
             .mix(SNIFFLES_TABIX_VCF.out.tbi)
             .groupTuple(size:2)
             .map{ meta, files -> [ meta, files.flatten() ]}
-            
+
         ch_phase_vcf.view()
 
         phase_vcf = ch_phase_vcf.join(ch_phased_vcf).dump(tag: "joined")
