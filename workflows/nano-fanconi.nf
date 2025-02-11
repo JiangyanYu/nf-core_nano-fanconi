@@ -306,29 +306,27 @@ workflow NANOFANCONI {
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+/*
     if (params.run_sniffles) {
 
-        /*
-         * Call structural variants with sniffles
-         */
+         // Call structural variants with sniffles
+
         SNIFFLES( SAMTOOLS_SORT.out.bam )
         ch_versions = ch_versions.mix(SNIFFLES.out.versions)
 
-        /*
-         * Sort structural variants with bcftools
-         */
+         // Sort structural variants with bcftools
+
         SNIFFLES_SORT_VCF( SNIFFLES.out.sv_calls )
         ch_sv_calls_vcf = SNIFFLES_SORT_VCF.out.vcf
         ch_versions = ch_versions.mix(SNIFFLES_SORT_VCF.out.versions)
 
-        /*
-         * Index sniffles vcf.gz
-         */
+         // Index sniffles vcf.gz
+
         SNIFFLES_TABIX_VCF( ch_sv_calls_vcf )
         ch_sv_calls_tbi  = SNIFFLES_TABIX_VCF.out.tbi
-        ch_versions = ch_versions.mix(SNIFFLES_TABIX_VCF.out.versions)
-        
+        ch_versions = ch_versions.mix(SNIFFLES_TABIX_VCF.out.versions)  
     }
+*/
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
