@@ -271,7 +271,7 @@ workflow NANOFANCONI {
     //MERGE_BASECALL_SAMPLE (
     //    ch_basecall_sample_merged_bams
     //)
-    ch_versions = ch_versions.mix(MERGE_BASECALL_SAMPLE.out.versions)
+    //ch_versions = ch_versions.mix(MERGE_BASECALL_SAMPLE.out.versions)
     
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
