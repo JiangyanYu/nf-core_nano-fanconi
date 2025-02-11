@@ -7,6 +7,7 @@ process WHATSHAP_PHASE {
 
     input:
     tuple val(meta), path(bam_file), path(bam_bai_file)
+    tuple val(meta), path(sniffles_vcf), path(sniffles_tbi)
     path(reference_fasta)
     path(index)
 
@@ -16,10 +17,11 @@ process WHATSHAP_PHASE {
         path  ("versions.yml")                                       , emit: versions
 
     script:
+    def vcf_file = sniffles_vcf.name != 'NO_FILE.vcf' ? "$sniffles_vcf" : "${meta.sample}.vcf.gz"
     """
     whatshap phase -o ${meta.sample}_phased.vcf 
         --reference=${reference_fasta} 
-        ${sniffles_vcf} ${bam_file}
+        $vcf_file ${bam_file}
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
