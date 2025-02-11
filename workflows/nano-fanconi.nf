@@ -363,19 +363,24 @@ workflow NANOFANCONI {
         //
 
         ch_phase_bam = SAMTOOLS_SORT.out.bam
-            .mix(SAMTOOLS_SORT.out.bai,SNIFFLES_SORT_VCF.out.vcf,SNIFFLES_TABIX_VCF.out.tbi)
-            .groupTuple(size:4)
+            .mix(SAMTOOLS_SORT.out.bai)
+            .groupTuple(size:2)
             .map{ meta, files -> [ meta, files.flatten() ]}
 
         phase_bam = ch_phase_bam.join(ch_phased_vcf).dump(tag: "joined")
         phase_bam.view()
 
-        ch_phase_vcf = SNIFFLES_SORT_VCF.out.vcf.mix(SNIFFLES_TABIX_VCF.out.tbi).groupTuple(size:2).map{ meta, files -> [ meta, files.flatten() ]}
+        ch_phase_vcf = SNIFFLES_SORT_VCF.out.vcf
+            .mix(SNIFFLES_TABIX_VCF.out.tbi)
+            .groupTuple(size:2)
+            .map{ meta, files -> [ meta, files.flatten() ]}
         phase_vcf = ch_phase_vcf.join(ch_phased_vcf).dump(tag: "joined")
         phase_vcf.view()
 
          WHATSHAP_PHASE (
              phase_bam,
+             SNIFFLES_SORT_VCF.out.vcf,
+             SNIFFLES_TABIX_VCF.out.tbi,
              file(params.fasta),
              file(params.fasta_index)
          )

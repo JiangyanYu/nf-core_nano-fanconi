@@ -6,7 +6,9 @@ process WHATSHAP_PHASE {
         'jiangyanyu/docker-whatshap:v240302' }"
 
     input:
-    tuple val(meta), path(bam_file), path(bam_bai_file), path(sniffles_vcf), path(sniffles_tbi)
+    tuple val(meta), path(bam_file), path(bam_bai_file)
+    path(sniffles_vcf)
+    path(sniffles_tbi)
     path(reference_fasta)
     path(index)
 
@@ -17,11 +19,10 @@ process WHATSHAP_PHASE {
 
     script:
     def vcf_file = sniffles_vcf.name != 'NO_FILE.vcf' ? "$sniffles_vcf" : "${meta.sample}.vcf.gz"
-    def bam_file = sniffles_vcf.name != 'NO_FILE.bam' ? "$bam_file" : "${meta.sample}.sorted.bam"
     """
     whatshap phase -o ${meta.sample}_phased.vcf \\
         --reference=${reference_fasta} \\
-        $vcf_file $bam_file
+        ${sniffles_vcf}} ${bam_file}
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
