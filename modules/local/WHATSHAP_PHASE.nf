@@ -8,6 +8,7 @@ process WHATSHAP_PHASE {
 
     input:
         //tuple val(meta), path(bam_file), path(bam_bai_file), path(sniffles_vcf), path(sniffles_vcf_tbi)
+        tuple val(meta)
         path(reference_fasta)
         path(index)
 
