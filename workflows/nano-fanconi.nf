@@ -379,7 +379,7 @@ workflow NANOFANCONI {
             .mix(SNIFFLES_TABIX_VCF.out.tbi)
             .groupTuple(size:2)
             .map{ meta, files -> [ meta, files.flatten() ]}
-        phase_vcf = ch_phase_vcf.join(test_step).dum(tag:"joined")
+        phase_vcf = ch_phase_vcf.join(test_step).dump(tag: "joined")
 
         phase_vcf.view()
 
