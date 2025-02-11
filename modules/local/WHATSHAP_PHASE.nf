@@ -13,8 +13,8 @@ process WHATSHAP_PHASE {
 
 
     output:
-        tuple val(meta), path("${meta.sample}*_phased.vcf")          , emit: phased_vcf
-        path  ("versions.yml")                                       , emit: versions
+        //tuple val(meta), path("${meta.sample}*_phased.vcf")          , emit: phased_vcf
+        //path  ("versions.yml")                                       , emit: versions
 
     script:
     """
