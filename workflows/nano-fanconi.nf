@@ -367,6 +367,8 @@ workflow NANOFANCONI {
             .groupTuple(size:4)
             .map{ meta, files -> [ meta, files.flatten() ]}
          
+        ch_whatshap_phase_input.view()
+
          WHATSHAP_PHASE (
              ch_whatshap_phase_input,
              file(params.fasta),
