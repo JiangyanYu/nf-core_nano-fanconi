@@ -6,9 +6,9 @@ process WHATSHAP_PHASE {
         'jiangyanyu/docker-whatshap:v240302' }"
 
     input:
-        tuple val(meta), path(bam_file), path(bam_bai_file)
-        path(reference_fasta)
-        path(index)
+    tuple val(meta), path(bam_file), path(bam_bai_file)
+    path(reference_fasta)
+    path(index)
 
 
     output:
