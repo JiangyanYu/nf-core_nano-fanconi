@@ -369,19 +369,19 @@ workflow NANOFANCONI {
 
         phase_bam = ch_phase_bam.join(ch_phased_vcf).dump(tag: "joined")
 
-        echo "step1: "
+        println "step1: "
         phase_bam.view()
 
         ch_phase_vcf = SNIFFLES_SORT_VCF.out.vcf
             .mix(SNIFFLES_TABIX_VCF.out.tbi)
 
-        echo "step2: "
+        println "step2: "
         ch_phase_vcf.view()
 
         phase_vcf = ch_phase_vcf.join(ch_phased_vcf).dump(tag: "joined")
         phase_vcf.view()
 
-        echo "step3: "
+        println "step3: "
 
          WHATSHAP_PHASE (
              ch_phase_bam,
