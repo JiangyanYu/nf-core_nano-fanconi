@@ -17,7 +17,7 @@ process WHATSHAP_PHASE {
 
     script:
     def vcf_file = sniffles_vcf.name != 'NO_FILE.vcf' ? "$sniffles_vcf" : "${meta.sample}.vcf.gz"
-    def bam_file = sniffles_vcf.name != 'NO_FILE.bam' ? "$sniffles_vcf" : "${meta.sample}.sorted.bam"
+    def bam_file = sniffles_vcf.name != 'NO_FILE.bam' ? "$bam_file" : "${meta.sample}.sorted.bam"
     """
     whatshap phase -o ${meta.sample}_phased.vcf \\
         --reference=${reference_fasta} \\
