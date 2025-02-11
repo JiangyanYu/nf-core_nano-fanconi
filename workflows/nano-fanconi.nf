@@ -278,18 +278,19 @@ workflow NANOFANCONI {
     NANOFANCONI: Dorado-aligner
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
+ /*
     DORADO_ALIGNER (
         MERGE_BASECALL_SAMPLE.out.merged_bam,
         file(params.fasta)
     )
     ch_versions = ch_versions.mix(DORADO_ALIGNER.out.versions)
-
+/*
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     NANOFANCONI: samtools sort and index
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
-
+/*
     //
     // MODULE: Samtools sort and indedx aligned bams
     //
@@ -297,7 +298,7 @@ workflow NANOFANCONI {
         DORADO_ALIGNER.out.bam
     )
     ch_versions = ch_versions.mix(SAMTOOLS_SORT.out.versions)
-
+/*
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
