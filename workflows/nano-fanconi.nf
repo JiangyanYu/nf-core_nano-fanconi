@@ -369,11 +369,11 @@ workflow NANOFANCONI {
          
         ch_whatshap_phase_input.view()
 
+        phase_input1 = SAMTOOLS_SORT.out.bam.mix(SAMTOOLS_SORT.out.bai).groupTuple(size:1).map{ meta, files -> [ meta, files.flatten() ]}
+        phase_input1.view()
+
          WHATSHAP_PHASE (
-             SAMTOOLS_SORT.out.bam,
-             SAMTOOLS_SORT.out.bai,
-             SNIFFLES_SORT_VCF.out.vcf,
-             SNIFFLES_TABIX_VCF.out.tbi,
+             phase_input1,
              file(params.fasta),
              file(params.fasta_index)
          )
