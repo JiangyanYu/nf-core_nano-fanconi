@@ -1,9 +1,13 @@
 process WHATSHAP_PHASE {
     label 'process_high'
 
+    //container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
+    //    'jiangyanyu/docker-whatshap:v240302' :
+    //    'jiangyanyu/docker-whatshap:v240302' }"
+
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-        'jiangyanyu/docker-whatshap:v240302' :
-        'jiangyanyu/docker-whatshap:v240302' }"
+        'jiangyanyu/docker-dorado:v241016' :
+        'jiangyanyu/docker-dorado:v241016' }"
 
     input:
     
@@ -30,14 +34,14 @@ process WHATSHAP_PHASE {
 
     ls -lh  # List all files in the work directory
 
-    whatshap phase \\
-    -o ${meta.sample}_phased.vcf \\
-    --reference ${reference_fasta} \\
-    ${sniffles_vcf} ${bam_file} ## ${meta.sample}.vcf.gz ${meta.sample}.sorted.bam
+    #whatshap phase \\
+    #-o ${meta.sample}_phased.vcf \\
+    #--reference ${reference_fasta} \\
+    #${sniffles_vcf} ${bam_file} ## ${meta.sample}.vcf.gz ${meta.sample}.sorted.bam
 
-    cat <<-END_VERSIONS > versions.yml
-    "${task.process}":
-        whatshap: \$(whatshap --version |sed 's/^.*Version: //')
-    END_VERSIONS
+    #cat <<-END_VERSIONS > versions.yml
+    #"${task.process}":
+    #    whatshap: \$(whatshap --version |sed 's/^.*Version: //')
+    #END_VERSIONS
     """
 }
