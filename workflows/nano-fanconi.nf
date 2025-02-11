@@ -102,7 +102,7 @@ workflow NANOFANCONI {
         ch_input
     )
     ch_versions = ch_versions.mix(INPUT_CHECK.out.versions)
-    ch_phased_vcf = INPUT_CHECK.out.reads.map{ meta, files -> [[sample: meta.sample],meta.input_path,meta.pod5_path, meta.vcf, meta.vcf_tbi] }.dump(tag: "ch_phased_vcf")
+    ch_phased_vcf = INPUT_CHECK.out.reads.map{ meta, files -> [[sample: meta.sample],meta.input_path, meta.vcf, meta.vcf_tbi] }.dump(tag: "ch_phased_vcf")
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -279,8 +279,7 @@ workflow NANOFANCONI {
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
     DORADO_ALIGNER (
-        ch_basecall_sample_merged_bams
-        //MERGE_BASECALL_SAMPLE.out.merged_bam,
+        MERGE_BASECALL_SAMPLE.out.merged_bam,
         file(params.fasta)
     )
     ch_versions = ch_versions.mix(DORADO_ALIGNER.out.versions)
