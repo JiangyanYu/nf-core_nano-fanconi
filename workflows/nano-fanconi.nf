@@ -379,8 +379,7 @@ workflow NANOFANCONI {
 
          WHATSHAP_PHASE (
              phase_bam,
-             SNIFFLES_SORT_VCF.out.vcf,
-             SNIFFLES_TABIX_VCF.out.tbi,
+             phase_vcf,
              file(params.fasta),
              file(params.fasta_index)
          )
