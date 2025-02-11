@@ -1,29 +1,35 @@
-// Function to determine the label
-def determineLabel() {
-    return params.use_gpu ? 'process_gpu_long' : 'process_high'
-}
-def processLabel = determineLabel()
-
 process WHATSHAP_PHASE {
-    maxForks 2  // Limits the number of concurrent executions of this process to 2
-    label processLabel
+    tag "$meta.sample"
+    label 'process_high'
 
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-        'jiangyanyu/docker-dorado:v241016' :
-        'jiangyanyu/docker-dorado:v241016' }"
+        'https://hub.docker.com/repository/docker/jiangyanyu/docker-whatshap/' :
+        'jiangyanyu/docker-whatshap:v240302' }"
 
     input:
-        tuple val(meta), path(bam_bai_vcf_files), path(phased_vcf), path(phased_vcf_tbi)
+        //tuple val(meta), path(bam_file), path(bam_bai_file), path(sniffles_vcf), path(sniffles_vcf_tbi)
         path(reference_fasta)
         path(index)
 
+
     output:
-        tuple val(meta), path("*_phased.vcf")          , emit: phased_vcf
+        tuple val(meta), path("${meta.sample}*_phased.vcf")          , emit: phased_vcf
         path  ("versions.yml")                                       , emit: versions
 
     script:
-        """
-        echo "Simple test of the pipeline."
+    """
+    echo "getting into phase step"
 
-        """
+    ##whatshap phase -o ${meta.sample}_phased.vcf 
+    ##    --reference=${reference_fasta} 
+    ##    ${meta.sample}.vcf.gz ${meta.sample}.sorted.bam
+
+    echo "finished"
+
+    ##cat <<-END_VERSIONS > versions.yml
+    ##"${task.process}":
+    ##    whatshap: \$(whatshap --version |sed 's/^.*Version: //')
+    ##END_VERSIONS
+
+    """
 }
