@@ -371,7 +371,7 @@ workflow NANOFANCONI {
 
 
         test_step = INPUT_CHECK.out.reads
-        .map{ meta, files -> [[sample: meta.sample],meta.vcf.tbi] }
+        .map{ meta, files -> [[sample: meta.sample],meta.vcf_tbi] }
         .dump(tag: "test_step")
 
 
