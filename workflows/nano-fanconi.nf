@@ -362,7 +362,7 @@ workflow NANOFANCONI {
         // MODULE: whatshap for phasing
         //
 
-        ch_phase_input = SAMTOOLS_SORT.out.bam.mix(SAMTOOLS_SORT.out.bai,SNIFFLES_SORT_VCF.out.vcf,SNIFFLES_TABIX_VCF.out.tbi).groupTuple(size:2).map{ meta, files -> [ meta, files.flatten() ]}
+        ch_phase_input = SAMTOOLS_SORT.out.bam.mix(SAMTOOLS_SORT.out.bai,SNIFFLES_SORT_VCF.out.vcf,SNIFFLES_TABIX_VCF.out.tbi).groupTuple(size:4).map{ meta, files -> [ meta, files.flatten() ]}
         phase_input = ch_phase_input.join(ch_phased_vcf).dump(tag: "joined")
 
          WHATSHAP_PHASE (
