@@ -17,7 +17,6 @@ process WHATSHAP_PHASE {
         path  ("versions.yml")                                       , emit: versions
 
     script:
-    def vcf_file = sniffles_vcf.name != 'NO_FILE.vcf' ? "$sniffles_vcf" : "${meta.sample}.vcf.gz"
     """
     whatshap phase -o ${meta.sample}_phased.vcf \\
         --reference=${reference_fasta} \\
