@@ -368,14 +368,12 @@ workflow NANOFANCONI {
             .map{ meta, files -> [ meta, files.flatten() ]}
 
         phase_bam = ch_phase_bam.join(ch_phased_vcf).dump(tag: "joined")
-
-        println "step1: "
         phase_bam.view()
 
         ch_phase_vcf = SNIFFLES_SORT_VCF.out.vcf
             .mix(SNIFFLES_TABIX_VCF.out.tbi)
 
-        println "step2: "
+
         ch_phase_vcf.view()
 
         phase_vcf = ch_phase_vcf.join(ch_phased_vcf).dump(tag: "joined")
@@ -384,7 +382,7 @@ workflow NANOFANCONI {
         println "step3: "
 
          WHATSHAP_PHASE (
-             ch_phase_bam,
+             phase_bam,
              file(params.fasta),
              file(params.fasta_index)
          )
