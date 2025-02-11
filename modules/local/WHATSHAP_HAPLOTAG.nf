@@ -22,7 +22,7 @@ process WHATSHAP_HAPLOTAG {
     """
 
     whatshap haplotag --tag-supplementary --ignore-read-groups --output-threads=${task.cpus} \\
-    -o ${meta.sample}.haplotagged.bam --reference ${reference_fasta} ${meta.sample}_phased.vcf ${meta.sample}.sorted.bam && \\
+    -o ${meta.sample}.haplotagged.bam --reference ${reference_fasta} ${meta.sample}.vcf.gz ${meta.sample}.sorted.bam && \\
     samtools index ${meta.sample}.haplotagged.bam
 
     cat <<-END_VERSIONS > versions.yml
