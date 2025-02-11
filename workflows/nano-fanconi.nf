@@ -382,7 +382,6 @@ workflow NANOFANCONI {
 
          WHATSHAP_PHASE (
              phase_bam,
-             ch_phase_vcf,
              file(params.fasta),
              file(params.fasta_index)
          )

@@ -7,13 +7,12 @@ process WHATSHAP_PHASE {
 
     input:
     tuple val(meta), path(bam_file), path(bam_bai_file)
-    tuple val(meta), path(sniffles_vcf),path(sniffles_tbi)
     path(reference_fasta)
     path(index)
 
 
     output:
-        tuple val(meta), path("${meta.sample}_phased.vcf")          , emit: phased_vcf
+        tuple val(meta), path("${meta.sample}_phased.vcf")           , emit: phased_vcf
         path  ("versions.yml")                                       , emit: versions
 
     script:
