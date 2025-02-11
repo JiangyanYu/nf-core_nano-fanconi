@@ -6,14 +6,14 @@ process WHATSHAP_PHASE {
         'jiangyanyu/docker-whatshap:v240302' }"
 
     input:
-    tuple val(meta), path(bam_file), path(bam_bai_file)
+    //tuple val(meta), path(bam_file), path(bam_bai_file)
     path(reference_fasta)
     path(index)
 
 
     output:
-        //tuple val(meta), path("${meta.sample}*_phased.vcf")          , emit: phased_vcf
-        path  ("versions.yml")                                       , emit: versions
+    //tuple val(meta), path("${meta.sample}*_phased.vcf")          , emit: phased_vcf
+    path  ("versions.yml")                                       , emit: versions
 
     script:
     """
