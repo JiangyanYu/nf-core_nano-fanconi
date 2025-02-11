@@ -1,5 +1,4 @@
 process WHATSHAP_PHASE {
-    tag "$meta.sample"
     label 'process_high'
 
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
