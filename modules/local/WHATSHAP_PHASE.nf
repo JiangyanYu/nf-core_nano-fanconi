@@ -2,6 +2,7 @@
 def determineLabel() {
     return params.use_gpu ? 'process_gpu_long' : 'process_high'
 }
+def processLabel = determineLabel()
 
 process WHATSHAP_PHASE {
     maxForks 2  // Limits the number of concurrent executions of this process to 2
