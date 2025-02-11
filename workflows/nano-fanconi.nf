@@ -374,12 +374,13 @@ workflow NANOFANCONI {
             .mix(SNIFFLES_TABIX_VCF.out.tbi)
             .groupTuple(size:2)
 
+        ch_phase_vcf.view()
+
         phase_vcf = ch_phase_vcf.join(ch_phased_vcf).dump(tag: "joined")
         phase_vcf.view()
 
          WHATSHAP_PHASE (
              phase_bam,
-             ch_phase_vcf,
              file(params.fasta),
              file(params.fasta_index)
          )
