@@ -18,8 +18,7 @@ process WHATSHAP_PHASE {
         path(index)
 
     output:
-        tuple val(meta), path("${meta.sample}*.haplotagged.bam")     , emit: bam
-        tuple val(meta), path("${meta.sample}*.haplotagged.bam.bai") , emit: bai
+        tuple val(meta), path("${meta.sample}*_phased.vcf")          , emit: phased_vcf
         path  ("versions.yml")                                       , emit: versions
 
     script:
