@@ -10,7 +10,7 @@ process SNIFFLES {
 
 
     input:
-    tuple val(meta), path(input_bam), path(input_bai)
+    tuple val(meta), path(bam_file), path(bam_bai_file)
 
 
     output:
@@ -23,7 +23,7 @@ process SNIFFLES {
     script:
     """
     sniffles \
-        -i  ${input_bam} \
+        -i  ${bam_file} \
         -v ${meta.sample}_sniffles.vcf \
         -t $task.cpus
 

@@ -322,6 +322,8 @@ workflow NANOFANCONI {
 
         sniffles_input = ch_sniffles_input.join(ch_phased_vcf).dump(tag: "joined")
 
+        sniffles_input.view()
+        
         SNIFFLES( 
             sniffles_input
             )
