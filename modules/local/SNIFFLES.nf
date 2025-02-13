@@ -11,6 +11,7 @@ process SNIFFLES {
 
     input:
     tuple val(meta), path(input)
+    tuple val(meta), path(input_bai)
 
 
     output:
