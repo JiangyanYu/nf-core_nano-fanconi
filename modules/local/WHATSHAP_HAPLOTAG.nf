@@ -6,7 +6,8 @@ process WHATSHAP_HAPLOTAG {
         'jiangyanyu/docker-whatshap:v240302' }"
 
     input:
-        tuple val(meta), path(bam_bai_vcf_files), path(phased_vcf), path(phased_vcf_tbi)
+        tuple val(meta), path(bam_file), path(bam_bai_file)
+        tuple val(meta), path(phased_vcf), path(phased_tbi)
         path(reference_fasta)
         path(index)
 
