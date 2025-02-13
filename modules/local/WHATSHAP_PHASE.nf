@@ -19,7 +19,8 @@ process WHATSHAP_PHASE {
     script:
 
     """
-    whatshap phase -o ${meta.sample}_phased.vcf \\
+    whatshap phase --ignore-read-groups \\
+        -o ${meta.sample}_phased.vcf \\
         --reference=${reference_fasta} \\
         ${meta.sample}.vcf.gz ${meta.sample}.sorted.bam
 
