@@ -317,13 +317,13 @@ workflow NANOFANCONI {
 
         ch_sniffles_input = SAMTOOLS_SORT.out.bam
             .mix(SAMTOOLS_SORT.out.bai)
-            .groupTuple(size:2)
+            .groupTuple(size:1)
             .map{ meta, files -> [ meta, files.flatten() ]}
 
         sniffles_input = ch_sniffles_input.join(ch_phased_vcf).dump(tag: "joined")
 
         sniffles_input.view()
-        
+
         SNIFFLES( 
             sniffles_input
             )
@@ -478,7 +478,7 @@ workflow NANOFANCONI {
         * Call variants with deepvariant
         */
         
-        ch_deepvariant_input = SAMTOOLS_SORT.out.bam.mix(SAMTOOLS_SORT.out.bai).groupTuple(size:1).map{ meta, files -> [ meta, files.flatten() ]}
+        ch_deepvariant_input = WHATSHAP_HAPLOTAG.out.bam.mix(WHATSHAP_HAPLOTAG.out.bai).groupTuple(size:1).map{ meta, files -> [ meta, files.flatten() ]}
         deepvariant_bam_input = ch_deepvariant_input.join(ch_phased_vcf).dump(tag: "joined")
         
         DEEPVARIANT( 
