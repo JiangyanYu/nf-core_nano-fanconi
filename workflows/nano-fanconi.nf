@@ -315,8 +315,8 @@ workflow NANOFANCONI {
          * Call structural variants with sniffles
          */
 
-        ch_sniffles_input = SAMTOOLS_SORT.out.bam
-            .mix(SAMTOOLS_SORT.out.bai)
+        ch_sniffles_input = SAMTOOLS_SORT.out.bam.bai
+            .mix(SAMTOOLS_SORT.out.bam)
             .groupTuple(size:2)
             .map{ meta, files -> [ meta, files.flatten() ]}
 
