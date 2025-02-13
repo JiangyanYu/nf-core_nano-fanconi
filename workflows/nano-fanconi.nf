@@ -62,7 +62,8 @@ include { SNIFFLES                                      } from '../modules/local
 include { BCFTOOLS_SORT as SNIFFLES_SORT_VCF            } from '../modules/nf-core/bcftools/sort/main.nf'
 include { TABIX_BGZIP as SNIFFLES_BGZIP_VCF             } from '../modules/nf-core/tabix/bgzip/main.nf'
 include { TABIX_TABIX as SNIFFLES_TABIX_VCF             } from '../modules/nf-core/tabix/tabix/main.nf'
-include { ANNOTSV                                       } from '../modules/local/ANNOTSV.nf'
+include { ANNOTSV_SNIFFLES                              } from '../modules/local/ANNOTSV.nf'
+include { ANNOTSV_DEEPVARIANT                           } from '../modules/local/ANNOTSV.nf'
 include { WHATSHAP_PHASE                                } from '../modules/local/WHATSHAP_PHASE.nf'
 include { WHATSHAP_HAPLOTAG                             } from '../modules/local/WHATSHAP_HAPLOTAG.nf'
 include { BCFTOOLS_SORT as PHASE_SORT_VCF               } from '../modules/nf-core/bcftools/sort/main.nf'
@@ -347,20 +348,76 @@ workflow NANOFANCONI {
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    NANOFANCONI: AnnotSV
+    NANOFANCONI: AnnotSV-Sniffles
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
     if (params.run_annotsv) {
     
-        ANNOTSV (
+        ANNOTSV_SNIFFLES (
             SNIFFLES_SORT_VCF.out.vcf
         )
 
-        ch_versions = ch_versions.mix(ANNOTSV.out.versions)
+        ch_versions = ch_versions.mix(ANNOTSV_SNIFFLES.out.versions)
         
     }
     
+/*
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    NANOFANCONI: DeepVariant
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+*/
+
+    if (params.run_deepvariant) {
+        /*
+        * Call variants with deepvariant
+        */
+        
+        ch_deepvariant_input = SAMTOOLS_SORT.out.bam.mix(SAMTOOLS_SORT.out.bai).groupTuple(size:2).map{ meta, files -> [ meta, files.flatten() ]}
+        deepvariant_bam_input = ch_deepvariant_input.join(ch_phased_vcf).dump(tag: "joined")
+        
+        DEEPVARIANT( 
+            deepvariant_bam_input, 
+            file(params.fasta), 
+            file(params.fasta_index) 
+        )
+        
+        ch_short_calls_vcf  = DEEPVARIANT.out.vcf
+        ch_short_calls_gvcf = DEEPVARIANT.out.gvcf
+        ch_versions = ch_versions.mix(DEEPVARIANT.out.versions)
+
+        /*
+         * Index deepvariant vcf.gz
+         */
+        DEEPVARIANT_TABIX_VCF( ch_short_calls_vcf )
+        ch_short_calls_vcf_tbi  = DEEPVARIANT_TABIX_VCF.out.tbi
+        ch_versions = ch_versions.mix(DEEPVARIANT_TABIX_VCF.out.versions)
+
+        /*
+         * Index deepvariant g.vcf.gz
+         */
+        DEEPVARIANT_TABIX_GVCF( ch_short_calls_gvcf )
+        ch_short_calls_gvcf_tbi  = DEEPVARIANT_TABIX_GVCF.out.tbi
+        ch_versions = ch_versions.mix(DEEPVARIANT_TABIX_VCF.out.versions)
+        
+    }
+
+/*
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    NANOFANCONI: AnnotSV-Deepvariant
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+*/
+
+    if (params.run_annotsv) {
+    
+        ANNOTSV_DEEPVARIANT (
+            DEEPVARIANT.out.vcf
+        )
+
+        ch_versions = ch_versions.mix(ANNOTSV_DEEPVARIANT.out.versions)
+        
+    }
+
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -387,14 +444,11 @@ workflow NANOFANCONI {
         .dump(tag: "test_step")
 
 
-        ch_phase_vcf = SNIFFLES_SORT_VCF.out.vcf
-            .mix(SNIFFLES_TABIX_VCF.out.tbi)
+        ch_phase_vcf = DEEPVARIANT.out.vcf
+            .mix(DEEPVARIANT_TABIX_GVCF.out.tbi)
             .groupTuple(size:2)
             .map{ meta, files -> [ meta, files.flatten() ]}
         phase_vcf = ch_phase_vcf.join(test_step).dump(tag: "joined")
-
-        //phase_vcf = ch_phase_vcf.join(ch_phased_vcf).dump(tag: "joined")
-        //phase_vcf.view()
 
          WHATSHAP_PHASE (
              phase_bam,
@@ -464,46 +518,6 @@ workflow NANOFANCONI {
             ch_mosdepth_input
         )
         ch_versions = ch_versions.mix(MOSDEPTH.out.versions)
-        
-    }
-
-/*
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    NANOFANCONI: DeepVariant
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-*/
-
-    if (params.run_deepvariant) {
-        /*
-        * Call variants with deepvariant
-        */
-        
-        ch_deepvariant_input = WHATSHAP_HAPLOTAG.out.bam.mix(WHATSHAP_HAPLOTAG.out.bai).groupTuple(size:1).map{ meta, files -> [ meta, files.flatten() ]}
-        deepvariant_bam_input = ch_deepvariant_input.join(ch_phased_vcf).dump(tag: "joined")
-        
-        DEEPVARIANT( 
-            deepvariant_bam_input, 
-            file(params.fasta), 
-            file(params.fasta_index) 
-        )
-        
-        ch_short_calls_vcf  = DEEPVARIANT.out.vcf
-        ch_short_calls_gvcf = DEEPVARIANT.out.gvcf
-        ch_versions = ch_versions.mix(DEEPVARIANT.out.versions)
-
-        /*
-         * Index deepvariant vcf.gz
-         */
-        DEEPVARIANT_TABIX_VCF( ch_short_calls_vcf )
-        ch_short_calls_vcf_tbi  = DEEPVARIANT_TABIX_VCF.out.tbi
-        ch_versions = ch_versions.mix(DEEPVARIANT_TABIX_VCF.out.versions)
-
-        /*
-         * Index deepvariant g.vcf.gz
-         */
-        DEEPVARIANT_TABIX_GVCF( ch_short_calls_gvcf )
-        ch_short_calls_gvcf_tbi  = DEEPVARIANT_TABIX_GVCF.out.tbi
-        ch_versions = ch_versions.mix(DEEPVARIANT_TABIX_VCF.out.versions)
         
     }
     
