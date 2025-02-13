@@ -10,8 +10,7 @@ process SNIFFLES {
 
 
     input:
-    tuple val(meta), path(input)
-    tuple val(meta), path(input_bai)
+    tuple val(meta), path(input), path(input_bai)
 
 
     output:
