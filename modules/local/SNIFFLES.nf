@@ -23,7 +23,7 @@ process SNIFFLES {
     script:
     """
     sniffles \
-        -m  $input \
+        -i  $input \
         -v ${meta.sample}_sniffles.vcf \
         -t $task.cpus
 
