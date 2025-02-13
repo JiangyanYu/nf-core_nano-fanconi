@@ -23,7 +23,7 @@ process SNIFFLES {
     script:
     """
     sniffles \
-        -i  ${bam_file} \
+        -i ${meta.sample}.sorted.bam \
         -v ${meta.sample}_sniffles.vcf \
         -t $task.cpus
 
