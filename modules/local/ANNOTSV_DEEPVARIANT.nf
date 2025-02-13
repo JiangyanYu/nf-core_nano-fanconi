@@ -1,4 +1,4 @@
-process ANNOTSV {
+process ANNOTSV_DEEPVARIANT {
     tag "$meta.sample"
     label 'process_high'
     
