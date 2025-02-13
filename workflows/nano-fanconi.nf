@@ -426,6 +426,7 @@ workflow NANOFANCONI {
             .mix(PHASE_TABIX_VCF.out.tbi)
             .groupTuple(size:2)
             .map{ meta, files -> [ meta, files.flatten() ]}
+            
         haplotag_vcf = ch_haplotag_vcf.join(test_step).dump(tag: "joined")
      
          WHATSHAP_HAPLOTAG (
