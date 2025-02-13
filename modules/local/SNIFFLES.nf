@@ -4,8 +4,8 @@ process SNIFFLES {
 
     conda "bioconda::sniffles=1.0.12"
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-        'https://depot.galaxyproject.org/singularity/sniffles:1.0.12--h8b12597_1' :
-        'quay.io/biocontainers/sniffles:1.0.12--h8b12597_1' }"
+        'https://depot.galaxyproject.org/singularity/sniffles:2.5.3--pyhdfd78af_0' :
+        'quay.io/biocontainers/sniffles:2.5.3--pyhdfd78af_0' }"
 
 
 
