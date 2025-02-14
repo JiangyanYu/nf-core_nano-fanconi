@@ -15,8 +15,8 @@ process DEEPVARIANT {
     path(fai)
 
     output:
-    tuple val(meta), path("${prefix}_deepvariant.vcf.gz")  ,  emit: vcf
-    tuple val(meta), path("${prefix}_deepvariant.g.vcf.gz"),  emit: gvcf
+    tuple val(meta), path("${prefix}.vcf.gz")  ,  emit: vcf
+    tuple val(meta), path("${prefix}.g.vcf.gz"),  emit: gvcf
     path "versions.yml"                        ,  emit: versions
 
     when:

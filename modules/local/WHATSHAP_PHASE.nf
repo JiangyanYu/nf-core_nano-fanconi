@@ -21,7 +21,7 @@ process WHATSHAP_PHASE {
     """
     whatshap phase -o ${meta.sample}_phased.vcf \\
         --reference=${reference_fasta} \\
-        ${meta.sample}.vcf.gz ${meta.sample}.sorted.bam
+        ${meta.sample}_deepvariant.vcf.gz ${meta.sample}.sorted.bam
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
