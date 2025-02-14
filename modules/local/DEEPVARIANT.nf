@@ -2,7 +2,7 @@ process DEEPVARIANT {
     tag "$meta.sample"
     label 'process_medium'
 
-    container "google/deepvariant:1.4.0"
+    container "google/deepvariant:1.8.0-gpu"
 
     // Exit if running this module with -profile conda / -profile mamba
     if (workflow.profile.tokenize(',').intersect(['conda', 'mamba']).size() >= 1) {
@@ -15,8 +15,8 @@ process DEEPVARIANT {
     path(fai)
 
     output:
-    tuple val(meta), path("${prefix}.vcf.gz")  ,  emit: vcf
-    tuple val(meta), path("${prefix}.g.vcf.gz"),  emit: gvcf
+    tuple val(meta), path("${prefix}_deepvariant.vcf.gz")  ,  emit: vcf
+    tuple val(meta), path("${prefix}_deepvariant.g.vcf.gz"),  emit: gvcf
     path "versions.yml"                        ,  emit: versions
 
     when:
@@ -31,9 +31,9 @@ process DEEPVARIANT {
     /opt/deepvariant/bin/run_deepvariant \\
         --model_type=WGS \\
         --ref=${fasta} \\
-        --reads=${phased_bam_file} \\
-        --output_vcf=${prefix}.vcf.gz \\
-        --output_gvcf=${prefix}.g.vcf.gz \\
+        --reads=${prefix}.sorted.bam \\
+        --output_vcf=${prefix}_deepvariant.vcf.gz \\
+        --output_gvcf=${prefix}_deepvariant.g.vcf.gz \\
         ${args} \\
         --num_shards=${task.cpus}
 
