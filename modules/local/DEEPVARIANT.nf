@@ -32,8 +32,8 @@ process DEEPVARIANT {
         --model_type=WGS \\
         --ref=${fasta} \\
         --reads=${prefix}.sorted.bam \\
-        --output_vcf=${prefix}_deepvariant.vcf.gz \\
-        --output_gvcf=${prefix}_deepvariant.g.vcf.gz \\
+        --output_vcf=${prefix}.vcf.gz \\
+        --output_gvcf=${prefix}.g.vcf.gz \\
         ${args} \\
         --num_shards=${task.cpus}
 
