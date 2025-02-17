@@ -343,8 +343,7 @@ workflow NANOFANCONI {
         SNIFFLES_TABIX_VCF( ch_sv_calls_vcf )
         ch_sv_calls_tbi  = SNIFFLES_TABIX_VCF.out.tbi
         ch_versions = ch_versions.mix(SNIFFLES_TABIX_VCF.out.versions)
-        
-    }
+
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -352,13 +351,15 @@ workflow NANOFANCONI {
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
-    if (params.run_annotsv) {
+        if (params.run_annotsv) {
     
-        ANNOTSV_SNIFFLES (
-            SNIFFLES_SORT_VCF.out.vcf
-        )
+            ANNOTSV_SNIFFLES (
+                SNIFFLES_SORT_VCF.out.vcf
+            )
 
-        ch_versions = ch_versions.mix(ANNOTSV_SNIFFLES.out.versions)
+            ch_versions = ch_versions.mix(ANNOTSV_SNIFFLES.out.versions)
+        
+        }
         
     }
     
@@ -399,8 +400,6 @@ workflow NANOFANCONI {
         DEEPVARIANT_TABIX_GVCF( ch_short_calls_gvcf )
         ch_short_calls_gvcf_tbi  = DEEPVARIANT_TABIX_GVCF.out.tbi
         ch_versions = ch_versions.mix(DEEPVARIANT_TABIX_VCF.out.versions)
-        
-    }
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -408,15 +407,19 @@ workflow NANOFANCONI {
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
-    if (params.run_annotsv) {
+        if (params.run_annotsv) {
     
-        ANNOTSV_DEEPVARIANT (
-            DEEPVARIANT.out.vcf
-        )
+            ANNOTSV_DEEPVARIANT (
+               DEEPVARIANT.out.vcf
+            )
 
         ch_versions = ch_versions.mix(ANNOTSV_DEEPVARIANT.out.versions)
         
+        }
+        
     }
+
+
 
 
 /*
