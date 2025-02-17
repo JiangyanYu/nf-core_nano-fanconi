@@ -28,6 +28,8 @@ process DEEPVARIANT {
     //def regions = intervals ? "--regions ${intervals}" : ""
 
     """
+    mkdir ./tmp
+
     /opt/deepvariant/bin/run_deepvariant \\
         --model_type=WGS \\
         --ref=${fasta} \\
@@ -35,7 +37,8 @@ process DEEPVARIANT {
         --output_vcf=${prefix}.vcf.gz \\
         --output_gvcf=${prefix}.g.vcf.gz \\
         ${args} \\
-        --num_shards=${task.cpus}
+        --num_shards=${task.cpus} \\
+        --intermediate_results_dir ./tmp
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
