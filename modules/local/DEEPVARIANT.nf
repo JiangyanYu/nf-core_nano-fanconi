@@ -6,8 +6,7 @@ def processLabel = determineLabel()
 
 process DEEPVARIANT {
     tag "$meta.sample"
-    // label processLabel
-    label 'process_high'
+    label processLabel
 
     container "google/deepvariant:1.8.0-gpu"
 
