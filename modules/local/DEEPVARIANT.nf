@@ -1,8 +1,14 @@
+// Function to determine the label
+def determineLabel() {
+    return params.use_gpu ? 'process_gpu_long' : 'process_high'
+}
+def processLabel = determineLabel()
+
 process DEEPVARIANT {
     tag "$meta.sample"
-    label 'process_high'
+    label processLabel
 
-    container "google/deepvariant:1.4.0"
+    container "google/deepvariant:1.8.0-gpu"
 
     // Exit if running this module with -profile conda / -profile mamba
     if (workflow.profile.tokenize(',').intersect(['conda', 'mamba']).size() >= 1) {
