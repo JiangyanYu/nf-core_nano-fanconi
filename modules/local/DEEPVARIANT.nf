@@ -8,7 +8,7 @@ process DEEPVARIANT {
     tag "$meta.sample"
     label processLabel
 
-    container "google/deepvariant:1.4.0"
+    container "google/deepvariant:1.8.0-gpu"
 
     // Exit if running this module with -profile conda / -profile mamba
     if (workflow.profile.tokenize(',').intersect(['conda', 'mamba']).size() >= 1) {

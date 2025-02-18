@@ -22,7 +22,7 @@ process DORADO_BASECALLER {
 
     script:
         def args = task.ext.args ?: ''
-        def device = params.use_gpu ? "cuda:0": "cpu"
+        def device = params.use_gpu ? "cuda:all": "cpu"
         def mod_model = params.dorado_modifications_model ? "--modified-bases ${params.dorado_modifications_model}" : ''
 
         """
