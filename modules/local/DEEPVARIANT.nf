@@ -34,7 +34,6 @@ process DEEPVARIANT {
     //def regions = intervals ? "--regions ${intervals}" : ""
 
     """
-    mkdir ./tmp
 
     /opt/deepvariant/bin/run_deepvariant \\
         --model_type=WGS \\
