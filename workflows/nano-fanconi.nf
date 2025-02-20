@@ -446,7 +446,7 @@ workflow NANOFANCONI {
 
 
         ch_phase_vcf = DEEPVARIANT.out.vcf
-            .mix(DEEPVARIANT_TABIX_GVCF.out.tbi)
+            .mix(DEEPVARIANT_TABIX_VCF.out.tbi)
             .groupTuple(size:2)
             .map{ meta, files -> [ meta, files.flatten() ]}
         phase_vcf = ch_phase_vcf.join(test_step).dump(tag: "joined")
