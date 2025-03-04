@@ -17,13 +17,14 @@ process PBMM2 {
 
     script:
         def args = task.ext.args ?: ''
-        """        
+        """      
+        samtools fastq  ${reads_paths} > ${meta.sample}.fastq
         pbmm2 align \\
                 --num-threads ${task.cpus} \\
                 --preset CCS \\
                 --sort \\
                 ${index} \\
-                ${reads_paths} \\
+                ${meta.sample}.fastq \\
                 ${meta.sample}.bam
 
         cat <<-END_VERSIONS > versions.yml
