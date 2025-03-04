@@ -1,2 +1,2 @@
 id,sample,flowcell,input_path,batch,kit
-run28,run28_WEBN14,flowcell1,/data/genmedbfx/nano_fanconi/run28_WEBN14_sub,20250215,LSK114
+run28,run28_WEBN14,flowcell1,/data/genmedbfx/nano_fanconi/raw,20250215,LSK114
