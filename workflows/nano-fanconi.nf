@@ -391,7 +391,7 @@ workflow NANOFANCONI {
          */
 
         DEEPVARIANT_FILTER_VCF( ch_short_calls_vcf )
-        ch_short_calls_vcf_filter  = DEEPVARIANT_FILTER_VCF.out.vcf
+        ch_short_calls_vcf_filter  = DEEPVARIANT_FILTER_VCF.out.filteredvcf
         ch_versions = ch_versions.mix(DEEPVARIANT_FILTER_VCF.out.versions)
 
         /*
@@ -454,7 +454,7 @@ workflow NANOFANCONI {
         .dump(tag: "test_step")
 
 
-        ch_phase_vcf = DEEPVARIANT.out.vcf
+        ch_phase_vcf = DEEPVARIANT_TABIX_VCF.out.vcf
             .mix(DEEPVARIANT_TABIX_VCF.out.tbi)
             .groupTuple(size:2)
             .map{ meta, files -> [ meta, files.flatten() ]}

@@ -11,7 +11,7 @@ process BCFTOOLS_FILTER {
     tuple val(meta), path(vcf)
 
     output:
-    tuple val(meta), path("${meta.sample}.vcf.gz"), emit: vcf
+    tuple val(meta), path("${meta.sample}_filtered.vcf.gz"), emit: filteredvcf
     path "versions.yml"                                    , emit: versions
 
 
@@ -25,7 +25,7 @@ process BCFTOOLS_FILTER {
     bcftools \\
         filter \\
         --include 'GQ>20' \\
-        --output ${prefix}.vcf.gz \\
+        --output ${prefix}_filtered.vcf.gz \\
         $args \\
         $vcf
 
@@ -39,7 +39,7 @@ process BCFTOOLS_FILTER {
     def prefix = task.ext.prefix ?: "${meta.sample}"
 
     """
-    touch ${prefix}.vcf.gz
+    touch ${prefix}_filtered.vcf.gz
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
