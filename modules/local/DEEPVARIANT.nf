@@ -21,8 +21,8 @@ process DEEPVARIANT {
     path(fai)
 
     output:
-    tuple val(meta), path("${prefix}.vcf.gz")  ,  emit: vcf
-    tuple val(meta), path("${prefix}.g.vcf.gz"),  emit: gvcf
+    tuple val(meta), path("${prefix}.unfiltered.vcf.gz")  ,  emit: vcf
+    tuple val(meta), path("${prefix}.unfiltered.g.vcf.gz"),  emit: gvcf
     path "versions.yml"                        ,  emit: versions
 
     when:
@@ -39,10 +39,12 @@ process DEEPVARIANT {
         --model_type=WGS \\
         --ref=${fasta} \\
         --reads=${prefix}.sorted.bam \\
-        --output_vcf=${prefix}.vcf.gz \\
-        --output_gvcf=${prefix}.g.vcf.gz \\
+        --output_vcf=${prefix}.unfiltered.vcf.gz \\
+        --output_gvcf=${prefix}.unfiltered.g.vcf.gz \\
         ${args} \\
         --num_shards=${task.cpus} 
+
+    
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":

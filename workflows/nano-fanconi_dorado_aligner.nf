@@ -54,7 +54,7 @@ include { MERGE_BASECALL as MERGE_BASECALL_ID           } from '../modules/local
 include { MERGE_BASECALL as MERGE_BASECALL_SAMPLE       } from '../modules/local/MERGE_BASECALL'
 include { DORADO_BASECALL_SUMMARY                       } from '../modules/local/DORADO_BASECALL_SUMMARY'
 include { PYCOQC                                        } from '../modules/local/PYCOQC'
-include { PBMM2                                         } from '../modules/local/PBMM2.nf'
+include { DORADO_ALIGNER                                } from '../modules/local/DORADO_ALIGNER'
 include { SAMTOOLS_SORT                                 } from '../modules/local/SAMTOOLS_SORT'
 include { SAMTOOLS_INDEX                                } from '../modules/local/SAMTOOLS_INDEX'
 include { SAMTOOLS_STATS                                } from '../modules/local/SAMTOOLS_STATS.nf'
@@ -64,7 +64,6 @@ include { TABIX_BGZIP as SNIFFLES_BGZIP_VCF             } from '../modules/nf-co
 include { TABIX_TABIX as SNIFFLES_TABIX_VCF             } from '../modules/nf-core/tabix/tabix/main.nf'
 include { ANNOTSV_SNIFFLES                              } from '../modules/local/ANNOTSV_SNIFFLES.nf'
 include { ANNOTSV_DEEPVARIANT                           } from '../modules/local/ANNOTSV_DEEPVARIANT.nf'
-include { BCFTOOLS_FILTER as DEEPVARIANT_FILTER_VCF     } from '../modules/nf-core/bcftools/filter/main.nf'
 include { WHATSHAP_PHASE                                } from '../modules/local/WHATSHAP_PHASE.nf'
 include { WHATSHAP_HAPLOTAG                             } from '../modules/local/WHATSHAP_HAPLOTAG.nf'
 include { BCFTOOLS_SORT as PHASE_SORT_VCF               } from '../modules/nf-core/bcftools/sort/main.nf'
@@ -281,14 +280,14 @@ workflow NANOFANCONI {
     
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    NANOFANCONI: pbmm2_alignment
+    NANOFANCONI: Dorado-aligner
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
-    PBMM2 (
+    DORADO_ALIGNER (
         MERGE_BASECALL_SAMPLE.out.merged_bam,
         file(params.fasta)
     )
-    ch_versions = ch_versions.mix(PBMM2.out.versions)
+    ch_versions = ch_versions.mix(DORADO_ALIGNER.out.versions)
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -387,17 +386,9 @@ workflow NANOFANCONI {
         ch_versions = ch_versions.mix(DEEPVARIANT.out.versions)
 
         /*
-        * Filter deepvariant .vcf file
+         * Index deepvariant vcf.gz
          */
-
-        DEEPVARIANT_FILTER_VCF( ch_short_calls_vcf )
-        ch_short_calls_vcf_filter  = DEEPVARIANT_FILTER_VCF.out.vcf
-        ch_versions = ch_versions.mix(DEEPVARIANT_FILTER_VCF.out.versions)
-
-        /*
-         * Index filtered deepvariant vcf.gz
-         */
-        DEEPVARIANT_TABIX_VCF( ch_short_calls_vcf_filter )
+        DEEPVARIANT_TABIX_VCF( ch_short_calls_vcf )
         ch_short_calls_vcf_tbi  = DEEPVARIANT_TABIX_VCF.out.tbi
         ch_versions = ch_versions.mix(DEEPVARIANT_TABIX_VCF.out.versions)
 
