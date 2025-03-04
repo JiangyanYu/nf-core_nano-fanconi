@@ -1,4 +1,4 @@
-process BCFTOOLS_SORT {
+process BCFTOOLS_FILTER {
     tag "$meta.sample"
     label 'process_medium'
 
