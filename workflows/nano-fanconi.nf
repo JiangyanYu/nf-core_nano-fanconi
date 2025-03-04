@@ -300,7 +300,7 @@ workflow NANOFANCONI {
     // MODULE: Samtools sort and indedx aligned bams
     //
     SAMTOOLS_SORT (
-        DORADO_ALIGNER.out.bam
+        PBMM2.out.bam
     )
     ch_versions = ch_versions.mix(SAMTOOLS_SORT.out.versions)
 
