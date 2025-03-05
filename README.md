@@ -12,3 +12,9 @@ submit the job to julia, by run_nfcore_nanoseq.sh
 Reminder:
 1) Deepvariant model_type is set as WGS
 2) the current annotsv docker image does not contain annotationsDir, thus need to be installed first (https://github.com/lgmgeo/AnnotSV/blob/master/bin/INSTALL_annotations.sh). Then manually change the directory in the test.config file.
+
+Input files:
+samplesheet.csv
+id is used to merge samples from different flow cells
+sample shall be different from id, otherwise merge_bam_sample will through error
+
