@@ -274,12 +274,12 @@ workflow NANOFANCONI {
         .set { ch_basecall_sample_merged_bams } // set channel name
     }
 
-    /*
+    
     MERGE_BASECALL_SAMPLE (
         ch_basecall_sample_merged_bams
     )
     ch_versions = ch_versions.mix(MERGE_BASECALL_SAMPLE.out.versions)
-    */
+    
     
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
