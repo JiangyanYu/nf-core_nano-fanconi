@@ -17,7 +17,7 @@ process MERGE_BASECALL {
     def prefix = meta.id ?: meta.sample
 
     """
-    samtools merge -@ ${task.cpus} ${prefix}.unaligned.bam $input_bams
+    samtools merge -f -@ ${task.cpus} ${prefix}.unaligned.bam $input_bams
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
