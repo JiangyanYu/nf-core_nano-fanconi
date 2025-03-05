@@ -14,11 +14,11 @@ nodes = {
     "pod5": (0.3, 3.5),
     "bam": (1.7, 3.5),
     "dorado": (1, 3),
-    "pycoqc": (1, 2),
+    "pycoQC": (1, 2),
     "pbmm2": (2, 2),
-    "sniffles": (3, 3),
+    "Sniffles": (3, 3),
     "AnnotSV": (6, 2),
-    "whatshap": (4.5, 1),
+    "WhatsHap": (4.5, 1),
     "DeepVariant": (3, 1),
 }
 
@@ -27,17 +27,17 @@ edges = [
     ("fast5", "dorado"),
     ("pod5", "dorado"),
     ("bam", "dorado"),
-    ("dorado", "pycoqc"),
-    ("pycoqc", "pbmm2"),
-    ("pbmm2", "sniffles"),
+    ("dorado", "pycoQC"),
+    ("pycoQC", "pbmm2"),
+    ("pbmm2", "Sniffles"),
     ("pbmm2", "DeepVariant"),
-    ("DeepVariant", "whatshap"),
+    ("DeepVariant", "WhatsHap"),
 ]
 
 # Define special edges (square stepwise connections)
 square_edges = [
-    ("sniffles", "AnnotSV"),
-    ("whatshap", "AnnotSV"),
+    ("Sniffles", "AnnotSV"),
+    ("WhatsHap", "AnnotSV"),
 ]
 
 # Nodes with background color
@@ -50,31 +50,31 @@ fig, ax = plt.subplots(figsize=(9, 5))
 for start, end in edges:
     x1, y1 = nodes[start]
     x2, y2 = nodes[end]
-    ax.plot([x1, x2], [y1, y2], color="black", linewidth=2)
+    ax.plot([x1, x2], [y1, y2], color="green", linewidth=1)
 
 # Plot stepwise square edges
 for start, end in square_edges:
     x1, y1 = nodes[start]
     x2, y2 = nodes[end]
     mid_x = (x2 + x2) / 2  # Midpoint for stepwise effect
-    ax.plot([x1, mid_x, mid_x, x2], [y1, y1, y2, y2], color="black", linewidth=2)
+    ax.plot([x1, mid_x, mid_x, x2], [y1, y1, y2, y2], color="green", linewidth=1)
 
 # Plot nodes
 for label, (x, y) in nodes.items():
     if label in filled_nodes:
         ax.scatter(x, y, s=100, color="red", zorder=3)  # Node with background
         ax.text(
-            x, y, label, fontsize=12, ha="center", va="center", color="black", zorder=4,
-            bbox=dict(boxstyle="circle", facecolor=filled_nodes[label], edgecolor="black")
+            x, y, label, fontsize=15, ha="center", va="center", color="black", zorder=4,
+            bbox=dict(boxstyle="circle", facecolor=filled_nodes[label], edgecolor="green")
         )
     else:
         ax.text(
-            x, y, label, fontsize=12, ha="center", va="center", color="black", zorder=4,
-            bbox=dict(boxstyle="square", facecolor="lightblue", edgecolor="black", linewidth=2)
+            x, y, label, fontsize=15, ha="center", va="center", color="black", zorder=2,
+            bbox=dict(boxstyle="square", facecolor="white", edgecolor="green", linewidth=1)
         )
 
 # Add "nano-Fanconi" text at coordinates (3, 5)
-ax.text(3, 5, "nano-Fanconi", fontsize=25, ha="center", va="center", color="green", zorder=4)
+ax.text(3.5, 4, "nano-Fanconi", fontsize=25, ha="center", va="center", color="green", zorder=4)
 
 # Customize plot appearance
 ax.set_xlim(0, 7)
