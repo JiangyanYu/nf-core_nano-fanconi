@@ -1,4 +1,12 @@
-nf-core based workflow to analyse nanopore data for fanconi diagnosis.
+nf-core based workflow to analyze nanopore long-read sequencing data for fanconi diagnosis.
+Basic steps to use the workflow:
+1) Download and unzip package from github
+2) Adjusting files accordingly
+   --
+   --
+   --
+4) Perform the analysis by runing: 
+
 Basic structure is from following repos (2024-12-10):
 1. https://github.com/nf-core/nanoseq
 2. https://github.com/dhslab/nf-core-wgsnano
