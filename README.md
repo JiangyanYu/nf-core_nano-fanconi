@@ -1,11 +1,13 @@
 nf-core based workflow to analyze nanopore long-read sequencing data for fanconi diagnosis.
 Basic steps to use the workflow:
-1) Download and unzip package from github
-2) Adjusting files accordingly
-   --
-   --
-   --
-4) Perform the analysis by runing: 
+1) Install nextflow according to its manual (https://www.nextflow.io/docs/latest/install.html)
+2) Download and unzip (or git clone) nano-fanconi package from github
+3) Adjusting files accordingly
+   
+   -
+   -
+4) Perform the analysis by runing command
+  nextflow run
 
 Basic structure is from following repos (2024-12-10):
 1. https://github.com/nf-core/nanoseq
