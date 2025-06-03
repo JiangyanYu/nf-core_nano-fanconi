@@ -1,12 +1,12 @@
-nano-fanconi is an nf-core based workflow to analyze nanopore long-read sequencing data for routine fanconi diagnosis.
 ![alt text](https://github.com/JiangyanYu/nf-core_nano-fanconi/blob/main/docs/workflow_complete_graph.png)
+nano-fanconi is an nf-core based workflow to analyze nanopore long-read sequencing data for routine fanconi diagnosis.
 **Basic steps to use the workflow**:
 1. Install nextflow according to its manual (https://www.nextflow.io/docs/latest/install.html)
 2. Download and unzip (or git clone) nano-fanconi package from github (https://github.com/JiangyanYu/nf-core_nano-fanconi.git)
-3. Adjusting files accordingly
-   1) sample sheet
+3. Adjusting file path accordingly
+   1) raw sequencing data: sample sheet
    2) nextflow.config: to choose which analysis will be performed
-   3) base config for the time and CPU. try
+   3) GPU usage base config for the time and CPU. try
    4) 
 
    -
