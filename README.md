@@ -9,8 +9,12 @@ nano-fanconi is an nf-core based workflow to analyze nanopore long-read sequenci
    3) Select packages to be used in **/nf-core_nano-fanconi/nextflow.config**. Annotate (true or false) the programs one likes to use. In the default setting, annotation part is marked as false. If needed, installation of annotation database is needed (see below).
    4) Resource specification in **/nf-core_nano-fanconi/conf/base.config**.
 4. Run the analysis by following command:
-   
-  /data/genmedbfx/bfx_tools/nextflow/nextflow-24.10.3-dist run /data/genmedbfx/nano_fanconi/nf-core_nano-fanconi/ -profile nanofanconi,docker --outfir /data/genmedbfx/nano_fanconi/output
+```
+   nextflow run ./nf-core_nano-fanconi/ \ # The path to the nano-fanconi package
+      -profile nanofanconi,docker \ # Corresponding to the setting in /nf-core_nano-fanconi/profile.config. Beaware that no space between nanofanconi,docker 
+      --outfir ./output # Specify the directory for output results.
+```
+
 
 Notes
 1) the current annotsv docker image does not contain annotationsDir, thus need to be installed first (https://github.com/lgmgeo/AnnotSV/blob/master/bin/INSTALL_annotations.sh). Then manually change the directory in the profile.config file.
