@@ -21,10 +21,10 @@ Notes
 2) Deepvariant model_type is set as WGS
 
    
-Basic structure is from following repos (2024-12-10):
+<sub>Basic structure is from following repos (2024-12-10):
 1. https://github.com/nf-core/nanoseq
 2. https://github.com/dhslab/nf-core-wgsnano
 2.1 since the firewall is restricted to docker, I have simply copied the dorado image from dhslab (https://github.com/dhslab/dhslab-docker-images/pkgs/container/docker-dorado) to my docker hub, version 241016.
-2.2 same for https://github.com/dhslab/dhslab-docker-images/pkgs/container/docker-whatshap, version 240302.
+2.2 same for https://github.com/dhslab/dhslab-docker-images/pkgs/container/docker-whatshap, version 240302.</sub>
 
 
