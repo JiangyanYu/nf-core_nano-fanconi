@@ -3,15 +3,13 @@ nano-fanconi is an nf-core based workflow to analyze nanopore long-read sequenci
 **Basic steps to use the workflow**:
 1. Install nextflow according to its manual (https://www.nextflow.io/docs/latest/install.html)
 2. Download and unzip (or git clone) nano-fanconi package from github (https://github.com/JiangyanYu/nf-core_nano-fanconi.git)
-3. Adjusting file path accordingly
-   1) raw sequencing data: sample sheet
-   2) nextflow.config: to choose which analysis will be performed
-   3) GPU usage base config for the time and CPU. try
-   4) 
-
-   -
-4) Perform the analysis by runing command
-  nextflow run
+3. Adjusting file path accordingly:
+   1) Sequencing data path in **/nf-core_nano-fanconi/assets/samplesheet.csv**. The file directory is the absolute path in your file system. id is used to merge samples from different flow cells. Therefore, sample shall be different from id, otherwise merge_bam_sample will throw errors.
+   2) Reference genome path in **/nf-core_nano-fanconi/profile.config**. Besides the reference path, annotsvAnnotations database directory as well as the dorado model details can be specified in this file.
+   3) Select packages to be used in **/nf-core_nano-fanconi/nextflow.config**. Annotate (true or false) the programs one likes to use. In the default setting, annotation part is marked as false. If needed, installation of annotation database is needed (see below).
+   4) Resource specification in **/nf-core_nano-fanconi/conf/base.config**.
+4. Run the analysis by following command:
+  /data/genmedbfx/bfx_tools/nextflow/nextflow-24.10.3-dist run /data/genmedbfx/nano_fanconi/nf-core_nano-fanconi/ -profile nanofanconi,docker --outfir /data/genmedbfx/nano_fanconi/output
 
 Basic structure is from following repos (2024-12-10):
 1. https://github.com/nf-core/nanoseq
@@ -22,11 +20,3 @@ Basic structure is from following repos (2024-12-10):
 Reminder:
 1) Deepvariant model_type is set as WGS
 2) the current annotsv docker image does not contain annotationsDir, thus need to be installed first (https://github.com/lgmgeo/AnnotSV/blob/master/bin/INSTALL_annotations.sh). Then manually change the directory in the test.config file.
-
-Needed input files:
-1. samplesheet.csv: raw sequencing files
-1.1 id is used to merge samples from different flow cells
-1.2 sample shall be different from id, otherwise merge_bam_sample will through error
-2. genmexbfx.config: reference files, annotation database, dorado setting
-3. 
-
