@@ -18,10 +18,12 @@ git clone -b main https://github.com/JiangyanYu/nf-core_nano-fanconi
       --outfir ./output # Specify the directory for output results.
 ```
 
-
-Notes
+**Notes**
 1) the current annotsv docker image does not contain annotationsDir, thus need to be installed first (https://github.com/lgmgeo/AnnotSV/blob/master/bin/INSTALL_annotations.sh). Then manually change the directory in the profile.config file.
 2) Deepvariant model_type is set as WGS
+
+**Cite us (to-be-updated):**
+Nano-Fanconi: A Nextflow framework for automated analysis of Nanopore based long-read sequencing data for Fanconi anemia diagnosis. 
 
    
 <sub>Basic structure is from following repos (2024-12-10):</sub> \
