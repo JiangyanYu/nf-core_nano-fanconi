@@ -15,7 +15,7 @@ git clone -b main https://github.com/JiangyanYu/nf-core_nano-fanconi
 ```
    nextflow run ./nf-core_nano-fanconi/ \ # The path to the nano-fanconi package
       -profile nanofanconi,docker \ # Corresponding to the setting in /nf-core_nano-fanconi/profile.config. Beaware that no space between nanofanconi,docker 
-      --outfir ./output # Specify the directory for output results.
+      --outdir ./output # Specify the directory for output results.
 ```
 
 **Notes**
