@@ -1,4 +1,4 @@
-# nf-core-wgsnano pipeline parameters
+# nf-core_nano-fanconi pipeline parameters
 ## same formate as nf-core-wgsnano (2024-12-10)
 ##TO DO
 

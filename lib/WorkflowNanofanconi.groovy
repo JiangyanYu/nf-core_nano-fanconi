@@ -1,10 +1,10 @@
 //
-// This file holds several functions specific to the workflow/wgsnano.nf in the nf-core/wgsnano pipeline
+// This file holds several functions specific to the workflow/nano-fanconi.nf in the nf-core_nano-fanconi pipeline
 //
 
 import groovy.text.SimpleTemplateEngine
 
-class WorkflowWgsnano {
+class WorkflowNanofanconi {
 
     //
     // Check and validate parameters

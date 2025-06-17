@@ -1,7 +1,7 @@
 name: Feature request
 # Use the same formate as https://github.com/dhslab/nf-core-wgsnano (2024-12-10)
 ## TO DO
-description: Suggest an idea for the nf-core/wgsnano pipeline
+description: Suggest an idea for the nf-core_nano-fanconi pipeline
 labels: enhancement
 body:
   - type: textarea
