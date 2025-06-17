@@ -1,4 +1,4 @@
-# nf-core/wgsnano: Output
+# nf-core_nano-fanconi: Output
 ## same formate as nf-core-wgsnano (2024-12-10)
 ##TO DO
 
