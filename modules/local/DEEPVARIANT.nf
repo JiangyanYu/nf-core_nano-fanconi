@@ -21,8 +21,8 @@ process DEEPVARIANT {
     path(fai)
 
     output:
-    tuple val(meta), path("${prefix}.unfiltered.vcf.gz")  ,  emit: vcf
-    tuple val(meta), path("${prefix}.unfiltered.g.vcf.gz"),  emit: gvcf
+    tuple val(meta), path("${prefix}.deepvariant.unfiltered.vcf.gz")  ,  emit: vcf
+    tuple val(meta), path("${prefix}.deepvariant.unfiltered.g.vcf.gz"),  emit: gvcf
     path "versions.yml"                        ,  emit: versions
 
     when:
@@ -39,8 +39,8 @@ process DEEPVARIANT {
         --model_type=ONT_R104 \\
         --ref=${fasta} \\
         --reads=${prefix}.sorted.bam \\
-        --output_vcf=${prefix}.unfiltered.vcf.gz \\
-        --output_gvcf=${prefix}.unfiltered.g.vcf.gz \\
+        --output_vcf=${prefix}.deepvariant.unfiltered.vcf.gz \\
+        --output_gvcf=${prefix}.deepvariant.unfiltered.g.vcf.gz \\
         ${args} \\
         --num_shards=${task.cpus} 
 
