@@ -36,7 +36,7 @@ process DEEPVARIANT {
     """
 
     /opt/deepvariant/bin/run_deepvariant \\
-        --model_type=WGS \\
+        --model_type=ONT_R104 \\
         --ref=${fasta} \\
         --reads=${prefix}.sorted.bam \\
         --output_vcf=${prefix}.unfiltered.vcf.gz \\
