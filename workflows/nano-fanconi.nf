@@ -329,8 +329,7 @@ workflow NANOFANCONI {
 
         SAWFISH( 
             sawfish_input,
-            file(params.fasta), 
-            file(params.fasta_index)
+            file(params.fasta)
             )
         ch_versions = ch_versions.mix(SAWFISH.out.versions)
 
