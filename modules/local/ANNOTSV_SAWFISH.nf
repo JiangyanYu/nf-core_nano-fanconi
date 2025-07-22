@@ -1,4 +1,4 @@
-process ANNOTSV_SNIFFLES {
+process ANNOTSV_SAWFISH {
     tag "$meta.sample"
     label 'process_high'
     

@@ -58,11 +58,11 @@ include { PBMM2                                         } from '../modules/local
 include { SAMTOOLS_SORT                                 } from '../modules/local/SAMTOOLS_SORT'
 include { SAMTOOLS_INDEX                                } from '../modules/local/SAMTOOLS_INDEX'
 include { SAMTOOLS_STATS                                } from '../modules/local/SAMTOOLS_STATS.nf'
-include { SNIFFLES                                      } from '../modules/local/SNIFFLES.nf'
-include { BCFTOOLS_SORT as SNIFFLES_SORT_VCF            } from '../modules/nf-core/bcftools/sort/main.nf'
-include { TABIX_BGZIP as SNIFFLES_BGZIP_VCF             } from '../modules/nf-core/tabix/bgzip/main.nf'
-include { TABIX_TABIX as SNIFFLES_TABIX_VCF             } from '../modules/nf-core/tabix/tabix/main.nf'
-include { ANNOTSV_SNIFFLES                              } from '../modules/local/ANNOTSV_SNIFFLES.nf'
+include { SAWFISH                                       } from '../modules/local/SAWFISH.nf'
+// include { BCFTOOLS_SORT as SNIFFLES_SORT_VCF            } from '../modules/nf-core/bcftools/sort/main.nf'
+// include { TABIX_BGZIP as SNIFFLES_BGZIP_VCF             } from '../modules/nf-core/tabix/bgzip/main.nf'
+// include { TABIX_TABIX as SNIFFLES_TABIX_VCF             } from '../modules/nf-core/tabix/tabix/main.nf'
+include { ANNOTSV_SAWFISH                              } from '../modules/local/ANNOTSV_SAWFISH.nf'
 include { ANNOTSV_DEEPVARIANT                           } from '../modules/local/ANNOTSV_DEEPVARIANT.nf'
 include { BCFTOOLS_FILTER as DEEPVARIANT_FILTER_VCF     } from '../modules/nf-core/bcftools/filter/main.nf'
 include { WHATSHAP_PHASE                                } from '../modules/local/WHATSHAP_PHASE.nf'
@@ -310,56 +310,44 @@ workflow NANOFANCONI {
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    NANOFANCONI: Sniffles
+    NANOFANCONI: Sawfish
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
-    if (params.run_sniffles) {
+    if (params.run_sawfish) {
 
         /*
-         * Call structural variants with sniffles
+         * Call structural variants with sawfish
          */
 
-        ch_sniffles_input = SAMTOOLS_SORT.out.bai
+        ch_sawfish_input = SAMTOOLS_SORT.out.bai
             .mix(SAMTOOLS_SORT.out.bam)
             .groupTuple(size:2)
             .map{ meta, files -> [ meta, files.flatten() ]}
 
-        sniffles_input = ch_sniffles_input.join(ch_phased_vcf).dump(tag: "joined")
+        sawfish_input = ch_sawfish_input.join(ch_phased_vcf).dump(tag: "joined")
 
-        SNIFFLES( 
-            sniffles_input
+        SAWFISH( 
+            sawfish_input,
+            file(params.fasta), 
+            file(params.fasta_index)
             )
-        ch_versions = ch_versions.mix(SNIFFLES.out.versions)
-
-        /*
-         * Sort structural variants with bcftools
-         */
-        SNIFFLES_SORT_VCF( SNIFFLES.out.sv_calls )
-        ch_sv_calls_vcf = SNIFFLES_SORT_VCF.out.vcf
-        ch_versions = ch_versions.mix(SNIFFLES_SORT_VCF.out.versions)
-
-        /*
-         * Index sniffles vcf.gz
-         */
-        SNIFFLES_TABIX_VCF( ch_sv_calls_vcf )
-        ch_sv_calls_tbi  = SNIFFLES_TABIX_VCF.out.tbi
-        ch_versions = ch_versions.mix(SNIFFLES_TABIX_VCF.out.versions)
+        ch_versions = ch_versions.mix(SAWFISH.out.versions)
 
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    NANOFANCONI: AnnotSV-Sniffles
+    NANOFANCONI: AnnotSV-Sawfish
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
         if (params.run_annotsv) {
     
-            ANNOTSV_SNIFFLES (
-                SNIFFLES_SORT_VCF.out.vcf
+            ANNOTSV_SAWFISH (
+                SAWFISH.out.vcf
             )
 
-            ch_versions = ch_versions.mix(ANNOTSV_SNIFFLES.out.versions)
+            ch_versions = ch_versions.mix(ANNOTSV_SAWFISH.out.versions)
         
         }
         
@@ -472,14 +460,14 @@ workflow NANOFANCONI {
         ch_versions = ch_versions.mix(WHATSHAP_PHASE.out.versions)
 
         /*
-         * Sort phased structural variants with bcftools
+         * Sort phased variants with bcftools
          */
         PHASE_SORT_VCF( WHATSHAP_PHASE.out.phased_vcf )
         ch_sv_phase_vcf = PHASE_SORT_VCF.out.vcf
         ch_versions = ch_versions.mix(PHASE_SORT_VCF.out.versions)
 
         /*
-         * Index sniffles vcf.gz
+         * Index phased vcf.gz
          */
         PHASE_TABIX_VCF( ch_sv_phase_vcf )
         ch_sv_calls_tbi  = PHASE_TABIX_VCF.out.tbi

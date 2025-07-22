@@ -8,28 +8,34 @@ process SAWFISH {
 
     input:
 
-        tuple val(meta), path (reads_paths) 
+        tuple val(meta), path(bam_file), path(bam_bai_file) 
         path (index)
 
     output:
-        tuple val(meta), path ("*.bam")       , emit: bam
-        path "versions.yml"                   , emit: versions
+        path ("${meta.sample}_joint-call/*alignment*")                  , emit: bam
+        path ("${meta.sample}_joint-call/genotyped.sv.vcf.gz")          , emit: vcf
+        path ("${meta.sample}_joint-call/genotyped.sv.vcf.gz.tbi")      , emit: tbi
+        path "versions.yml"                                             , emit: versions
 
     script:
         def args = task.ext.args ?: ''
         """      
-        samtools fastq  ${reads_paths} > ${meta.sample}.fastq
-        pbmm2 align \\
-                --num-threads ${task.cpus} \\
-                --preset CCS \\
-                --sort \\
-                ${index} \\
-                ${meta.sample}.fastq \\
-                ${meta.sample}.bam
+        conda activate sawfish
+        sawfish discover \\
+                --threads ${task.cpus} \\
+                --ref ${index} \\
+                --bam ${meta.sample}.sorted.bam \\
+                --output-dir ${meta.sample}_discover
+
+        sawfish joint-call
+                --threads ${task.cpus} \\
+                --sample ${meta.sample}_discover \\
+                --output-dir ${meta.sample}_joint-call
 
         cat <<-END_VERSIONS > versions.yml
+
         "${task.process}":
-            pbmm2: \$(pbmm2 --version 2>&1)
+            sawfish: \$(sawfish --version 2>&1)
         END_VERSIONS
         """
 }
