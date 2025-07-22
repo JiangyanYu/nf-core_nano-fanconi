@@ -19,7 +19,8 @@ process SAWFISH {
 
     script:
         def args = task.ext.args ?: ''
-        """      
+        """   
+        conda init   
         conda activate sawfish
         sawfish discover \\
                 --threads ${task.cpus} \\
