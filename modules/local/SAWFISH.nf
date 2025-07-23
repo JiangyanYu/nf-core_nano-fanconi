@@ -12,26 +12,27 @@ process SAWFISH {
         path (index)
 
     output:
-        path ("${meta.sample}_joint-call/*alignment*")                  , emit: bam
-        path ("${meta.sample}_joint-call/genotyped.sv.vcf.gz")          , emit: vcf
-        path ("${meta.sample}_joint-call/genotyped.sv.vcf.gz.tbi")      , emit: tbi
+        path ("joint-call/*alignment*")                  , emit: bam
+        path ("joint-call/genotyped.sv.vcf.gz")          , emit: vcf
+        path ("joint-call/genotyped.sv.vcf.gz.tbi")      , emit: tbi
         path "versions.yml"                                             , emit: versions
 
     script:
         def args = task.ext.args ?: ''
         """   
-        conda init   
+        source /opt/condaetc/profile.d/conda.sh  
         conda activate sawfish
+
         sawfish discover \\
                 --threads ${task.cpus} \\
                 --ref ${index} \\
                 --bam ${meta.sample}.sorted.bam \\
-                --output-dir ${meta.sample}_discover
+                --output-dir discover
 
         sawfish joint-call
                 --threads ${task.cpus} \\
-                --sample ${meta.sample}_discover \\
-                --output-dir ${meta.sample}_joint-call
+                --sample discover \\
+                --output-dir joint-call
 
         cat <<-END_VERSIONS > versions.yml
 
