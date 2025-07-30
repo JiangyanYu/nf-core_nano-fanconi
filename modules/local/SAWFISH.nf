@@ -20,7 +20,7 @@ process SAWFISH {
     script:
         def args = task.ext.args ?: ''
         """   
-        source /opt/condaetc/etc/profile.d/conda.sh  
+        source /opt/conda/etc/profile.d/conda.sh  
         conda activate sawfish
 
         sawfish discover \\
