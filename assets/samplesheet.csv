@@ -1,2 +1,2 @@
 id,sample,flowcell,input_path,batch,kit
-run31,run31,flowcell1,/home/yu_j/smbshare/nano_fanconi/raw_data/31_selected,20250215,LSK114
+AY743909,AY743909,flowcell1,/data/genmedbfx/Krempl_PMV/raw/PVM_AY743909_MD_sorted,20250215,LSK114
