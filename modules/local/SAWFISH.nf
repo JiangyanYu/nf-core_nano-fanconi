@@ -13,9 +13,9 @@ process SAWFISH {
 
     output:
         path ("joint-call/*alignment*")                  , emit: bam
-        path ("joint-call/genotyped.sv.vcf.gz")          , emit: vcf
+        tuple val(meta), path ("joint-call/genotyped.sv.vcf.gz")          , emit: vcf
         path ("joint-call/genotyped.sv.vcf.gz.tbi")      , emit: tbi
-        path "versions.yml"                                             , emit: versions
+        path "versions.yml"                              , emit: versions
 
     script:
         def args = task.ext.args ?: ''
