@@ -12,9 +12,9 @@ process SAWFISH {
         path (index)
 
     output:
-        path ("joint-call/*alignment*")                  , emit: bam
+        tuple val(meta), path ("joint-call/*alignment*")                  , emit: bam
         tuple val(meta), path ("joint-call/genotyped.sv.vcf.gz")          , emit: vcf
-        path ("joint-call/genotyped.sv.vcf.gz.tbi")      , emit: tbi
+        tuple val(meta), path ("joint-call/genotyped.sv.vcf.gz.tbi")      , emit: tbi
         path "versions.yml"                              , emit: versions
 
     script:
