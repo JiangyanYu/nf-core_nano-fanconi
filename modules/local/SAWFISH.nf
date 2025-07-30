@@ -29,7 +29,7 @@ process SAWFISH {
                 --bam ${meta.sample}.sorted.bam \\
                 --output-dir discover
 
-        sawfish joint-call
+        sawfish joint-call \\
                 --threads ${task.cpus} \\
                 --sample discover \\
                 --output-dir joint-call
