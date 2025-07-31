@@ -9,18 +9,13 @@ parser.add_argument("--snv_vcf", required=True, help="Input SNV VCF file (bgzipp
 parser.add_argument("--output_vcf", required=True, help="Output VCF file with adjusted genotypes.")
 args = parser.parse_args()
 
-# Input files
-sv_vcf_path = VCF(args.sv_vcf)
-snv_vcf_path = VCF(args.snv_vcf)
-output_vcf_path = VCF(args.output_vcf)
-
 # Region to check for overlap
 query_chrom = "chr16"
 query_start = 89735549
 query_end = 89818647
 
 # Step 1: Parse SV VCF to find overlapping deletion
-sv_vcf = VCF(sv_vcf_path)
+sv_vcf = VCF(args.sv_vcf)
 region_start = None
 region_end = None
 
@@ -28,12 +23,11 @@ for variant in sv_vcf(query_chrom, query_start, query_end):
     if variant.is_sv and variant.INFO.get("SVTYPE") == "DEL":
         sv_start = variant.POS
         sv_end = int(variant.INFO.get("END", 0))
-        # Check if deletion overlaps the region of interest
         if sv_start <= query_end and sv_end >= query_start:
             region_start = sv_start
             region_end = sv_end
             print(f"Found deletion: {query_chrom}:{region_start}-{region_end}")
-            break  # use the first overlapping deletion
+            break
 
 sv_vcf.close()
 
@@ -42,8 +36,8 @@ if region_start is None or region_end is None:
     sys.exit(1)
 
 # Step 2: Modify SNV VCF based on detected region
-snv_vcf = VCF(snv_vcf_path)
-out = open(output_vcf_path, "w")
+snv_vcf = VCF(args.snv_vcf)
+out = open(args.output_vcf, "w")
 
 # Write header
 for line in snv_vcf.raw_header.strip().split("\n"):
