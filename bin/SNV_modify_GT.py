@@ -19,7 +19,7 @@ sv_vcf = VCF(args.sv_vcf)
 region_start = None
 region_end = None
 
-for variant in sv_vcf(query_chrom, query_start, query_end):
+for variant in sv_vcf(f"{query_chrom}:{query_start}-{query_end}"):
     if variant.is_sv and variant.INFO.get("SVTYPE") == "DEL":
         sv_start = variant.POS
         sv_end = int(variant.INFO.get("END", 0))
