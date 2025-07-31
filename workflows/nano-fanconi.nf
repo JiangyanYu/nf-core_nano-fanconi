@@ -62,9 +62,10 @@ include { SAWFISH                                       } from '../modules/local
 // include { BCFTOOLS_SORT as SNIFFLES_SORT_VCF            } from '../modules/nf-core/bcftools/sort/main.nf'
 // include { TABIX_BGZIP as SNIFFLES_BGZIP_VCF             } from '../modules/nf-core/tabix/bgzip/main.nf'
 // include { TABIX_TABIX as SNIFFLES_TABIX_VCF             } from '../modules/nf-core/tabix/tabix/main.nf'
-include { ANNOTSV_SAWFISH                              } from '../modules/local/ANNOTSV_SAWFISH.nf'
+include { ANNOTSV_SAWFISH                               } from '../modules/local/ANNOTSV_SAWFISH.nf'
 include { ANNOTSV_DEEPVARIANT                           } from '../modules/local/ANNOTSV_DEEPVARIANT.nf'
 include { BCFTOOLS_FILTER as DEEPVARIANT_FILTER_VCF     } from '../modules/nf-core/bcftools/filter/main.nf'
+include { EDIT_SNV_GENOTYPE                             } from '../modules/local/EDIT_SNV_GENOTYPE.nf'
 include { WHATSHAP_PHASE                                } from '../modules/local/WHATSHAP_PHASE.nf'
 include { WHATSHAP_HAPLOTAG                             } from '../modules/local/WHATSHAP_HAPLOTAG.nf'
 include { BCFTOOLS_SORT as PHASE_SORT_VCF               } from '../modules/nf-core/bcftools/sort/main.nf'
@@ -430,6 +431,27 @@ workflow NANOFANCONI {
         //
         // MODULE: whatshap for phasing
         //
+
+
+        if (params.joint_SNV_SV_phasing) {
+            //
+            // Edit SNV genotype when large deletion occurs
+            //
+
+            EDIT_SNV_GENOTYPE (
+                DEEPVARIANT_FILTER_VCF.out.filteredvcf
+                SAWFISH.out.vcf
+            )
+
+            ch_versions = ch_versions.mix(INPUT_CHECK.out.versions)
+            ch_phased_vcf = INPUT_CHECK.out.reads.map{ meta, files -> [[sample: meta.sample],meta.vcf] }.dump(tag: "ch_phased_vcf")
+
+
+
+            
+        }
+
+
 
         ch_phase_bam = SAMTOOLS_SORT.out.bam
             .mix(SAMTOOLS_SORT.out.bai)
