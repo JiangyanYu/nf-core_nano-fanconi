@@ -7,7 +7,7 @@ nano-fanconi is an nf-core based workflow to analyze nanopore long-read sequenci
 git clone -b main https://github.com/JiangyanYu/nf-core_nano-fanconi
 ```
 4. Adjusting file path accordingly:
-   1) Sequencing data path in **/nf-core_nano-fanconi/assets/samplesheet.csv**. The file directory is the absolute path in your file system. id is used to merge samples from different flow cells. Therefore, sample shall be different from id, otherwise merge_bam_sample will throw errors.
+   1) Sequencing data path in **/nf-core_nano-fanconi/assets/samplesheet.csv**. The file directory is the absolute path in your file system. <not needed: id is used to merge samples from different flow cells. Therefore, sample shall be different from id, otherwise merge_bam_sample will throw errors.>
    2) Reference genome path in **/nf-core_nano-fanconi/profile.config**. Besides the reference path, annotsvAnnotations database directory as well as the dorado model details can be specified in this file.
    3) Select packages to be used in **/nf-core_nano-fanconi/nextflow.config**. Annotate (true or false) the programs one likes to use. In the default setting, annotation part is marked as false. If needed, installation of annotation database is needed (see below).
    4) Resource specification in **/nf-core_nano-fanconi/conf/base.config**.
