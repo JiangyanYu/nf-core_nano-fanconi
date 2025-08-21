@@ -21,11 +21,13 @@ git clone -b main https://github.com/JiangyanYu/nf-core_nano-fanconi
 6. Output file structure:
 ````
 <sample_id> (folder)
+
 -multiqc (folder)
 --multiqc_data (folder)
 --multiqc_plots (folder)
 --multiqc_report.html
 --versions.yml
+
 -pipeline_info (folder)
 --execution_report_<time>.html
 --execution_timeline_<time>.html
@@ -33,6 +35,7 @@ git clone -b main https://github.com/JiangyanYu/nf-core_nano-fanconi
 --execution_dag_<time>.html
 --samplesheet.valid.csv
 --software_versions.yml
+
 -<sample_name> (folder)
 --basecaller (optional bam output)
 --deepvariant (optional bam output)
