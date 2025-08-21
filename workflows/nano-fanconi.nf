@@ -458,7 +458,7 @@ workflow NANOFANCONI {
 
 
             EDIT_SNV_GENOTYPE (
-                deepvariant_vcf
+                deepvariant_vcf,
                 sawfish_vcf
             )
 
