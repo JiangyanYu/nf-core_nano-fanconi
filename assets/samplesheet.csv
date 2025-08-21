@@ -1,2 +1,2 @@
 id,sample,flowcell,input_path,batch,kit
-run22_chr16test,run22_chr16test,flowcell1,/home/yu_j/smbshare/nano_fanconi/run22/run22_fast5/deepvariant_whatshap/chr16,20250215,LSK114
+run31_chr16test,run31_chr16test,flowcell1,/home/yu_j/smbshare/nano_fanconi/test,20250215,LSK114

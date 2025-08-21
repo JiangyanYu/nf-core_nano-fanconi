@@ -438,39 +438,81 @@ workflow NANOFANCONI {
             // Edit SNV genotype when large deletion occurs
             //
 
+            test_step = INPUT_CHECK.out.reads
+                .map{ meta, files -> [[sample: meta.sample],meta.vcf_tbi] }
+                .dump(tag: "test_step")
+
+            ch_snv_vcf = DEEPVARIANT_FILTER_VCF.out.filteredvcf
+                .mix(DEEPVARIANT_TABIX_VCF.out.tbi)
+                .groupTuple(size:2)
+                .map{ meta, files -> [ meta, files.flatten() ]}
+            deepvariant_vcf = ch_snv_vcf.join(test_step).dump(tag: "joined")
+
+            ch_sv_vcf = SAWFISH.out.vcf
+                .mix(SAWFISH.out.vcf.tbi)
+                .groupTuple(size:2)
+                .map{ meta, files -> [ meta, files.flatten() ]}
+            sawfish_vcf = ch_sv_vcf.join(test_step).dump(tag: "joined")
+
+
             EDIT_SNV_GENOTYPE (
-                DEEPVARIANT_FILTER_VCF.out.filteredvcf
-                SAWFISH.out.vcf
+                deepvariant_vcf
+                sawfish.vcf
             )
 
-            ch_versions = ch_versions.mix(INPUT_CHECK.out.versions)
-            ch_phased_vcf = INPUT_CHECK.out.reads.map{ meta, files -> [[sample: meta.sample],meta.vcf] }.dump(tag: "ch_phased_vcf")
+            ch_versions = ch_versions.mix(EDIT_SNV_GENOTYPE.out.versions)
 
+            //
+            // Input converted snv.vcf for phasing
+            //
+            ch_phase_bam = SAMTOOLS_SORT.out.bam
+                .mix(SAMTOOLS_SORT.out.bai)
+                .groupTuple(size:2)
+                .map{ meta, files -> [ meta, files.flatten() ]}
+
+            phase_bam = ch_phase_bam.join(ch_phased_vcf).dump(tag: "joined")
+
+
+            test_step = INPUT_CHECK.out.reads
+                .map{ meta, files -> [[sample: meta.sample],meta.vcf_tbi] }
+                .dump(tag: "test_step")
+
+
+            ch_phase_vcf = EDIT_SNV_GENOTYPE.out.vcf
+                .mix(EDIT_SNV_GENOTYPE.out.tbi)
+                .groupTuple(size:2)
+                .map{ meta, files -> [ meta, files.flatten() ]}
+            phase_vcf = ch_phase_vcf.join(test_step).dump(tag: "joined")
+
+            
 
 
             
+        } else {
+            ch_phase_bam = SAMTOOLS_SORT.out.bam
+                .mix(SAMTOOLS_SORT.out.bai)
+                .groupTuple(size:2)
+                .map{ meta, files -> [ meta, files.flatten() ]}
+
+            phase_bam = ch_phase_bam.join(ch_phased_vcf).dump(tag: "joined")
+
+
+            test_step = INPUT_CHECK.out.reads
+                .map{ meta, files -> [[sample: meta.sample],meta.vcf_tbi] }
+                .dump(tag: "test_step")
+
+
+            ch_phase_vcf = DEEPVARIANT_FILTER_VCF.out.filteredvcf
+                .mix(DEEPVARIANT_TABIX_VCF.out.tbi)
+                .groupTuple(size:2)
+                .map{ meta, files -> [ meta, files.flatten() ]}
+            phase_vcf = ch_phase_vcf.join(test_step).dump(tag: "joined")
+
         }
 
 
 
-        ch_phase_bam = SAMTOOLS_SORT.out.bam
-            .mix(SAMTOOLS_SORT.out.bai)
-            .groupTuple(size:2)
-            .map{ meta, files -> [ meta, files.flatten() ]}
-
-        phase_bam = ch_phase_bam.join(ch_phased_vcf).dump(tag: "joined")
-
-
-        test_step = INPUT_CHECK.out.reads
-        .map{ meta, files -> [[sample: meta.sample],meta.vcf_tbi] }
-        .dump(tag: "test_step")
-
-
-        ch_phase_vcf = DEEPVARIANT_FILTER_VCF.out.filteredvcf
-            .mix(DEEPVARIANT_TABIX_VCF.out.tbi)
-            .groupTuple(size:2)
-            .map{ meta, files -> [ meta, files.flatten() ]}
-        phase_vcf = ch_phase_vcf.join(test_step).dump(tag: "joined")
+        
 
          WHATSHAP_PHASE (
              phase_bam,
