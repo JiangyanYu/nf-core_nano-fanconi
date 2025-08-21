@@ -15,7 +15,7 @@ git clone -b main https://github.com/JiangyanYu/nf-core_nano-fanconi
 5. Run the analysis by following command:
 ```
    nextflow run ./nf-core_nano-fanconi/ \ # The path to the nano-fanconi package
-      -profile nanofanconi,docker \ # Corresponding to the setting in /nf-core_nano-fanconi/profile.config. Beaware that no space between nanofanconi,docker 
+      -profile fa_niva,docker \ # Corresponding to the setting in /nf-core_nano-fanconi/profile.config. Beaware that no space between nanofanconi,docker 
       --outdir ./output # Specify the directory for output results.
 ```
 
