@@ -459,7 +459,7 @@ workflow NANOFANCONI {
 
             EDIT_SNV_GENOTYPE (
                 deepvariant_vcf
-                sawfish.vcf
+                sawfish_vcf
             )
 
             ch_versions = ch_versions.mix(EDIT_SNV_GENOTYPE.out.versions)
