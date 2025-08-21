@@ -18,6 +18,32 @@ git clone -b main https://github.com/JiangyanYu/nf-core_nano-fanconi
       -profile fa_niva,docker \ # Corresponding to the setting in /nf-core_nano-fanconi/profile.config. Beaware that no space between nanofanconi,docker 
       --outdir ./output # Specify the directory for output results.
 ```
+6. Output file structure:
+````
+<sample_id> (folder)
+-multiqc (folder)
+--multiqc_data (folder)
+--multiqc_plots (folder)
+--multiqc_report.html
+--versions.yml
+-pipeline_info (folder)
+--execution_report_<time>.html
+--execution_timeline_<time>.html
+--execution_trace_<time>.txt
+--execution_dag_<time>.html
+--samplesheet.valid.csv
+--software_versions.yml
+-<sample_name> (folder)
+--basecaller (optional bam output)
+--deepvariant (optional bam output)
+--deepvariant_whatshap (optional bam output)
+--pbmm2 (optional bam output)
+--sawfish (optional bam output)
+--<sample_name>.html (PycoQC report)
+--<sample_name>.json
+
+````
+
 
 **Notes**
 1) the current annotsv docker image does not contain annotationsDir, thus need to be installed first (https://github.com/lgmgeo/AnnotSV/blob/master/bin/INSTALL_annotations.sh). Then manually change the directory in the profile.config file.
