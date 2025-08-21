@@ -1,5 +1,5 @@
 process TABIX_BGZIP {
-    tag "$meta.id"
+    tag "$meta.sample"
     label 'process_single'
 
     conda "bioconda::tabix=1.11"
@@ -20,7 +20,7 @@ process TABIX_BGZIP {
 
     script:
     def args = task.ext.args ?: ''
-    prefix   = task.ext.prefix ?: "${meta.id}"
+    prefix   = task.ext.prefix ?: "${meta.sample}"
     in_bgzip = ["gz", "bgz", "bgzf"].contains(input.getExtension())
     extension = in_bgzip ? input.getBaseName().tokenize(".")[-1] : input.getExtension()
     output   = in_bgzip ? "${prefix}.${extension}" : "${prefix}.${extension}.gz"
@@ -39,7 +39,7 @@ process TABIX_BGZIP {
     """
 
     stub:
-    prefix   = task.ext.prefix ?: "${meta.id}"
+    prefix   = task.ext.prefix ?: "${meta.sample}"
     in_bgzip = ["gz", "bgz", "bgzf"].contains(input.getExtension())
     output   = in_bgzip ? input.getBaseName() : "${prefix}.${input.getExtension()}.gz"
 

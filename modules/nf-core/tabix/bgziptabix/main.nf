@@ -1,5 +1,5 @@
 process TABIX_BGZIPTABIX {
-    tag "$meta.id"
+    tag "$meta.sample"
     label 'process_single'
 
     conda "bioconda::tabix=1.11"
@@ -20,7 +20,7 @@ process TABIX_BGZIPTABIX {
     script:
     def args = task.ext.args ?: ''
     def args2 = task.ext.args2 ?: ''
-    def prefix = task.ext.prefix ?: "${meta.id}"
+    def prefix = task.ext.prefix ?: "${meta.sample}"
     """
     bgzip  --threads ${task.cpus} -c $args $input > ${prefix}.${input.getExtension()}.gz
     tabix $args2 ${prefix}.${input.getExtension()}.gz
@@ -32,7 +32,7 @@ process TABIX_BGZIPTABIX {
     """
 
     stub:
-    def prefix = task.ext.prefix ?: "${meta.id}"
+    def prefix = task.ext.prefix ?: "${meta.sample}"
     """
     touch ${prefix}.gz
     touch ${prefix}.gz.tbi

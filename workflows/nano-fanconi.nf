@@ -66,6 +66,8 @@ include { ANNOTSV_SAWFISH                               } from '../modules/local
 include { ANNOTSV_DEEPVARIANT                           } from '../modules/local/ANNOTSV_DEEPVARIANT.nf'
 include { BCFTOOLS_FILTER as DEEPVARIANT_FILTER_VCF     } from '../modules/nf-core/bcftools/filter/main.nf'
 include { EDIT_SNV_GENOTYPE                             } from '../modules/local/EDIT_SNV_GENOTYPE.nf'
+include { TABIX_BGZIP as EDIT_SNV_GENOTYPE_BGZIP_VCF    } from '../modules/nf-core/tabix/bgzip/main.nf'
+include { TABIX_TABIX as EDIT_SNV_GENOTYPE_TABIX_VCF    } from '../modules/nf-core/tabix/tabix/main.nf'
 include { WHATSHAP_PHASE                                } from '../modules/local/WHATSHAP_PHASE.nf'
 include { WHATSHAP_HAPLOTAG                             } from '../modules/local/WHATSHAP_HAPLOTAG.nf'
 include { BCFTOOLS_SORT as PHASE_SORT_VCF               } from '../modules/nf-core/bcftools/sort/main.nf'
@@ -462,15 +464,20 @@ workflow NANOFANCONI {
 
             ch_versions = ch_versions.mix(EDIT_SNV_GENOTYPE.out.versions)
 
+            /*
+            * Zip and Index edited vcf file
+            */
+            EDIT_SNV_GENOTYPE_BGZIP_VCF ( EDIT_SNV_GENOTYPE.out.vcf )
+            ch_versions = ch_versions.mix( EDIT_SNV_GENOTYPE_BGZIP_VCF.out.versions)
+
+            EDIT_SNV_GENOTYPE_TABIX_VCF ( EDIT_SNV_GENOTYPE_BGZIP_VCF.out.output )
+            ch_versions = ch_versions.mix( EDIT_SNV_GENOTYPE_TABIX_VCF.out.versions)
+
+
+
             //
             // Input converted snv.vcf for phasing
             //
-            ch_phase_bam = SAMTOOLS_SORT.out.bam
-                .mix(SAMTOOLS_SORT.out.bai)
-                .groupTuple(size:2)
-                .map{ meta, files -> [ meta, files.flatten() ]}
-
-            phase_bam = ch_phase_bam.join(ch_phased_vcf).dump(tag: "joined")
 
 
             test_step = INPUT_CHECK.out.reads
@@ -478,23 +485,15 @@ workflow NANOFANCONI {
                 .dump(tag: "test_step")
 
 
-            ch_phase_vcf = EDIT_SNV_GENOTYPE.out.vcf
-                .mix(EDIT_SNV_GENOTYPE.out.tbi)
+            ch_phase_vcf = EDIT_SNV_GENOTYPE_BGZIP_VCF.out.output
+                .mix(EDIT_SNV_GENOTYPE_TABIX_VCF.out.tbi)
                 .groupTuple(size:2)
                 .map{ meta, files -> [ meta, files.flatten() ]}
             phase_vcf = ch_phase_vcf.join(test_step).dump(tag: "joined")
 
-            
-
-
-            
+                       
         } else {
-            ch_phase_bam = SAMTOOLS_SORT.out.bam
-                .mix(SAMTOOLS_SORT.out.bai)
-                .groupTuple(size:2)
-                .map{ meta, files -> [ meta, files.flatten() ]}
-
-            phase_bam = ch_phase_bam.join(ch_phased_vcf).dump(tag: "joined")
+            
 
 
             test_step = INPUT_CHECK.out.reads
@@ -510,7 +509,12 @@ workflow NANOFANCONI {
 
         }
 
+        ch_phase_bam = SAMTOOLS_SORT.out.bam
+            .mix(SAMTOOLS_SORT.out.bai)
+            .groupTuple(size:2)
+            .map{ meta, files -> [ meta, files.flatten() ]}
 
+        phase_bam = ch_phase_bam.join(ch_phased_vcf).dump(tag: "joined")
 
         
 
