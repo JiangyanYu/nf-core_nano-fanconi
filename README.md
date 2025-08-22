@@ -38,10 +38,10 @@ git clone -b main https://github.com/JiangyanYu/nf-core_nano-fanconi
 
 -<sample_name> (folder)
 --basecaller (optional bam output)
---deepvariant (optional bam output)
---deepvariant_whatshap (optional bam output)
+--deepvariant 
+--deepvariant_whatshap 
 --pbmm2 (optional bam output)
---sawfish (optional bam output)
+--sawfish 
 --<sample_name>.html (PycoQC report)
 --<sample_name>.json
 
