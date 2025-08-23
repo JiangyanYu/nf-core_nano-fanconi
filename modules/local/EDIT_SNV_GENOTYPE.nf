@@ -18,14 +18,14 @@ process EDIT_SNV_GENOTYPE {
     task.ext.when == null || task.ext.when
 
     script: // This script is bundled with the pipeline, in nf-core_nano-fanconi/bin/
-    def snv_vcf = snv_vcf_file.name != 'NO_FILE.vcf' ? "$snv_vcf_file" : "${meta.sample}_filterred.vcf.gz"
-    def sv_vcf = sv_vcf_file.name != 'NO_FILE.vcf' ? "$sv_vcf_file" : "genotyped.sv.vcf.gz"
+    // def snv_vcf = snv_vcf_file.name != 'NO_FILE.vcf' ? "$snv_vcf_file" : "${meta.sample}_filterred.vcf.gz"
+    // def sv_vcf = sv_vcf_file.name != 'NO_FILE.vcf' ? "$sv_vcf_file" : "genotyped.sv.vcf.gz"
 
     """
 
     SNV_modify_GT.py \\
-        --sv_vcf $snv_vcf_file  \\
-        --snv_vcf $sv_vcf_file \\
+        --sv_vcf ${meta.sample}_filterred.vcf.gz  \\
+        --snv_vcf genotyped.sv.vcf.gz \\
         --output_vcf ${meta.sample}.gt.converted.vcf
 
 
