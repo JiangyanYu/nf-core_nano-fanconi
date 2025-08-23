@@ -450,15 +450,10 @@ workflow NANOFANCONI {
                 .map{ meta, files -> [ meta, files.flatten() ]}
             deepvariant_vcf = ch_snv_vcf.join(test_step1).dump(tag: "joined")
 
-            test_step2 = INPUT_CHECK.out.reads
-                .map{ meta, files -> [[sample: meta.sample],meta.vcf_tbi] }
-                .dump(tag: "test_step2")
-
             ch_sv_vcf = SAWFISH.out.vcf
                 .mix(SAWFISH.out.tbi)
                 .groupTuple(size:2)
                 .map{ meta, files -> [ meta, files.flatten() ]}
-            sawfish_vcf = ch_sv_vcf.join(test_step2).dump(tag: "joined")
 
 
             EDIT_SNV_GENOTYPE (

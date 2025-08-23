@@ -7,7 +7,7 @@ process EDIT_SNV_GENOTYPE {
         'jiangyanyu/pacbio_wgs:v1.3' }"
 
     input:
-    tuple val(meta), path (snv_vcf_file), path (snv_tbi_file)
+    tuple val(meta), path(snv_vcf_file), path(snv_tbi_file)
     tuple path (sv_vcf_file), path (sv_tbi_file)
 
     output:
@@ -24,8 +24,8 @@ process EDIT_SNV_GENOTYPE {
     """
 
     SNV_modify_GT.py \\
-        --sv_vcf ${meta.sample}_filtered.vcf.gz  \\
-        --snv_vcf genotyped.sv.vcf.gz \\
+        --snv_vcf ${meta.sample}_filtered.vcf.gz  \\
+        --sv_vcf genotyped.sv.vcf.gz \\
         --output_vcf ${meta.sample}.gt.converted.vcf
 
 
