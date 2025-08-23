@@ -7,26 +7,25 @@ process EDIT_SNV_GENOTYPE {
         'jiangyanyu/pacbio_wgs:v1.3' }"
 
     input:
-    tuple val(meta), path(snv_vcf_file), path(snv_tbi_file)
-    tuple path (sv_vcf_file), path (sv_tbi_file)
+        tuple val(meta), path(snv_vcf_file), path(snv_tbi_file)
+        tuple path(sv_vcf_file), path(sv_tbi_file)
 
     output:
-    tuple val(meta), path ("${meta.sample}.gt.converted.vcf")       , emit: vcf
-    path "versions.yml"                                , emit: versions
+        tuple val(meta), path("${meta.sample}_gt.converted.vcf")       , emit: vcf
+        path "versions.yml"                                , emit: versions
 
     when:
     task.ext.when == null || task.ext.when
 
     script: // This script is bundled with the pipeline, in nf-core_nano-fanconi/bin/
-    // def snv_vcf = snv_vcf_file.name != 'NO_FILE.vcf' ? "$snv_vcf_file" : "${meta.sample}_filtered.vcf.gz"
-    // def sv_vcf = sv_vcf_file.name != 'NO_FILE.vcf' ? "$sv_vcf_file" : "genotyped.sv.vcf.gz"
+
 
     """
 
     SNV_modify_GT.py \\
         --snv_vcf ${meta.sample}_filtered.vcf.gz  \\
         --sv_vcf genotyped.sv.vcf.gz \\
-        --output_vcf ${meta.sample}.gt.converted.vcf
+        --output_vcf ${meta.sample}_gt.converted.vcf
 
 
     cat <<-END_VERSIONS > versions.yml
