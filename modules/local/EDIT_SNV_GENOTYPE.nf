@@ -21,8 +21,8 @@ process EDIT_SNV_GENOTYPE {
 
 
     """
-
-    SNV_modify_GT.py \\
+    mkdir test
+    python SNV_modify_GT.py \\
         --snv_vcf ${meta.sample}_filtered.vcf.gz  \\
         --sv_vcf genotyped.sv.vcf.gz \\
         --output_vcf ${meta.sample}_gt.converted.vcf
