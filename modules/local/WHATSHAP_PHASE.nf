@@ -7,7 +7,7 @@ process WHATSHAP_PHASE {
 
     input:
     tuple val(meta), path(bam_file), path(bam_bai_file)
-    tuple val(meta), path(vcf_file), path(vcf_tbi_file)
+    tuple val(meta), path(deepvariant_vcf), path(deepvariant_tbi)
     path(reference_fasta)
     path(index)
 
@@ -21,7 +21,7 @@ process WHATSHAP_PHASE {
     """
     whatshap phase -o ${meta.sample}_phased.vcf \\
         --reference=${reference_fasta} \\
-        ${vcf_file} ${meta.sample}.sorted.bam
+        ${meta.sample}*.vcf.gz ${meta.sample}.sorted.bam
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
