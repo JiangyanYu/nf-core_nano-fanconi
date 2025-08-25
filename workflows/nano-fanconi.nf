@@ -454,7 +454,7 @@ workflow NANOFANCONI {
                 .mix(DEEPVARIANT_TABIX_VCF.out.tbi)
                 .mix(SAWFISH.out.vcf)
                 .mix(SAWFISH.out.tbi)
-                .groupTuple(size:2)
+                .groupTuple(size:4)
                 .map{ meta, files -> [ meta, files.flatten() ]}
             deepvariant_vcf = ch_snv_vcf.join(test_step1).dump(tag: "joined")
 
