@@ -450,24 +450,25 @@ workflow NANOFANCONI {
             //    .map{ meta, files -> [ meta, files.flatten() ]}
             //deepvariant_vcf = ch_snv_vcf.join(test_step1).dump(tag: "joined")
 
-            ch_snv_vcf = DEEPVARIANT_FILTER_VCF.out.filteredvcf
-                .mix(DEEPVARIANT_TABIX_VCF.out.tbi)
-                .mix(SAWFISH.out.vcf)
-                .mix(SAWFISH.out.tbi)
-                .groupTuple(size:4)
-                .map{ meta, files -> [ meta, files.flatten() ]}
-            deepvariant_vcf = ch_snv_vcf.join(test_step1).dump(tag: "joined")
+            //ch_snv_vcf = DEEPVARIANT_FILTER_VCF.out.filteredvcf
+            //    .mix(DEEPVARIANT_TABIX_VCF.out.tbi)
+            //    .mix(SAWFISH.out.vcf)
+            //    .mix(SAWFISH.out.tbi)
+            //    .groupTuple(size:4)
+            //    .map{ meta, files -> [ meta, files.flatten() ]}
+            //deepvariant_vcf = ch_snv_vcf.join(test_step1).dump(tag: "joined")
 
             ch_sv_vcf = SAWFISH.out.vcf
                 .mix(SAWFISH.out.tbi)
                 .groupTuple(size:2)
                 .map{ meta, files -> [ meta, files.flatten() ]}
+            sawfish_vcf = ch_svv_vcf.join(test_step1).dump(tag: "joined")
 
 
             EDIT_SNV_GENOTYPE (
-                deepvariant_vcf
+                // deepvariant_vcf
                 //deepvariant_vcf
-                // ch_sv_vcf
+                sawfish_vcf
             )
 
             ch_versions = ch_versions.mix(EDIT_SNV_GENOTYPE.out.versions)

@@ -7,8 +7,8 @@ process EDIT_SNV_GENOTYPE {
         'jiangyanyu/pacbio_wgs:v1.3' }"
 
     input:
-        tuple val(meta), path(snv_vcf_file), path(snv_tbi_file),path(sv_vcf_file), path(sv_tbi_file)
-        //tuple val(meta), path(sv_vcf_file), path(sv_tbi_file)
+        // tuple val(meta), path(snv_vcf_file), path(snv_tbi_file),path(sv_vcf_file), path(sv_tbi_file)
+        tuple val(meta), path(sv_vcf_file), path(sv_tbi_file)
 
     output:
         tuple val(meta), path("${meta.sample}_gt.converted.vcf")       , emit: vcf
