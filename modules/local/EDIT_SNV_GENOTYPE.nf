@@ -8,7 +8,7 @@ process EDIT_SNV_GENOTYPE {
 
     input:
         tuple val(meta), path(snv_vcf_file), path(snv_tbi_file)
-        tuple path(sv_vcf_file), path(sv_tbi_file)
+        tuple val(meta), path(sv_vcf_file), path(sv_tbi_file)
 
     output:
         tuple val(meta), path("${meta.sample}_gt.converted.vcf")       , emit: vcf
