@@ -444,11 +444,11 @@ workflow NANOFANCONI {
                 .map{ meta, files -> [[sample: meta.sample],meta.vcf_tbi] }
                 .dump(tag: "test_step1")
 
-            ch_snv_vcf = DEEPVARIANT_FILTER_VCF.out.filteredvcf
-                .mix(DEEPVARIANT_TABIX_VCF.out.tbi)
-                .groupTuple(size:2)
-                .map{ meta, files -> [ meta, files.flatten() ]}
-            deepvariant_vcf = ch_snv_vcf.join(test_step1).dump(tag: "joined")
+            //ch_snv_vcf = DEEPVARIANT_FILTER_VCF.out.filteredvcf
+            //    .mix(DEEPVARIANT_TABIX_VCF.out.tbi)
+            //    .groupTuple(size:2)
+            //    .map{ meta, files -> [ meta, files.flatten() ]}
+            //deepvariant_vcf = ch_snv_vcf.join(test_step1).dump(tag: "joined")
 
             ch_sv_vcf = SAWFISH.out.vcf
                 .mix(SAWFISH.out.tbi)
@@ -457,7 +457,8 @@ workflow NANOFANCONI {
 
 
             EDIT_SNV_GENOTYPE (
-                deepvariant_vcf,
+                //deepvariant_vcf,
+                ch_sv_vcf,
                 ch_sv_vcf
             )
 
