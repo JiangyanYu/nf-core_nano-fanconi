@@ -462,7 +462,7 @@ workflow NANOFANCONI {
                 .mix(SAWFISH.out.tbi)
                 .groupTuple(size:2)
                 .map{ meta, files -> [ meta, files.flatten() ]}
-            sawfish_vcf = ch_svv_vcf.join(test_step1).dump(tag: "joined")
+            sawfish_vcf = ch_sv_vcf.join(test_step1).dump(tag: "joined")
 
 
             EDIT_SNV_GENOTYPE (
