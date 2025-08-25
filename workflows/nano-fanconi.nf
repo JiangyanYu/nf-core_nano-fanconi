@@ -440,26 +440,26 @@ workflow NANOFANCONI {
             // Edit SNV genotype when large deletion occurs
             //
 
-            test_step1 = INPUT_CHECK.out.reads
+            add_meta1 = INPUT_CHECK.out.reads
                 .map{ meta, files -> [[sample: meta.sample], meta.vcf] }
-                .dump(tag: "test_step1")
+                .dump(tag: "add_meta1")
 
             //ch_snv_vcf = DEEPVARIANT_FILTER_VCF.out.filteredvcf
             //    .mix(DEEPVARIANT_TABIX_VCF.out.tbi)
             //    .groupTuple(size:2)
             //    .map{ meta, files -> [ meta, files.flatten() ]}
-            // deepvariant_vcf = ch_snv_vcf.join(test_step1).dump(tag: "joined")
+            // deepvariant_vcf = ch_snv_vcf.join(add_meta1).dump(tag: "joined")
 
 
-            test_step2 = INPUT_CHECK.out.reads
+            add_meta2 = INPUT_CHECK.out.reads
                 .map{ meta, files -> [[sample: meta.sample], meta.vcf_tbi] }
-                .dump(tag: "test_step2")
+                .dump(tag: "add_meta2")
 
             ch_sv_vcf = SAWFISH.out.vcf
                 .mix(SAWFISH.out.tbi)
                 .groupTuple(size:2)
                 .map{ meta, files -> [ meta, files.flatten() ]}
-            sawfish_vcf = ch_sv_vcf.join(test_step2).dump(tag: "joined")
+            sawfish_vcf = ch_sv_vcf.join(add_meta2).dump(tag: "joined")
 
 
             EDIT_SNV_GENOTYPE (
@@ -486,32 +486,32 @@ workflow NANOFANCONI {
             //
 
 
-            test_step3 = INPUT_CHECK.out.reads
+            add_meta3 = INPUT_CHECK.out.reads
                 .map{ meta, files -> [[sample: meta.sample],meta.vcf_tbi] }
-                .dump(tag: "test_step3")
+                .dump(tag: "add_meta3")
 
 
             ch_phase_vcf = EDIT_SNV_GENOTYPE_BGZIP_VCF.out.output
                 .mix(EDIT_SNV_GENOTYPE_TABIX_VCF.out.tbi)
                 .groupTuple(size:2)
                 .map{ meta, files -> [ meta, files.flatten() ]}
-            phase_vcf = ch_phase_vcf.join(test_step3).dump(tag: "joined")
+            phase_vcf = ch_phase_vcf.join(add_meta3).dump(tag: "joined")
 
                        
         } else {
             
 
 
-            test_step = INPUT_CHECK.out.reads
+            add_meta4 = INPUT_CHECK.out.reads
                 .map{ meta, files -> [[sample: meta.sample],meta.vcf_tbi] }
-                .dump(tag: "test_step")
+                .dump(tag: "add_meta4")
 
 
             ch_phase_vcf = DEEPVARIANT_FILTER_VCF.out.filteredvcf
                 .mix(DEEPVARIANT_TABIX_VCF.out.tbi)
                 .groupTuple(size:2)
                 .map{ meta, files -> [ meta, files.flatten() ]}
-            phase_vcf = ch_phase_vcf.join(test_step).dump(tag: "joined")
+            phase_vcf = ch_phase_vcf.join(add_meta4).dump(tag: "joined")
 
         }
 
@@ -557,9 +557,9 @@ workflow NANOFANCONI {
         haplotag_bam = ch_haplotag_bam.join(ch_phased_vcf).dump(tag: "joined")
 
 
-        test_step = INPUT_CHECK.out.reads
+        add_meta = INPUT_CHECK.out.reads
         .map{ meta, files -> [[sample: meta.sample],meta.vcf_tbi] }
-        .dump(tag: "test_step")
+        .dump(tag: "add_meta")
 
 
         ch_haplotag_vcf = PHASE_SORT_VCF.out.vcf
@@ -567,7 +567,7 @@ workflow NANOFANCONI {
             .groupTuple(size:2)
             .map{ meta, files -> [ meta, files.flatten() ]}
             
-        haplotag_vcf = ch_haplotag_vcf.join(test_step).dump(tag: "joined")
+        haplotag_vcf = ch_haplotag_vcf.join(add_meta).dump(tag: "joined")
      
          WHATSHAP_HAPLOTAG (
              haplotag_bam,
