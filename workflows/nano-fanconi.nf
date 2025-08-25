@@ -441,7 +441,7 @@ workflow NANOFANCONI {
             //
 
             test_step1 = INPUT_CHECK.out.reads
-                .map{ meta, files -> [[sample: meta.sample],meta.vcf_tbi] }
+                .map{ meta, files -> [[sample: meta.sample]] }
                 .dump(tag: "test_step1")
 
             //ch_snv_vcf = DEEPVARIANT_FILTER_VCF.out.filteredvcf
