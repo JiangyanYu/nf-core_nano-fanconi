@@ -1,2 +1,2 @@
 id,sample,flowcell,input_path,batch,kit
-run31_chr16test,run31_chr16test,flowcell1,/home/yu_j/smbshare/nano_fanconi/test,20250215,LSK114
+run29test,run29_pipeline_test,flowcell1,/home/yu_j/smbshare/nano_fanconi/test_input,20250215,LSK114
