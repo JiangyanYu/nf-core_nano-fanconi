@@ -8,9 +8,10 @@ git clone -b main https://github.com/JiangyanYu/nf-core_nano-fanconi
 ```
 4. Adjusting file path accordingly:
    1) Sequencing data path in **/nf-core_nano-fanconi/assets/samplesheet.csv**. The file directory is the absolute path in your file system. 
-   <optional: id is used to merge samples from different flow cells. Therefore, sample shall be different from id, otherwise merge_bam_sample will throw errors.>
    2) Reference genome path in **/nf-core_nano-fanconi/profile.config**. Besides the reference path, annotsvAnnotations database directory as well as the dorado model details can be specified in this file.
-   3) Select packages to be used in **/nf-core_nano-fanconi/nextflow.config**. Annotate (true or false) the programs one likes to use. In the default setting, annotation part is marked as false. If needed, installation of annotation database is needed (see below).
+   3) Select packages to be used in **/nf-core_nano-fanconi/nextflow.config**. 
+   -Select (true or false) the programs one likes to use. The dafault setting is for analyzing human nanopore data. If aimed to analyze other genomes, please unselect variants annotations, use joint-snv-sv for phasing (target only for FANCA gene).
+   -In the default setting, annotation part is marked as false. If needed, installation of annotation database is needed (see below).
    4) Resource specification in **/nf-core_nano-fanconi/conf/base.config**.
 5. Run the analysis by following command:
 ```
@@ -39,11 +40,13 @@ git clone -b main https://github.com/JiangyanYu/nf-core_nano-fanconi
 -<sample_name> (folder)
 --basecaller (optional bam output)
 --deepvariant 
---deepvariant_whatshap 
 --pbmm2 (optional bam output)
 --sawfish 
---<sample_name>.html (PycoQC report)
---<sample_name>.json
+--whatshap 
+
+-<sample_name>.html (PycoQC report)
+
+-<sample_name>.json
 
 ````
 
