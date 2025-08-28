@@ -7,9 +7,9 @@ process WHATSHAP_PHASE {
 
     input:
     tuple val(meta), path(bam_file), path(bam_bai_file)
-    tuple val(meta), path(deepvariant_vcf), path(deepvariant_tbi)
-    path(reference_fasta)
-    path(index)
+    tuple val(meta), path(split_vcfs), path(split_vcfs_tbi)
+    path(fasta)
+    path(fasta_index)
 
 
     output:

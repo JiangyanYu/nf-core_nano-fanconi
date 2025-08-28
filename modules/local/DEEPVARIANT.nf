@@ -8,7 +8,7 @@ process DEEPVARIANT {
     tag "$meta.sample"
     label processLabel
 
-    container "google/deepvariant:1.8.0-gpu"
+    container "google/deepvariant:1.9.0-gpu"
 
     // Exit if running this module with -profile conda / -profile mamba
     if (workflow.profile.tokenize(',').intersect(['conda', 'mamba']).size() >= 1) {
@@ -40,7 +40,6 @@ process DEEPVARIANT {
         --ref=${fasta} \\
         --reads=${prefix}.sorted.bam \\
         --output_vcf=${prefix}.deepvariant.unfiltered.vcf.gz \\
-        --output_gvcf=${prefix}.deepvariant.unfiltered.g.vcf.gz \\
         ${args} \\
         --num_shards=${task.cpus} 
 

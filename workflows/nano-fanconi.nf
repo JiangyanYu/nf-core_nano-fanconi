@@ -48,15 +48,17 @@ include { INPUT_CHECK } from '../subworkflows/local/input_check'
 // MODULE: Installed directly from nf-core/modules
 //
 
-include { FAST5_TO_POD5                                 } from '../modules/local/FAST5_TO_POD5'
-include { DORADO_BASECALLER                             } from '../modules/local/DORADO_BASECALLER'
-include { MERGE_BASECALL as MERGE_BASECALL_ID           } from '../modules/local/MERGE_BASECALL'
-include { MERGE_BASECALL as MERGE_BASECALL_SAMPLE       } from '../modules/local/MERGE_BASECALL'
-include { DORADO_BASECALL_SUMMARY                       } from '../modules/local/DORADO_BASECALL_SUMMARY'
-include { PYCOQC                                        } from '../modules/local/PYCOQC'
+include { SAMTOOLS_BGZIP } from '../modules/nf-core/samtools/bgzip.nf'
+include { SAMTOOLS_FAIDX } from '../modules/nf-core/samtools/faidx.nf'
+include { FAST5_TO_POD5                                 } from '../modules/local/FAST5_TO_POD5.nf'
+include { DORADO_BASECALLER                             } from '../modules/local/DORADO_BASECALLER.nf'
+include { MERGE_BASECALL as MERGE_BASECALL_ID           } from '../modules/local/MERGE_BASECALL.nf'
+include { MERGE_BASECALL as MERGE_BASECALL_SAMPLE       } from '../modules/local/MERGE_BASECALL.nf'
+include { DORADO_BASECALL_SUMMARY                       } from '../modules/local/DORADO_BASECALL_SUMMARY.nf'
+include { PYCOQC                                        } from '../modules/local/PYCOQC.nf'
 include { PBMM2                                         } from '../modules/local/PBMM2.nf'
-include { SAMTOOLS_SORT                                 } from '../modules/local/SAMTOOLS_SORT'
-include { SAMTOOLS_INDEX                                } from '../modules/local/SAMTOOLS_INDEX'
+// include { SAMTOOLS_SORT                                 } from '../modules/local/SAMTOOLS_SORT'
+// include { SAMTOOLS_INDEX                                } from '../modules/local/SAMTOOLS_INDEX'
 include { SAMTOOLS_STATS                                } from '../modules/local/SAMTOOLS_STATS.nf'
 include { SAWFISH                                       } from '../modules/local/SAWFISH.nf'
 // include { BCFTOOLS_SORT as SNIFFLES_SORT_VCF            } from '../modules/nf-core/bcftools/sort/main.nf'
@@ -90,13 +92,75 @@ include { MULTIQC                                       } from '../modules/local
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+// Helper function to get cached FASTA file path
+def fasta_cached = { id, reference_path ->
+    def fasta_path = "${reference_path}/${id}/genome.fa"
+    return file(fasta_path)
+}
+
 // Info required for completion email and summary
 def multiqc_report = []
 
 workflow NANOFANCONI {
 
     ch_versions = Channel.empty()
-    
+
+
+
+
+/*
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    NANOFANCONI: Prepare references
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+*/
+
+    // general order of precedence: reference_path -> param -> default
+    def reference_path = params.reference_path
+    def ch_versions = Channel.empty()
+
+    // Define ch_genome channel with genome IDs (adjust as needed)
+    def ch_genome = Channel.of("GRCh37", "GRCh38")
+
+    // prepare fasta
+    def defaultFasta = [
+        "GRCh37": "s3://ngi-igenomes/igenomes/Homo_sapiens/UCSC/hg19/Sequence/WholeGenomeFasta/genome.fa",
+        "GRCh38": "https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/references/GRCh38/GRCh38_GIABv3_no_alt_analysis_set_maskedGRC_decoys_MAP2K3_KMT2C_KCNJ18.fasta.gz",
+    ]
+
+    def ch_fasta_state = ch_genome.branch { id ->
+        cached: reference_path ? fasta_cached(id, reference_path).exists() : false
+        not_cached: true
+    }
+    def ch_fasta_cached = ch_fasta_state.cached.map { id -> [[id: id], fasta_cached(id, reference_path)] }
+    def ch_fasta_not_cached = ch_fasta_state.not_cached.map { id ->
+    // Helper function to get cached FAI file path
+    def fai_cached = { genome_id, reference_path ->
+        // Example: assumes FAI files are named as "${reference_path}/${genome_id}.fai"
+        file("${reference_path}/${genome_id}.fai")
+    }
+
+    // prepare fai
+    def ch_fai_state = ch_fasta.branch { meta, _fasta ->
+        cached: reference_path ? fai_cached(meta.id, reference_path).exists() : false
+        not_cached: true
+    }
+
+    // prepare fai
+    def ch_fai_state = ch_fasta.branch { meta, _fasta ->
+        cached: reference_path ? fai_cached(meta.id, reference_path).exists() : false
+        not_cached: true
+    }
+    def ch_fai_cached = ch_fai_state.cached.map { meta, _fasta -> [meta, fai_cached(meta.id, reference_path)] }
+    def faidx_fai = [[], []]
+    def faidx_get_sizes = false
+    SAMTOOLS_FAIDX(
+        ch_fai_state.not_cached.map { meta, _fai -> [meta] }.join(ch_fasta),
+        faidx_fai,
+        faidx_get_sizes,
+    )
+    ch_versions = ch_versions.mix(SAMTOOLS_FAIDX.out.versions)
+    def ch_fai = ch_fai_cached.mix(SAMTOOLS_FAIDX.out.fai).dump(tag: 'fai')
+
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -282,18 +346,50 @@ workflow NANOFANCONI {
         ch_basecall_sample_merged_bams
     )
     ch_versions = ch_versions.mix(MERGE_BASECALL_SAMPLE.out.versions)
-    
-    
+
+/*
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    NANOFANCONI: samtools_import
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+*/
+if (params.reads_format == 'fastq' || params.reads_format == 'fastq.gz') {
+    INPUT_CHECK
+    .out
+    .reads
+    .map { meta, files ->
+        def fq_path = meta.input_path
+        if (!fq_path) {
+            throw new IllegalArgumentException("fastq_path is null or empty")
+        }
+        def fq_files = []
+        if (file(fq_path).isDirectory()) {
+            fq_files = file("${fq_path}/*.fastq*") + file("${fq_path}/*.fastq.gz")
+        }
+        [meta, fq_files]
+    }
+    .set { ch_fastq }
+
+    SAMTOOLS_IMPORT(
+        ch_fastq
+    )
+    ch_versions = ch_versions.mix(SAMTOOLS_IMPORT.out.versions)
+    SAMTOOLS_IMPORT
+    .out
+    .bam
+    .set { ch_unmapped_bam }
+}
+
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     NANOFANCONI: pbmm2_alignment
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
+    def unmapped_bam = (params.reads_format == 'fastq' || params.reads_format == 'fastq.gz') ? ch_unmapped_bam : ch_basecall_sample_merged_bams
     PBMM2 (
-        //MERGE_BASECALL_SAMPLE.out.merged_bam,
-        ch_basecall_sample_merged_bams,
+        unmapped_bam,
         file(params.fasta)
     )
+    ch_pbmm2_cram = PBMM2.out.cram
     ch_versions = ch_versions.mix(PBMM2.out.versions)
 
 /*
@@ -305,10 +401,10 @@ workflow NANOFANCONI {
     //
     // MODULE: Samtools sort and indedx aligned bams
     //
-    SAMTOOLS_SORT (
-        PBMM2.out.bam
-    )
-    ch_versions = ch_versions.mix(SAMTOOLS_SORT.out.versions)
+    // SAMTOOLS_SORT (
+    //     PBMM2.out.bam
+    // )
+    // ch_versions = ch_versions.mix(SAMTOOLS_SORT.out.versions)
 
 
 /*
@@ -376,7 +472,6 @@ workflow NANOFANCONI {
         )
         
         ch_short_calls_vcf  = DEEPVARIANT.out.vcf
-        ch_short_calls_gvcf = DEEPVARIANT.out.gvcf
         ch_versions = ch_versions.mix(DEEPVARIANT.out.versions)
 
         /*
@@ -388,18 +483,83 @@ workflow NANOFANCONI {
         ch_versions = ch_versions.mix(DEEPVARIANT_FILTER_VCF.out.versions)
 
         /*
-         * Index filtered deepvariant vcf.gz
-         */
-        DEEPVARIANT_TABIX_VCF( ch_short_calls_vcf_filter )
-        ch_short_calls_vcf_tbi  = DEEPVARIANT_TABIX_VCF.out.tbi
-        ch_versions = ch_versions.mix(DEEPVARIANT_TABIX_VCF.out.versions)
+/*
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    NANOFANCONI: SPLIT_VCF_BY_CHR
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+*/
+    // Split VCF by chromosome
+    SPLIT_VCF_BY_CHR(
+        ch_short_calls_vcf.map { meta, vcf -> [meta, vcf] }
+    )
+    SPLIT_VCF_BY_CHR
+    .out
+    .split_vcfs
+    .flatten()
+    .set { ch_split_vcfs }
+    )
+    SPLIT_VCF_BY_CHR
+    .out
+    .split_vcfs
+    .flatten()
+    .set { ch_split_vcfs }
 
-        /*
-         * Index deepvariant g.vcf.gz
-         */
-        DEEPVARIANT_TABIX_GVCF( ch_short_calls_gvcf )
-        ch_short_calls_gvcf_tbi  = DEEPVARIANT_TABIX_GVCF.out.tbi
-        ch_versions = ch_versions.mix(DEEPVARIANT_TABIX_VCF.out.versions)
+/*
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    NANOFANCONI: WHATSHAP_PHASE
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+*/
+    // Run WHATSHAP_PHASE on each split VCF
+    WHATSHAP_PHASE(
+        ch_split_vcfs.map { meta, vcf_path -> [meta, vcf_path, ch_pbmm2_cram, file(params.fasta), file(params.fasta_index)] }
+    )
+
+    // Collect phased VCFs from WHATSHAP_PHASE
+    ch_phased_chr_vcfs = WHATSHAP_PHASE.out.phased_vcf.collect()
+
+    // Merge chromosome VCFs into a single VCF
+    MERGE_VCF(
+        tuple(val('meta'), ch_phased_chr_vcfs)
+    )
+    MERGE_VCF
+    .out
+    .merged_vcf
+    .set { ch_merged_phased_vcf }
+    // Merge chromosome VCFs into a single VCF
+    MERGE_VCF(
+        [ 'meta', ch_phased_chr_vcfs ]
+    )
+    MERGE_VCF
+    .out
+    .merged_vcf
+    .set { ch_merged_phased_vcf }
+    ch_multiqc_files = ch_multiqc_files.mix(ch_final_haplotagged_vcf.collect{it[1]}.ifEmpty([]))
+
+/*
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    NANOFANCONI: WHATSHAP_HAPLOTAG
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+*/
+    // Run WHATSHAP_HAPLOTAG on the final merged, haplotagged VCF
+    WHATSHAP_HAPLOTAG(
+        ch_pbmm2_cram,
+        ch_final_haplotagged_vcf.map{ meta, vcf -> vcf },
+        ch_fasta,
+        ch_fasta_index
+    )
+    ch_versions = ch_versions.mix(WHATSHAP_HAPLOTAG.out.versions)
+
+
+/*
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    NANOFANCONI: SAMTOOLS_STATS
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+*/
+    SAMTOOLS_STATS (
+        WHATSHAP_HAPLOTAG.out.cram
+    )
+    ch_versions = ch_versions.mix(SAMTOOLS_STATS.out.versions)
+
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -429,151 +589,151 @@ workflow NANOFANCONI {
 */
 
 
-    if (params.run_whatshap) {
-        //
-        // MODULE: whatshap for phasing
-        //
+    // if (params.run_whatshap) {
+    //     //
+    //     // MODULE: whatshap for phasing
+    //     //
 
 
-        if (params.joint_SNV_SV_phasing) {
-            //
-            // Edit SNV genotype when large deletion occurs
-            //
+    //     if (params.joint_SNV_SV_phasing) {
+    //         //
+    //         // Edit SNV genotype when large deletion occurs
+    //         //
 
-            add_meta1 = INPUT_CHECK.out.reads
-                .map{ meta, files -> [[sample: meta.sample], meta.vcf] }
-                .dump(tag: "add_meta1")
+    //         add_meta1 = INPUT_CHECK.out.reads
+    //             .map{ meta, files -> [[sample: meta.sample], meta.vcf] }
+    //             .dump(tag: "add_meta1")
 
-            ch_snv_vcf = DEEPVARIANT_FILTER_VCF.out.filteredvcf
-                .mix(DEEPVARIANT_TABIX_VCF.out.tbi)
-                .groupTuple(size:2)
-                .map{ meta, files -> [ meta, files.flatten() ]}
-             deepvariant_vcf = ch_snv_vcf.join(add_meta1).dump(tag: "joined")
-
-
-            add_meta2 = INPUT_CHECK.out.reads
-                .map{ meta, files -> [[sample: meta.sample], meta.vcf_tbi] }
-                .dump(tag: "add_meta2")
-
-            ch_sv_vcf = SAWFISH.out.vcf
-                .mix(SAWFISH.out.tbi)
-                .groupTuple(size:2)
-                .map{ meta, files -> [ meta, files.flatten() ]}
-            sawfish_vcf = ch_sv_vcf.join(add_meta2).dump(tag: "joined")
+    //         ch_snv_vcf = DEEPVARIANT_FILTER_VCF.out.filteredvcf
+    //             .mix(DEEPVARIANT_TABIX_VCF.out.tbi)
+    //             .groupTuple(size:2)
+    //             .map{ meta, files -> [ meta, files.flatten() ]}
+    //          deepvariant_vcf = ch_snv_vcf.join(add_meta1).dump(tag: "joined")
 
 
-            EDIT_SNV_GENOTYPE (
-                deepvariant_vcf,
-                sawfish_vcf
-            )
+    //         add_meta2 = INPUT_CHECK.out.reads
+    //             .map{ meta, files -> [[sample: meta.sample], meta.vcf_tbi] }
+    //             .dump(tag: "add_meta2")
 
-            ch_versions = ch_versions.mix(EDIT_SNV_GENOTYPE.out.versions)
-
-            /*
-            * Zip and Index edited vcf file
-            */
-            EDIT_SNV_GENOTYPE_BGZIP_VCF ( EDIT_SNV_GENOTYPE.out.vcf )
-            ch_versions = ch_versions.mix( EDIT_SNV_GENOTYPE_BGZIP_VCF.out.versions)
-
-            EDIT_SNV_GENOTYPE_TABIX_VCF ( EDIT_SNV_GENOTYPE_BGZIP_VCF.out.output )
-            ch_versions = ch_versions.mix( EDIT_SNV_GENOTYPE_TABIX_VCF.out.versions)
+    //         ch_sv_vcf = SAWFISH.out.vcf
+    //             .mix(SAWFISH.out.tbi)
+    //             .groupTuple(size:2)
+    //             .map{ meta, files -> [ meta, files.flatten() ]}
+    //         sawfish_vcf = ch_sv_vcf.join(add_meta2).dump(tag: "joined")
 
 
+    //         EDIT_SNV_GENOTYPE (
+    //             deepvariant_vcf,
+    //             sawfish_vcf
+    //         )
 
-            //
-            // Input converted snv.vcf for phasing
-            //
+    //         ch_versions = ch_versions.mix(EDIT_SNV_GENOTYPE.out.versions)
+
+    //         /*
+    //         * Zip and Index edited vcf file
+    //         */
+    //         EDIT_SNV_GENOTYPE_BGZIP_VCF ( EDIT_SNV_GENOTYPE.out.vcf )
+    //         ch_versions = ch_versions.mix( EDIT_SNV_GENOTYPE_BGZIP_VCF.out.versions)
+
+    //         EDIT_SNV_GENOTYPE_TABIX_VCF ( EDIT_SNV_GENOTYPE_BGZIP_VCF.out.output )
+    //         ch_versions = ch_versions.mix( EDIT_SNV_GENOTYPE_TABIX_VCF.out.versions)
 
 
-            add_meta3 = INPUT_CHECK.out.reads
-                .map{ meta, files -> [[sample: meta.sample],meta.vcf_tbi] }
-                .dump(tag: "add_meta3")
+
+    //         //
+    //         // Input converted snv.vcf for phasing
+    //         //
 
 
-            ch_phase_vcf = EDIT_SNV_GENOTYPE_BGZIP_VCF.out.output
-                .mix(EDIT_SNV_GENOTYPE_TABIX_VCF.out.tbi)
-                .groupTuple(size:2)
-                .map{ meta, files -> [ meta, files.flatten() ]}
-            phase_vcf = ch_phase_vcf.join(add_meta3).dump(tag: "joined")
+    //         add_meta3 = INPUT_CHECK.out.reads
+    //             .map{ meta, files -> [[sample: meta.sample],meta.vcf_tbi] }
+    //             .dump(tag: "add_meta3")
+
+
+    //         ch_phase_vcf = EDIT_SNV_GENOTYPE_BGZIP_VCF.out.output
+    //             .mix(EDIT_SNV_GENOTYPE_TABIX_VCF.out.tbi)
+    //             .groupTuple(size:2)
+    //             .map{ meta, files -> [ meta, files.flatten() ]}
+    //         phase_vcf = ch_phase_vcf.join(add_meta3).dump(tag: "joined")
 
                        
-        } else {
+    //     } else {
             
 
 
-            add_meta4 = INPUT_CHECK.out.reads
-                .map{ meta, files -> [[sample: meta.sample],meta.vcf_tbi] }
-                .dump(tag: "add_meta4")
+    //         add_meta4 = INPUT_CHECK.out.reads
+    //             .map{ meta, files -> [[sample: meta.sample],meta.vcf_tbi] }
+    //             .dump(tag: "add_meta4")
 
 
-            ch_phase_vcf = DEEPVARIANT_FILTER_VCF.out.filteredvcf
-                .mix(DEEPVARIANT_TABIX_VCF.out.tbi)
-                .groupTuple(size:2)
-                .map{ meta, files -> [ meta, files.flatten() ]}
-            phase_vcf = ch_phase_vcf.join(add_meta4).dump(tag: "joined")
+    //         ch_phase_vcf = DEEPVARIANT_FILTER_VCF.out.filteredvcf
+    //             .mix(DEEPVARIANT_TABIX_VCF.out.tbi)
+    //             .groupTuple(size:2)
+    //             .map{ meta, files -> [ meta, files.flatten() ]}
+    //         phase_vcf = ch_phase_vcf.join(add_meta4).dump(tag: "joined")
 
-        }
+    //     }
 
-        ch_phase_bam = SAMTOOLS_SORT.out.bam
-            .mix(SAMTOOLS_SORT.out.bai)
-            .groupTuple(size:2)
-            .map{ meta, files -> [ meta, files.flatten() ]}
+    //     ch_phase_bam = SAMTOOLS_SORT.out.bam
+    //         .mix(SAMTOOLS_SORT.out.bai)
+    //         .groupTuple(size:2)
+    //         .map{ meta, files -> [ meta, files.flatten() ]}
 
-        phase_bam = ch_phase_bam.join(ch_phased_vcf).dump(tag: "joined")
+    //     phase_bam = ch_phase_bam.join(ch_phased_vcf).dump(tag: "joined")
 
         
 
-         WHATSHAP_PHASE (
-             phase_bam,
-             phase_vcf,
-             file(params.fasta),
-             file(params.fasta_index)
-         )
-        ch_versions = ch_versions.mix(WHATSHAP_PHASE.out.versions)
+    //      WHATSHAP_PHASE (
+    //          phase_bam,
+    //          phase_vcf,
+    //          file(params.fasta),
+    //          file(params.fasta_index)
+    //      )
+    //     ch_versions = ch_versions.mix(WHATSHAP_PHASE.out.versions)
 
-        /*
-         * Sort phased variants with bcftools
-         */
-        PHASE_SORT_VCF( WHATSHAP_PHASE.out.phased_vcf )
-        ch_sv_phase_vcf = PHASE_SORT_VCF.out.vcf
-        ch_versions = ch_versions.mix(PHASE_SORT_VCF.out.versions)
+    //     /*
+    //      * Sort phased variants with bcftools
+    //      */
+    //     PHASE_SORT_VCF( WHATSHAP_PHASE.out.phased_vcf )
+    //     ch_sv_phase_vcf = PHASE_SORT_VCF.out.vcf
+    //     ch_versions = ch_versions.mix(PHASE_SORT_VCF.out.versions)
 
-        /*
-         * Index phased vcf.gz
-         */
-        PHASE_TABIX_VCF( ch_sv_phase_vcf )
-        ch_sv_calls_tbi  = PHASE_TABIX_VCF.out.tbi
-        ch_versions = ch_versions.mix( PHASE_TABIX_VCF.out.versions)
+    //     /*
+    //      * Index phased vcf.gz
+    //      */
+    //     PHASE_TABIX_VCF( ch_sv_phase_vcf )
+    //     ch_sv_calls_tbi  = PHASE_TABIX_VCF.out.tbi
+    //     ch_versions = ch_versions.mix( PHASE_TABIX_VCF.out.versions)
 
-        //
-        // MODULE: whatshap for haplotag
-        //
-        ch_haplotag_bam = SAMTOOLS_SORT.out.bam
-            .mix(SAMTOOLS_SORT.out.bai)
-            .groupTuple(size:2)
-            .map{ meta, files -> [ meta, files.flatten() ]}
+    //     //
+    //     // MODULE: whatshap for haplotag
+    //     //
+    //     ch_haplotag_bam = SAMTOOLS_SORT.out.bam
+    //         .mix(SAMTOOLS_SORT.out.bai)
+    //         .groupTuple(size:2)
+    //         .map{ meta, files -> [ meta, files.flatten() ]}
 
-        haplotag_bam = ch_haplotag_bam.join(ch_phased_vcf).dump(tag: "joined")
-
-
-        add_meta = INPUT_CHECK.out.reads
-        .map{ meta, files -> [[sample: meta.sample],meta.vcf_tbi] }
-        .dump(tag: "add_meta")
+    //     haplotag_bam = ch_haplotag_bam.join(ch_phased_vcf).dump(tag: "joined")
 
 
-        ch_haplotag_vcf = PHASE_SORT_VCF.out.vcf
-            .mix(PHASE_TABIX_VCF.out.tbi)
-            .groupTuple(size:2)
-            .map{ meta, files -> [ meta, files.flatten() ]}
+    //     add_meta = INPUT_CHECK.out.reads
+    //     .map{ meta, files -> [[sample: meta.sample],meta.vcf_tbi] }
+    //     .dump(tag: "add_meta")
+
+
+    //     ch_haplotag_vcf = PHASE_SORT_VCF.out.vcf
+    //         .mix(PHASE_TABIX_VCF.out.tbi)
+    //         .groupTuple(size:2)
+    //         .map{ meta, files -> [ meta, files.flatten() ]}
             
-        haplotag_vcf = ch_haplotag_vcf.join(add_meta).dump(tag: "joined")
+    //     haplotag_vcf = ch_haplotag_vcf.join(add_meta).dump(tag: "joined")
      
-         WHATSHAP_HAPLOTAG (
-             haplotag_bam,
-             haplotag_vcf,
-             file(params.fasta),
-             file(params.fasta_index)
-         )
+    //      WHATSHAP_HAPLOTAG (
+    //          haplotag_bam,
+    //          haplotag_vcf,
+    //          file(params.fasta),
+    //          file(params.fasta_index)
+    //      )
          
         //ch_versions = ch_versions.mix(WHATSHAP_HAPLOTAG.out.versions)
 
@@ -696,3 +856,6 @@ workflow.onComplete {
     THE END
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
+
+
+

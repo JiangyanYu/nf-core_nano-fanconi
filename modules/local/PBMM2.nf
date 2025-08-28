@@ -1,5 +1,5 @@
 process PBMM2 {
-    maxForks 2  // Limits the number of concurrent executions of this process to 2
+    maxForks 8  // Limits the number of concurrent executions of this process to 8
     label 'process_high'
 
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
@@ -8,24 +8,25 @@ process PBMM2 {
 
     input:
 
-        tuple val(meta), path (reads_paths) 
-        path (index)
+        tuple val(meta), path (bam_paths) 
+        path (fasta)
 
     output:
-        tuple val(meta), path ("*.bam")       , emit: bam
+        tuple val(meta), path ("*.cram")       , emit: cram
         path "versions.yml"                   , emit: versions
 
     script:
         def args = task.ext.args ?: ''
         """      
-        samtools fastq  ${reads_paths} > ${meta.sample}.fastq
+        samtools concat -@ ${task.cpus} ${bam_paths} | \\
         pbmm2 align \\
                 --num-threads ${task.cpus} \\
                 --preset CCS \\
-                --sort \\
-                ${index} \\
-                ${meta.sample}.fastq \\
-                ${meta.sample}.bam
+                ${args} \\
+                ${fasta} \\
+                /dev/stdin | \\
+        samtools sort -@ ${task.cpus} -O cram -o ${meta.sample}.cram
+        samtools index -@ ${task.cpus} ${meta.sample}.cram
 
         cat <<-END_VERSIONS > versions.yml
         "${task.process}":

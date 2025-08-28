@@ -1,5 +1,5 @@
 process SAMTOOLS_STATS {
-    label 'process_high'
+    label 'process_low'
 
     container 'ghcr.io/dhslab/docker-baseimage:241109'
 
@@ -14,9 +14,9 @@ process SAMTOOLS_STATS {
 
     script:
     """
-    samtools stats -@ 15 $haplotagged_bam > ${meta.sample}.combined.stats.txt
-    samtools view -@ 7 -h -d HP:1 -u $haplotagged_bam | samtools stats -@ 7 - > ${meta.sample}.hap1.stats.txt
-    samtools view -@ 7 -h -d HP:2 -u $haplotagged_bam | samtools stats -@ 7 - > ${meta.sample}.hap2.stats.txt
+    samtools stats -@ ${task.cpus} $haplotagged_bam > ${meta.sample}.stats.txt
+    samtools view -@ ${task.cpus} -h -d HP:1 -u $haplotagged_bam | samtools stats -@ ${task.cpus} - > ${meta.sample}.hap1.stats.txt
+    samtools view -@ ${task.cpus} -h -d HP:2 -u $haplotagged_bam | samtools stats -@ ${task.cpus} - > ${meta.sample}.hap2.stats.txt
 
 
     cat <<-END_VERSIONS > versions.yml
