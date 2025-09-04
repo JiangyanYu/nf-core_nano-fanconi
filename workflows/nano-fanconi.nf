@@ -48,6 +48,7 @@ include { INPUT_CHECK } from '../subworkflows/local/input_check'
 // MODULE: Installed directly from nf-core/modules
 //
 
+include { PREPARE_REFERENCES } from '../modules/local/PREPARE_REFERENCES.nf'
 include { SAMTOOLS_BGZIP } from '../modules/nf-core/samtools/bgzip.nf'
 include { SAMTOOLS_FAIDX } from '../modules/nf-core/samtools/faidx.nf'
 include { FAST5_TO_POD5                                 } from '../modules/local/FAST5_TO_POD5.nf'
@@ -118,8 +119,7 @@ workflow NANOFANCONI {
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
-    // Prepare references using local module
-    include { PREPARE_REFERENCES } from '../modules/local/PREPARE_REFERENCES.nf'
+
 
     PREPARE_REFERENCES(
         params.reference_path,
