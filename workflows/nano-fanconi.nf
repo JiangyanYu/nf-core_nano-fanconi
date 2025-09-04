@@ -715,8 +715,7 @@ if (params.reads_format == 'fastq' || params.reads_format == 'fastq.gz') {
             ch_mosdepth_input
         )
         ch_versions = ch_versions.mix(MOSDEPTH.out.versions)
-        
-    }
+    // ...existing code...
     
     
 /*
