@@ -4,7 +4,7 @@ process SAMTOOLS_STATS {
     container 'ghcr.io/dhslab/docker-baseimage:241109'
 
     input:
-        tuple val(meta), path(haplotagged_bam)
+    tuple val(meta), path(haplotagged_cram)
 
     output:
         tuple val(meta), path("${meta.sample}.combined.stats.txt"), emit: combined_stats
@@ -14,9 +14,9 @@ process SAMTOOLS_STATS {
 
     script:
     """
-    samtools stats -@ ${task.cpus} $haplotagged_bam > ${meta.sample}.stats.txt
-    samtools view -@ ${task.cpus} -h -d HP:1 -u $haplotagged_bam | samtools stats -@ ${task.cpus} - > ${meta.sample}.hap1.stats.txt
-    samtools view -@ ${task.cpus} -h -d HP:2 -u $haplotagged_bam | samtools stats -@ ${task.cpus} - > ${meta.sample}.hap2.stats.txt
+    samtools stats -@ ${task.cpus} $haplotagged_cram > ${meta.sample}.stats.txt
+    samtools view -@ ${task.cpus} -h -d HP:1 -u $haplotagged_cram | samtools stats -@ ${task.cpus} - > ${meta.sample}.hap1.stats.txt
+    samtools view -@ ${task.cpus} -h -d HP:2 -u $haplotagged_cram | samtools stats -@ ${task.cpus} - > ${meta.sample}.hap2.stats.txt
 
 
     cat <<-END_VERSIONS > versions.yml

@@ -6,7 +6,7 @@ process WHATSHAP_PHASE {
         'jiangyanyu/docker-whatshap:v240302' }"
 
     input:
-    tuple val(meta), path(bam_file), path(bam_bai_file)
+    tuple val(meta), path(cram_file), path(cram_crai_file)
     tuple val(meta), path(split_vcfs), path(split_vcfs_tbi)
     path(fasta)
     path(fasta_index)
@@ -21,7 +21,7 @@ process WHATSHAP_PHASE {
     """
     whatshap phase -o ${meta.sample}_phased.vcf \\
         --reference=${reference_fasta} \\
-        ${meta.sample}*.vcf.gz ${meta.sample}.sorted.bam
+    ${meta.sample}*.vcf.gz ${meta.sample}.sorted.cram
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":

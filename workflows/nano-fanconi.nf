@@ -365,10 +365,10 @@ if (params.reads_format == 'fastq' || params.reads_format == 'fastq.gz') {
 */
 
     //
-    // MODULE: Samtools sort and indedx aligned bams
+    // MODULE: Samtools sort and index aligned crams
     //
     // SAMTOOLS_SORT (
-    //     PBMM2.out.bam
+    //     PBMM2.out.cram
     // )
     // ch_versions = ch_versions.mix(SAMTOOLS_SORT.out.versions)
 
@@ -385,8 +385,8 @@ if (params.reads_format == 'fastq' || params.reads_format == 'fastq.gz') {
          * Call structural variants with sawfish
          */
 
-        ch_sawfish_input = SAMTOOLS_SORT.out.bai
-            .mix(SAMTOOLS_SORT.out.bam)
+        ch_sawfish_input = SAMTOOLS_SORT.out.crai
+            .mix(SAMTOOLS_SORT.out.cram)
             .groupTuple(size:2)
             .map{ meta, files -> [ meta, files.flatten() ]}
 
@@ -428,11 +428,11 @@ if (params.reads_format == 'fastq' || params.reads_format == 'fastq.gz') {
         * Call variants with deepvariant
         */
         
-        ch_deepvariant_input = SAMTOOLS_SORT.out.bam.mix(SAMTOOLS_SORT.out.bai).groupTuple(size:2).map{ meta, files -> [ meta, files.flatten() ]}
-        deepvariant_bam_input = ch_deepvariant_input.join(ch_phased_vcf).dump(tag: "joined")
+    ch_deepvariant_input = SAMTOOLS_SORT.out.cram.mix(SAMTOOLS_SORT.out.crai).groupTuple(size:2).map{ meta, files -> [ meta, files.flatten() ]}
+    deepvariant_cram_input = ch_deepvariant_input.join(ch_phased_vcf).dump(tag: "joined")
         
         DEEPVARIANT( 
-            deepvariant_bam_input, 
+            deepvariant_cram_input, 
             file(params.fasta), 
             file(params.fasta_index) 
         )
@@ -640,17 +640,17 @@ if (params.reads_format == 'fastq' || params.reads_format == 'fastq.gz') {
 
     //     }
 
-    //     ch_phase_bam = SAMTOOLS_SORT.out.bam
-    //         .mix(SAMTOOLS_SORT.out.bai)
+    //     ch_phase_cram = SAMTOOLS_SORT.out.cram
+    //         .mix(SAMTOOLS_SORT.out.crai)
     //         .groupTuple(size:2)
     //         .map{ meta, files -> [ meta, files.flatten() ]}
 
-    //     phase_bam = ch_phase_bam.join(ch_phased_vcf).dump(tag: "joined")
+    //     phase_cram = ch_phase_cram.join(ch_phased_vcf).dump(tag: "joined")
 
         
 
     //      WHATSHAP_PHASE (
-    //          phase_bam,
+    //          phase_cram,
     //          phase_vcf,
     //          file(params.fasta),
     //          file(params.fasta_index)
@@ -674,12 +674,12 @@ if (params.reads_format == 'fastq' || params.reads_format == 'fastq.gz') {
     //     //
     //     // MODULE: whatshap for haplotag
     //     //
-    //     ch_haplotag_bam = SAMTOOLS_SORT.out.bam
-    //         .mix(SAMTOOLS_SORT.out.bai)
+    //     ch_haplotag_cram = SAMTOOLS_SORT.out.cram
+    //         .mix(SAMTOOLS_SORT.out.crai)
     //         .groupTuple(size:2)
     //         .map{ meta, files -> [ meta, files.flatten() ]}
 
-    //     haplotag_bam = ch_haplotag_bam.join(ch_phased_vcf).dump(tag: "joined")
+    //     haplotag_cram = ch_haplotag_cram.join(ch_phased_vcf).dump(tag: "joined")
 
 
     //     add_meta = INPUT_CHECK.out.reads
@@ -695,7 +695,7 @@ if (params.reads_format == 'fastq' || params.reads_format == 'fastq.gz') {
     //     haplotag_vcf = ch_haplotag_vcf.join(add_meta).dump(tag: "joined")
      
     //      WHATSHAP_HAPLOTAG (
-    //          haplotag_bam,
+    //          haplotag_cram,
     //          haplotag_vcf,
     //          file(params.fasta),
     //          file(params.fasta_index)
@@ -712,7 +712,7 @@ if (params.reads_format == 'fastq' || params.reads_format == 'fastq.gz') {
         //
         // MODULE: MOSDEPTH for depth calculation
         //
-        ch_mosdepth_input = WHATSHAP_HAPLOTAG.out.bam.mix(WHATSHAP_HAPLOTAG.out.bai).groupTuple(size:2).map{ meta, files -> [ meta, files.flatten() ]}
+    ch_mosdepth_input = WHATSHAP_HAPLOTAG.out.cram.mix(WHATSHAP_HAPLOTAG.out.crai).groupTuple(size:2).map{ meta, files -> [ meta, files.flatten() ]}
         MOSDEPTH (
             ch_mosdepth_input
         )
@@ -733,7 +733,7 @@ if (params.reads_format == 'fastq' || params.reads_format == 'fastq.gz') {
         //
         
         if (params.extract_methylation) {
-            ch_modkit_input = WHATSHAP.out.bam.mix(WHATSHAP.out.bai).groupTuple(size:2).map{ meta, files -> [ meta, files.flatten() ]}
+            ch_modkit_input = WHATSHAP.out.cram.mix(WHATSHAP.out.crai).groupTuple(size:2).map{ meta, files -> [ meta, files.flatten() ]}
             MODKIT (
                 ch_modkit_input,
                 file(params.fasta)
@@ -748,7 +748,7 @@ if (params.reads_format == 'fastq' || params.reads_format == 'fastq.gz') {
             ch_versions = ch_versions.mix(MODKIT_TO_BW.out.versions)
 
             SAMTOOLS_STATS (
-                WHATSHAP.out.bam
+                WHATSHAP.out.cram
             )
             ch_versions = ch_versions.mix(SAMTOOLS_STATS.out.versions)
         }
