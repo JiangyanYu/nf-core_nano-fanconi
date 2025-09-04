@@ -106,9 +106,6 @@ workflow NANOFANCONI {
 
     ch_versions = Channel.empty()
 
-    // ... rest of workflow logic ...
-
-}
 
 
 
