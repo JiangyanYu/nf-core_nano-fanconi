@@ -467,12 +467,6 @@ if (params.reads_format == 'fastq' || params.reads_format == 'fastq.gz') {
     .split_vcfs
     .flatten()
     .set { ch_split_vcfs }
-    )
-    SPLIT_VCF_BY_CHR
-    .out
-    .split_vcfs
-    .flatten()
-    .set { ch_split_vcfs }
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
