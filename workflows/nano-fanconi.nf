@@ -114,52 +114,18 @@ workflow NANOFANCONI {
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
-    // general order of precedence: reference_path -> param -> default
-    def reference_path = params.reference_path
-    def ch_versions = Channel.empty()
+    // Prepare references using local module
+    include { PREPARE_REFERENCES } from '../modules/local/PREPARE_REFERENCES.nf'
 
-    // Define ch_genome channel with genome IDs (adjust as needed)
-    def ch_genome = Channel.of("GRCh37", "GRCh38")
-
-    // prepare fasta
-    def defaultFasta = [
-        "GRCh37": "s3://ngi-igenomes/igenomes/Homo_sapiens/UCSC/hg19/Sequence/WholeGenomeFasta/genome.fa",
-        "GRCh38": "https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/references/GRCh38/GRCh38_GIABv3_no_alt_analysis_set_maskedGRC_decoys_MAP2K3_KMT2C_KCNJ18.fasta.gz",
-    ]
-
-    def ch_fasta_state = ch_genome.branch { id ->
-        cached: reference_path ? fasta_cached(id, reference_path).exists() : false
-        not_cached: true
-    }
-    def ch_fasta_cached = ch_fasta_state.cached.map { id -> [[id: id], fasta_cached(id, reference_path)] }
-    def ch_fasta_not_cached = ch_fasta_state.not_cached.map { id ->
-    // Helper function to get cached FAI file path
-    def fai_cached = { genome_id, reference_path ->
-        // Example: assumes FAI files are named as "${reference_path}/${genome_id}.fai"
-        file("${reference_path}/${genome_id}.fai")
-    }
-
-    // prepare fai
-    def ch_fai_state = ch_fasta.branch { meta, _fasta ->
-        cached: reference_path ? fai_cached(meta.id, reference_path).exists() : false
-        not_cached: true
-    }
-
-    // prepare fai
-    def ch_fai_state = ch_fasta.branch { meta, _fasta ->
-        cached: reference_path ? fai_cached(meta.id, reference_path).exists() : false
-        not_cached: true
-    }
-    def ch_fai_cached = ch_fai_state.cached.map { meta, _fasta -> [meta, fai_cached(meta.id, reference_path)] }
-    def faidx_fai = [[], []]
-    def faidx_get_sizes = false
-    SAMTOOLS_FAIDX(
-        ch_fai_state.not_cached.map { meta, _fai -> [meta] }.join(ch_fasta),
-        faidx_fai,
-        faidx_get_sizes,
+    PREPARE_REFERENCES(
+        params.reference_path,
+        params.fasta,
+        params.genome_id
     )
-    ch_versions = ch_versions.mix(SAMTOOLS_FAIDX.out.versions)
-    def ch_fai = ch_fai_cached.mix(SAMTOOLS_FAIDX.out.fai).dump(tag: 'fai')
+
+    ch_fasta      = PREPARE_REFERENCES.out.fasta
+    ch_fasta_index = PREPARE_REFERENCES.out.fasta_index
+    ch_versions   = ch_versions.mix(PREPARE_REFERENCES.out.versions)
 
 
 /*
