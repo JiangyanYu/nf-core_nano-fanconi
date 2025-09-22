@@ -5,10 +5,8 @@ process PREPARE_REFERENCES {
     container "quay.io/biocontainers/samtools:1.16.1--h6899075_1"
 
     input:
-        val(profile)
-        val(fasta_url)
-        val(fasta_index_url)
-
+        val(fasta_path)
+        
     output:
         path("genome.fa"), emit: fasta
         path("genome.fa.fai"), emit: fai
@@ -16,9 +14,7 @@ process PREPARE_REFERENCES {
 
     script:
         """
-        # Download FASTA
-        wget -O genome.fa "${fasta_url}"
-        
+
         # Create FAI index
         samtools faidx genome.fa
 

@@ -34,15 +34,15 @@ WorkflowMain.initialise(workflow, params, log)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
-include { NANOFANCONI } from './workflows/nano-fanconi'
+include { FANIVA } from './workflows/fa-niva.nf'
 // test the pipeline by using aligned bam file as input. tmp solution
 //include { NANOFANCONI } from './workflows/nano-fanconi1'
 
 //
 // WORKFLOW: Run main nf-core_nano-fanconi analysis pipeline
 //
-workflow NANO_FANCONI {
-    NANOFANCONI ()
+workflow FANIVA {
+    FANIVA ()
     // Emit for testing purpose
     // emit: 
 }
@@ -58,7 +58,7 @@ workflow NANO_FANCONI {
 // See: https://github.com/nf-core/rnaseq/issues/619
 //
 workflow {
-    NANO_FANCONI ()
+    FANIVA ()
     // Emit for testing purpose
     // emit: 
 }
