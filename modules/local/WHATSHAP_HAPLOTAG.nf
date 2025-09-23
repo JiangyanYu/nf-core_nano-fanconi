@@ -6,14 +6,14 @@ process WHATSHAP_HAPLOTAG {
         'jiangyanyu/docker-whatshap:v240302' }"
 
     input:
-        tuple val(meta), path(cram_file), path(crai_file)
-        tuple val(meta), path(phased_merged_vcf), path(phased_merged_tbi)
+        tuple val(meta), path(split_crams), path(split_crais)
+        tuple val(meta), path(phased_split_vcfs), path(phased_split_tbis)
+        val(chr)
         path(fasta)
-        path(fasta_index)
 
     output:
-        tuple val(meta), path("${meta.sample}*.haplotagged.cram")     , emit: cram
-        tuple val(meta), path("${meta.sample}*.haplotagged.cram.crai") , emit: crai
+        tuple val(meta), path("${meta.sample}*.${chr}.haplotagged.cram")     , emit: cram
+        tuple val(meta), path("${meta.sample}*.${chr}.haplotagged.cram.crai") , emit: crai
         path  ("versions.yml")                                       , emit: versions
 
     script:
@@ -21,8 +21,20 @@ process WHATSHAP_HAPLOTAG {
     // def vcf_file = phased_merged_vcf.name != 'test.vcf' ? "$phased_merged_vcf" : "${meta.sample}.vcf.gz"
     """
 
+    # Filter by MG>=95
+    samtools view --reference ${fasta} -h -e '[mg] && [mg]>=95' ${meta.sample}.cram | \\
+
     whatshap haplotag --tag-supplementary --ignore-read-groups --output-threads=${task.cpus} \\
-    -o ${meta.sample}.haplotagged.cram --reference ${fasta} ${meta.sample}.vcf.gz ${meta.sample}.cram && \\
+    -o ${meta.sample}.haplotagged.cram --reference ${fasta} ${meta.sample}.vcf.gz /dev/stdin
+
+    samtools view --reference ${fasta} -h -e '[mg] && [mg]<95' -O cram -o ${meta.sample}.not_haplotagged.cram ${meta.sample}.cram
+    
+    samtools merge -@ ${task.cpus} -O cram -o ${meta.sample}.haplotagged_merged.cram ${meta.sample}.haplotagged.cram ${meta.sample}.not_haplotagged.cram
+
+    rm ${meta.sample}.not_haplotagged.cram ${meta.sample}.haplotagged.cram
+
+    mv ${meta.sample}.haplotagged_merged.cram ${meta.sample}.haplotagged.cram
+
     samtools index -@ ${task.cpus} ${meta.sample}.haplotagged.cram
 
     cat <<-END_VERSIONS > versions.yml
