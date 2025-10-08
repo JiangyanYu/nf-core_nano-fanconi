@@ -41,7 +41,7 @@ include { FANIVA } from './workflows/fa-niva.nf'
 //
 // WORKFLOW: Run main nf-core_nano-fanconi analysis pipeline
 //
-workflow FANIVA {
+workflow {
     FANIVA ()
     // Emit for testing purpose
     // emit: 
