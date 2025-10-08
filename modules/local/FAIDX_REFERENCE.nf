@@ -15,7 +15,7 @@ process FAIDX_REFERENCE {
     script:
         """
         # Link the input FASTA as genome.fa
-        ln -sf ${fasta} genome.fa
+        #ln -sf ${fasta} genome.fa
     
         # Create FAI index
         samtools faidx genome.fa
