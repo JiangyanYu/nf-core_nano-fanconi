@@ -9,7 +9,7 @@ nextflow.enable.dsl=2
 def summary_params = NfcoreSchema.paramsSummaryMap(workflow, params)
 
 // Validate input parameters
-WorkflowFaniva.initialise(params, log)
+// WorkflowFaniva.initialise(params, log)
 
 // TODO nf-core: Add all file path parameters for the pipeline to the list below
 // Check input path parameters to see if they exist
