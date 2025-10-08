@@ -56,7 +56,7 @@ include { FAIDX_REFERENCE                               } from '../modules/local
 // include { FAST5_TO_POD5                                 } from '../modules/local/FAST5_TO_POD5.nf'
 // include { DORADO_BASECALLER_FROM_FAST5                  } from '../modules/local/DORADO_BASECALLER_FROM_FAST5.nf'
 // include { DORADO_BASECALLER_FROM_POD5                   } from '../modules/local/DORADO_BASECALLER_FROM_POD5.nf'
-include { MERGE_UNMAPPED_BAMS                                     } from '../modules/local/MERGE_UNMAPPED_BAMS.nf'
+include { MERGE_UNMAPPED_BAMS                           } from '../modules/local/MERGE_UNMAPPED_BAMS.nf'
 // include { MERGE_BASECALL as MERGE_BASECALL_ID           } from '../modules/local/MERGE_BASECALL.nf'
 // include { MERGE_BASECALL as MERGE_BASECALL_SAMPLE       } from '../modules/local/MERGE_BASECALL.nf'
 // include { DORADO_BASECALL_SUMMARY                       } from '../modules/local/DORADO_BASECALL_SUMMARY.nf'
