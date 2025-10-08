@@ -61,7 +61,7 @@ include { MERGE_UNMAPPED_BAMS                                     } from '../mod
 // include { MERGE_BASECALL as MERGE_BASECALL_SAMPLE       } from '../modules/local/MERGE_BASECALL.nf'
 // include { DORADO_BASECALL_SUMMARY                       } from '../modules/local/DORADO_BASECALL_SUMMARY.nf'
 // include { PYCOQC                                        } from '../modules/local/PYCOQC.nf'
-// include { PBMM2                                         } from '../modules/local/PBMM2.nf'
+include { PBMM2_FROM_BAM                                } from '../modules/local/PBMM2_FROM_BAM.nf'
 // include { SAMTOOLS_SORT                                 } from '../modules/local/SAMTOOLS_SORT'
 // include { SAMTOOLS_INDEX                                } from '../modules/local/SAMTOOLS_INDEX'
 // include { SAMTOOLS_STATS                                } from '../modules/local/SAMTOOLS_STATS.nf'
