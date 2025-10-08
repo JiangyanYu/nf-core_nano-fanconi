@@ -289,6 +289,13 @@ workflow FANIVA {
 
 //     }
 
+
+// /*
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+//     FANIVA: Manage if reads_format is bam
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// */
+
     if (params.reads_format == 'bam' ) {
         INPUT_CHECK
         .out
@@ -320,14 +327,6 @@ workflow FANIVA {
 //     FANIVA: Merge unmapped BAMs
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // */
-
-    // Print ch_sample_unmapped_bams
-    ch_sample_unmapped_bams
-    .map { meta, bams -> 
-        println "Sample: ${meta.sample}, ID: ${meta.id ?: 'N/A'}, BAMs: ${bams.collect{ it.getName() }.join(', ')}"
-        [meta, bams]
-    }
-
 
     MERGE_UNMAPPED_BAMS (
         ch_sample_unmapped_bams
@@ -370,18 +369,22 @@ workflow FANIVA {
 //     .set { ch_unmapped_bam }
 // }
 
-// /*
-// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-//     FANIVA: pbmm2_alignment
-// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-// */
-//     def unmapped_bam = (params.reads_format == 'fastq' || params.reads_format == 'fastq.gz') ? ch_unmapped_bam : ch_basecall_sample_merged_bams
-//     PBMM2 (
-//         unmapped_bam,
-//         file(params.fasta)
-//     )
-//     ch_pbmm2_cram = PBMM2.out.cram
-//     ch_versions = ch_versions.mix(PBMM2.out.versions)
+
+/*
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    FANIVA: pbmm2 alignment from BAM
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+*/
+
+    // def unmapped_bam = (params.reads_format == 'fastq' || params.reads_format == 'fastq.gz') ? ch_unmapped_bam : ch_basecall_sample_merged_bams
+    
+    PBMM2_FROM_BAM (
+        ch_fasta
+        ch_sample_merged_bams,
+    )
+    ch_pbmm2_cram = PBMM2_FROM_BAM.out.cram
+    ch_versions = ch_versions.mix(PBMM2_FROM_BAM.out.versions)
+
 
 // /*
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

@@ -1,4 +1,4 @@
-process PBMM2 {
+process PBMM2_FROM_BAM {
     maxForks 8  // Limits the number of concurrent executions of this process to 8
     label 'process_high'
 
@@ -7,13 +7,12 @@ process PBMM2 {
         'jiangyanyu/pacbio_wgs:v1.2' }"
 
     input:
-
-        tuple val(meta), path (bam_paths) 
+        tuple val(meta), path (id_merged_unmapped_bams) 
         path (fasta)
 
     output:
-        tuple val(meta), path ("*.cram")       , emit: cram
-        path "versions.yml"                   , emit: versions
+        tuple val(meta), path ("*.cram"), emit: cram
+        path "versions.yml", emit: versions
 
     script:
         def args = task.ext.args ?: ''
