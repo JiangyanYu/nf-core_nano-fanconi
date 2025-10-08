@@ -57,11 +57,11 @@ workflow FANIVA {
 // WORKFLOW: Execute a single named workflow for the pipeline
 // See: https://github.com/nf-core/rnaseq/issues/619
 //
-workflow {
-    FANIVA ()
-    // Emit for testing purpose
-    // emit: 
-}
+// workflow {
+//     FANIVA ()
+//     // Emit for testing purpose
+//     // emit: 
+// }
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
