@@ -7,7 +7,7 @@ process PBMM2_FROM_BAM {
         'jiangyanyu/pacbio_wgs:v1.2' }"
 
     input:
-        tuple val(meta), path (id_merged_unmapped_bams) 
+        tuple val(meta), path (merged_unmapped_bams) 
         path (fasta)
 
     output:
@@ -17,7 +17,7 @@ process PBMM2_FROM_BAM {
     script:
         def args = task.ext.args ?: ''
         """      
-        samtools concat -@ ${task.cpus} ${bam_paths} | \\
+        samtools concat -@ ${task.cpus} ${merged_unmapped_bams} | \\
         pbmm2 align \\
                 --num-threads ${task.cpus} \\
                 --preset CCS \\
