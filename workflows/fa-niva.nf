@@ -308,11 +308,11 @@ workflow FANIVA {
             } else if (bam_path.endsWith('.bam')) {
                 bam_files = [file(bam_path)]
             }
-            bam_files.collect { [[id: meta.id, sample: meta.sample], it] }  // Create a list of [meta, file] pairs
+            bam_files.collect { [[id: meta.id], it] }  // Create a list of [meta, file] pairs
         }
         .groupTuple(by: 0) // group bams by meta (i.e sample) which is zero-indexed
         // .dump(tag: 'basecall_sample', pretty: true)
-        .set { ch_sample_unmapped_bams } // set channel name
+        .set { ch_id_unmapped_bams } // set channel name
     }
 
     
@@ -331,7 +331,7 @@ workflow FANIVA {
     MERGE_UNMAPPED_BAMS (
         ch_sample_unmapped_bams
     )
-    ch_sample_merged_bams = MERGE_UNMAPPED_BAMS.out.merged_unmapped_bam
+    ch_id_merged_bams = MERGE_UNMAPPED_BAMS.out.merged_unmapped_bam
     ch_versions = ch_versions.mix(MERGE_UNMAPPED_BAMS.out.versions)
 
 }
@@ -379,8 +379,8 @@ workflow FANIVA {
     // def unmapped_bam = (params.reads_format == 'fastq' || params.reads_format == 'fastq.gz') ? ch_unmapped_bam : ch_basecall_sample_merged_bams
     
     PBMM2_FROM_BAM (
+        ch_id_merged_bams,
         ch_fasta
-        ch_sample_merged_bams,
     )
     ch_pbmm2_cram = PBMM2_FROM_BAM.out.cram
     ch_versions = ch_versions.mix(PBMM2_FROM_BAM.out.versions)
