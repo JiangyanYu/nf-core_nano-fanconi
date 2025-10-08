@@ -124,6 +124,8 @@ workflow FANIVA {
     ch_fasta_index = FAIDX_REFERENCE.out.fasta_index
     ch_versions   = ch_versions.mix(FAIDX_REFERENCE.out.versions)
 
+}
+
 
 // /*
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
