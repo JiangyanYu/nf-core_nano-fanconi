@@ -20,6 +20,9 @@ process MERGE_UNMAPPED_BAMS {
         "ln -s ${unmapped_bams[0]} ${prefix}.unaligned.bam" :
         "samtools merge -f -@ ${task.cpus} ${prefix}.unaligned.bam ${unmapped_bams.join(' ')}"
 
+// Print the meta information for debugging
+ println "Merging unmapped BAMs for sample: ${meta.sample}, ID: ${meta.id ?: 'N/A'}"
+
     """
         ${merge_cmd}
 
