@@ -10,18 +10,18 @@ process MERGE_UNMAPPED_BAMS {
         tuple val(meta), path(unmapped_bams)
 
     output:
-        tuple val(meta), path("${meta.id ?: meta.sample}.unaligned.bam"), emit: merged_unmapped_bam
+        tuple val(meta), path("${meta.id}.unaligned.bam"), emit: merged_unmapped_bam
         path  ("versions.yml"), emit: versions
 
     script:
-    def prefix = meta.id ?: meta.sample
+    def prefix = meta.id
     def is_single_file = unmapped_bams.size() == 1
     def merge_cmd = is_single_file ? 
         "ln -s ${unmapped_bams[0]} ${prefix}.unaligned.bam" :
         "samtools merge -f -@ ${task.cpus} ${prefix}.unaligned.bam ${unmapped_bams.join(' ')}"
 
 // Print the meta information for debugging
- println "Merging unmapped BAMs for sample: ${meta.sample}, ID: ${meta.id ?: 'N/A'}"
+ println "Merging unmapped BAMs for sample: ${meta.id ?: 'N/A'}"
 
     """
         ${merge_cmd}
