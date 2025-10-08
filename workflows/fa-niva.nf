@@ -83,7 +83,7 @@ include { MOSDEPTH                                      } from '../modules/local
 include { DEEPVARIANT                                   } from '../modules/local/DEEPVARIANT.nf'
 include { TABIX_TABIX as DEEPVARIANT_TABIX_VCF          } from '../modules/nf-core/tabix/tabix/main.nf'
 include { TABIX_TABIX as DEEPVARIANT_TABIX_GVCF         } from '../modules/nf-core/tabix/tabix/main.nf'
-include { CUSTOM_DUMPSOFTWAREVERSIONS                   } from '../modules/nf-core/custom/dumpsoftwareversions/main'
+include { CUSTOM_DUMPSOFTWAREVERSIONS                   } from '../modules/nf-core/custom/dumpsoftwareversions/main.nf'
 include { MULTIQC                                       } from '../modules/local/MULTIQC'
 // include { PEPPER                                        } from '../modules/local/PEPPER'
 // include { MODKIT                                        } from '../modules/local/MODKIT'
