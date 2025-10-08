@@ -1,4 +1,4 @@
-process PREPARE_REFERENCES {
+process FAIDX_REFERENCE {
     label 'process_medium'
 
     conda "bioconda::samtools=1.16"

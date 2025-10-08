@@ -50,12 +50,12 @@ include { INPUT_CHECK } from '../subworkflows/local/input_check'
 // MODULE: Installed directly from nf-core/modules
 //
 
-include { FAIDX_REFERENCE_REFERENCE } from '../modules/local/FAIDX_REFERENCE.nf'
+include { FAIDX_REFERENCE                               } from '../modules/local/FAIDX_REFERENCE.nf'
 // include { SAMTOOLS_BGZIP } from '../modules/nf-core/samtools/bgzip.nf'
 // include { SAMTOOLS_FAIDX } from '../modules/nf-core/samtools/faidx.nf'
 // include { FAST5_TO_POD5                                 } from '../modules/local/FAST5_TO_POD5.nf'
-include { DORADO_BASECALLER_FROM_FAST5                             } from '../modules/local/DORADO_BASECALLER_FROM_FAST5.nf'
-include { DORADO_BASECALLER_FROM_POD5                             } from '../modules/local/DORADO_BASECALLER_FROM_POD5.nf'
+include { DORADO_BASECALLER_FROM_FAST5                  } from '../modules/local/DORADO_BASECALLER_FROM_FAST5.nf'
+include { DORADO_BASECALLER_FROM_POD5                   } from '../modules/local/DORADO_BASECALLER_FROM_POD5.nf'
 include { MERGE_BASECALL as MERGE_BASECALL_ID           } from '../modules/local/MERGE_BASECALL.nf'
 include { MERGE_BASECALL as MERGE_BASECALL_SAMPLE       } from '../modules/local/MERGE_BASECALL.nf'
 include { DORADO_BASECALL_SUMMARY                       } from '../modules/local/DORADO_BASECALL_SUMMARY.nf'
