@@ -8,17 +8,14 @@ process FAIDX_REFERENCE {
         path fasta
         
     output:
-        path("genome.fa"), emit: fasta
-        path("genome.fa.fai"), emit: fasta_index
-        path("versions.yml"), emit: versions
+        path fasta, emit: fasta
+        path "${fasta}.fai", emit: fasta_index
+        path "versions.yml", emit: versions
 
     script:
         """
-        # Link the input FASTA as genome.fa
-        #ln -sf ${fasta} genome.fa
-    
         # Create FAI index
-        samtools faidx genome.fa
+        samtools faidx ${fasta}
 
         cat <<-END_VERSIONS > versions.yml
         "${task.process}":
