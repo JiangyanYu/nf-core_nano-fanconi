@@ -26,7 +26,7 @@ process SAWFISH {
         sawfish discover \\
                 --threads ${task.cpus} \\
                 --ref ${index} \\
-                --bam ${meta.sample}.sorted.bam \\
+                --bam ${meta.id}.sorted.bam \\
                 --output-dir discover
 
         sawfish joint-call \\

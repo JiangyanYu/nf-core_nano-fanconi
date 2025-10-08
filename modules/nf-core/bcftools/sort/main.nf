@@ -1,5 +1,5 @@
 process BCFTOOLS_SORT {
-    tag "$meta.sample"
+    tag "$meta.id"
     label 'process_medium'
 
     conda "bioconda::bcftools=1.16"
@@ -11,7 +11,7 @@ process BCFTOOLS_SORT {
     tuple val(meta), path(vcf)
 
     output:
-    tuple val(meta), path("${meta.sample}*.gz"), emit: vcf
+    tuple val(meta), path("${meta.id}*.gz"), emit: vcf
     path "versions.yml"           , emit: versions
 
 
@@ -20,7 +20,7 @@ process BCFTOOLS_SORT {
 
     script:
     def args = task.ext.args ?: ''
-    def prefix = task.ext.prefix ?: "${meta.sample}"
+    def prefix = task.ext.prefix ?: "${meta.id}"
     """
     bcftools \\
         sort \\
@@ -35,7 +35,7 @@ process BCFTOOLS_SORT {
     """
 
     stub:
-    def prefix = task.ext.prefix ?: "${meta.sample}"
+    def prefix = task.ext.prefix ?: "${meta.id}"
 
     """
     touch ${prefix}.vcf.gz

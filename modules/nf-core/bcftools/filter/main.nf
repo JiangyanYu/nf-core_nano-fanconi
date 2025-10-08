@@ -1,5 +1,5 @@
 process BCFTOOLS_FILTER {
-    tag "$meta.sample"
+    tag "$meta.id"
     label 'process_medium'
 
     conda "bioconda::bcftools=1.16"
@@ -11,7 +11,7 @@ process BCFTOOLS_FILTER {
     tuple val(meta), path(vcf)
 
     output:
-    tuple val(meta), path("${meta.sample}_filtered.vcf.gz"), emit: filteredvcf
+    tuple val(meta), path("${meta.id}_filtered.vcf.gz"), emit: filteredvcf
     path "versions.yml"                                    , emit: versions
 
 
@@ -20,7 +20,7 @@ process BCFTOOLS_FILTER {
 
     script:
     def args = task.ext.args ?: ''
-    def prefix = task.ext.prefix ?: "${meta.sample}"
+    def prefix = task.ext.prefix ?: "${meta.id}"
     """
     bcftools \\
         filter \\
@@ -36,7 +36,7 @@ process BCFTOOLS_FILTER {
     """
 
     stub:
-    def prefix = task.ext.prefix ?: "${meta.sample}"
+    def prefix = task.ext.prefix ?: "${meta.id}"
 
     """
     touch ${prefix}_filtered.vcf.gz

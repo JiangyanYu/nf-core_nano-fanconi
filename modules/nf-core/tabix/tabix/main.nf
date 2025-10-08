@@ -1,5 +1,5 @@
 process TABIX_TABIX {
-    tag "$meta.sample"
+    tag "$meta.id"
     label 'process_single'
 
     conda "bioconda::tabix=1.11"
@@ -11,8 +11,8 @@ process TABIX_TABIX {
     tuple val(meta), path(tab)
 
     output:
-    tuple val(meta), path("${meta.sample}*.tbi"), optional:true, emit: tbi
-    tuple val(meta), path("${meta.sample}*.csi"), optional:true, emit: csi
+    tuple val(meta), path("${meta.id}*.tbi"), optional:true, emit: tbi
+    tuple val(meta), path("${meta.id}*.csi"), optional:true, emit: csi
     path  "versions.yml"          , emit: versions
 
     when:
@@ -30,7 +30,7 @@ process TABIX_TABIX {
     """
 
     stub:
-    def prefix = task.ext.prefix ?: "${meta.sample}"
+    def prefix = task.ext.prefix ?: "${meta.id}"
     """
     touch ${tab}.tbi
     cat <<-END_VERSIONS > versions.yml

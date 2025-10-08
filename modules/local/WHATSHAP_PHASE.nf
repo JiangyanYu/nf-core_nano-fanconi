@@ -13,15 +13,15 @@ process WHATSHAP_PHASE {
 
 
     output:
-        tuple val(meta), path("${meta.sample}_phased.vcf")           , emit: phased_vcf
+        tuple val(meta), path("${meta.id}_phased.vcf")           , emit: phased_vcf
         path  ("versions.yml")                                       , emit: versions
 
     script:
 
     """
-    whatshap phase -o ${meta.sample}_phased.vcf \\
+    whatshap phase -o ${meta.id}_phased.vcf \\
         --reference=${reference_fasta} \\
-    ${meta.sample}*.vcf.gz ${meta.sample}.sorted.cram
+    ${meta.id}*.vcf.gz ${meta.id}.sorted.cram
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":

@@ -5,7 +5,7 @@ def determineLabel() {
 def processLabel = determineLabel()
 
 process DEEPVARIANT {
-    tag "$meta.sample"
+    tag "$meta.id"
     label processLabel
 
     container "google/deepvariant:1.9.0-gpu"
@@ -30,7 +30,7 @@ process DEEPVARIANT {
 
     script:
     def args    = task.ext.args ?: ''
-    prefix      = task.ext.prefix ?: "${meta.sample}"
+    prefix      = task.ext.prefix ?: "${meta.id}"
     //def regions = intervals ? "--regions ${intervals}" : ""
 
     """

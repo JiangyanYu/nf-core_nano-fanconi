@@ -8,14 +8,14 @@ process MERGE_VCF {
         tuple val(meta), path(vcfs)
 
     output:
-        tuple val(meta), path("${meta.sample}.phased.merged.vcf.gz"), emit: vcf
+        tuple val(meta), path("${meta.id}.phased.merged.vcf.gz"), emit: vcf
         path("versions.yml"), emit: versions
 
     script:
         def vcf_list = vcfs instanceof List ? vcfs.join(' ') : vcfs
         """
-        bcftools concat -O z -o ${meta.sample}.phased.merged.vcf.gz ${vcf_list}
-        bcftools index ${meta.sample}.phased.merged.vcf.gz
+        bcftools concat -O z -o ${meta.id}.phased.merged.vcf.gz ${vcf_list}
+        bcftools index ${meta.id}.phased.merged.vcf.gz
 
         cat <<-END_VERSIONS > versions.yml
         "${task.process}":

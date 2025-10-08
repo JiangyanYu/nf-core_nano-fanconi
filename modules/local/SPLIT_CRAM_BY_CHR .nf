@@ -16,9 +16,9 @@ process SPLIT_VCF_BY_CHR {
 
     script:
      """
-        samtools view -O cram -o ${meta.sample}.${chr}.cram ${cram_file} ${chr}
+        samtools view -O cram -o ${meta.id}.${chr}.cram ${cram_file} ${chr}
         
-        samtools index ${meta.sample}.${chr}.cram ${meta.sample}.${chr}.cram.crai
+        samtools index ${meta.id}.${chr}.cram ${meta.id}.${chr}.cram.crai
         
         cat <<-END_VERSIONS > versions.yml
         "${task.process}":

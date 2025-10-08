@@ -27,7 +27,7 @@ process MOSDEPTH {
     export MOSDEPTH_Q2=CALLABLE      # 5..149
     export MOSDEPTH_Q3=HIGH_COVERAGE # 150 ...
 
-    mosdepth -t ${task.cpus} -n -x -Q 1 --by 500 --quantize 0:1:5:150: ${meta.sample} *bam
+    mosdepth -t ${task.cpus} -n -x -Q 1 --by 500 --quantize 0:1:5:150: ${meta.id} *bam
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":

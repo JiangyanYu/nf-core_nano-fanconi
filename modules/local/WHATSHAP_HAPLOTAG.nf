@@ -12,30 +12,30 @@ process WHATSHAP_HAPLOTAG {
         path(fasta)
 
     output:
-        tuple val(meta), path("${meta.sample}*.${chr}.haplotagged.cram")     , emit: cram
-        tuple val(meta), path("${meta.sample}*.${chr}.haplotagged.cram.crai") , emit: crai
+        tuple val(meta), path("${meta.id}*.${chr}.haplotagged.cram")     , emit: cram
+        tuple val(meta), path("${meta.id}*.${chr}.haplotagged.cram.crai") , emit: crai
         path  ("versions.yml")                                       , emit: versions
 
     script:
-    // def vcf_file = phased_merged_vcf.name != 'NO_FILE.vcf' ? "$phased_merged_vcf" : "${meta.sample}.phased.vcf.gz"
-    // def vcf_file = phased_merged_vcf.name != 'test.vcf' ? "$phased_merged_vcf" : "${meta.sample}.vcf.gz"
+    // def vcf_file = phased_merged_vcf.name != 'NO_FILE.vcf' ? "$phased_merged_vcf" : "${meta.id}.phased.vcf.gz"
+    // def vcf_file = phased_merged_vcf.name != 'test.vcf' ? "$phased_merged_vcf" : "${meta.id}.vcf.gz"
     """
 
     # Filter by MG>=95
-    samtools view --reference ${fasta} -h -e '[mg] && [mg]>=95' ${meta.sample}.cram | \\
+    samtools view --reference ${fasta} -h -e '[mg] && [mg]>=95' ${meta.id}.cram | \\
 
     whatshap haplotag --tag-supplementary --ignore-read-groups --output-threads=${task.cpus} \\
-    -o ${meta.sample}.haplotagged.cram --reference ${fasta} ${meta.sample}.vcf.gz /dev/stdin
+    -o ${meta.id}.haplotagged.cram --reference ${fasta} ${meta.id}.vcf.gz /dev/stdin
 
-    samtools view --reference ${fasta} -h -e '[mg] && [mg]<95' -O cram -o ${meta.sample}.not_haplotagged.cram ${meta.sample}.cram
+    samtools view --reference ${fasta} -h -e '[mg] && [mg]<95' -O cram -o ${meta.id}.not_haplotagged.cram ${meta.id}.cram
     
-    samtools merge -@ ${task.cpus} -O cram -o ${meta.sample}.haplotagged_merged.cram ${meta.sample}.haplotagged.cram ${meta.sample}.not_haplotagged.cram
+    samtools merge -@ ${task.cpus} -O cram -o ${meta.id}.haplotagged_merged.cram ${meta.id}.haplotagged.cram ${meta.id}.not_haplotagged.cram
 
-    rm ${meta.sample}.not_haplotagged.cram ${meta.sample}.haplotagged.cram
+    rm ${meta.id}.not_haplotagged.cram ${meta.id}.haplotagged.cram
 
-    mv ${meta.sample}.haplotagged_merged.cram ${meta.sample}.haplotagged.cram
+    mv ${meta.id}.haplotagged_merged.cram ${meta.id}.haplotagged.cram
 
-    samtools index -@ ${task.cpus} ${meta.sample}.haplotagged.cram
+    samtools index -@ ${task.cpus} ${meta.id}.haplotagged.cram
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":

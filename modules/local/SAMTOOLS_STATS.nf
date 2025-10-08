@@ -7,16 +7,16 @@ process SAMTOOLS_STATS {
     tuple val(meta), path(haplotagged_cram)
 
     output:
-        tuple val(meta), path("${meta.sample}.combined.stats.txt"), emit: combined_stats
-        tuple val(meta), path("${meta.sample}.hap1.stats.txt")    , emit: hap1_stats
-        tuple val(meta), path("${meta.sample}.hap2.stats.txt")    , emit: hap2_stats
+        tuple val(meta), path("${meta.id}.combined.stats.txt"), emit: combined_stats
+        tuple val(meta), path("${meta.id}.hap1.stats.txt")    , emit: hap1_stats
+        tuple val(meta), path("${meta.id}.hap2.stats.txt")    , emit: hap2_stats
         path  ("versions.yml")                                    , emit: versions
 
     script:
     """
-    samtools stats -@ ${task.cpus} $haplotagged_cram > ${meta.sample}.stats.txt
-    samtools view -@ ${task.cpus} -h -d HP:1 -u $haplotagged_cram | samtools stats -@ ${task.cpus} - > ${meta.sample}.hap1.stats.txt
-    samtools view -@ ${task.cpus} -h -d HP:2 -u $haplotagged_cram | samtools stats -@ ${task.cpus} - > ${meta.sample}.hap2.stats.txt
+    samtools stats -@ ${task.cpus} $haplotagged_cram > ${meta.id}.stats.txt
+    samtools view -@ ${task.cpus} -h -d HP:1 -u $haplotagged_cram | samtools stats -@ ${task.cpus} - > ${meta.id}.hap1.stats.txt
+    samtools view -@ ${task.cpus} -h -d HP:2 -u $haplotagged_cram | samtools stats -@ ${task.cpus} - > ${meta.id}.hap2.stats.txt
 
 
     cat <<-END_VERSIONS > versions.yml

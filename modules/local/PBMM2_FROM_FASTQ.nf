@@ -25,8 +25,8 @@ process PBMM2 {
                 ${args} \\
                 ${fasta} \\
                 /dev/stdin | \\
-        samtools sort -@ ${task.cpus} -O cram -o ${meta.sample}.cram
-        samtools index -@ ${task.cpus} ${meta.sample}.cram
+        samtools sort -@ ${task.cpus} -O cram -o ${meta.id}.cram
+        samtools index -@ ${task.cpus} ${meta.id}.cram
 
         cat <<-END_VERSIONS > versions.yml
         "${task.process}":

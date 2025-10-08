@@ -1,5 +1,5 @@
 process EDIT_SNV_GENOTYPE {
-    // tag "$meta.sample"
+    // tag "$meta.id"
     label 'process_single'
 
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
@@ -11,7 +11,7 @@ process EDIT_SNV_GENOTYPE {
         tuple val(meta), path(sv_vcf_file), path(sv_tbi_file)
 
     output:
-        tuple val(meta), path("${meta.sample}_gt.converted.vcf")       , emit: vcf
+        tuple val(meta), path("${meta.id}_gt.converted.vcf")       , emit: vcf
         path "versions.yml"                                , emit: versions
 
     when:
@@ -22,9 +22,9 @@ process EDIT_SNV_GENOTYPE {
 
     """
     SNV_modify_GT.py \\
-        --snv_vcf ${meta.sample}_filtered.vcf.gz  \\
+        --snv_vcf ${meta.id}_filtered.vcf.gz  \\
         --sv_vcf genotyped.sv.vcf.gz \\
-        --output_vcf ${meta.sample}_gt.converted.vcf
+        --output_vcf ${meta.id}_gt.converted.vcf
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":

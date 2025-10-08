@@ -1,5 +1,5 @@
 process ANNOTSV_SAWFISH {
-    tag "$meta.sample"
+    tag "$meta.id"
     label 'process_high'
     
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
@@ -22,7 +22,7 @@ process ANNOTSV_SAWFISH {
 
     script:
     def args    = task.ext.args ?: ''
-    prefix      = task.ext.prefix ?: "${meta.sample}"
+    prefix      = task.ext.prefix ?: "${meta.id}"
     
     // Apply annotation mode flag to command
     def mode = params.annotsvMode

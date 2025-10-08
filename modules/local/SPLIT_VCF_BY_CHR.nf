@@ -14,9 +14,9 @@ process SPLIT_VCF_BY_CHR {
 
     script:
         """
-        bcftools view -r ${chr} ${deepvariant_vcf} -O z -o ${meta.sample}.${chr}.vcf.gz
+        bcftools view -r ${chr} ${deepvariant_vcf} -O z -o ${meta.id}.${chr}.vcf.gz
         
-        bcftools index ${meta.sample}.${chr}.vcf.gz
+        bcftools index ${meta.id}.${chr}.vcf.gz
 
         cat <<-END_VERSIONS > versions.yml
         "${task.process}":
