@@ -7,7 +7,7 @@ process MERGE_UNMAPPED_BAMS {
         'quay.io/biocontainers/samtools:1.16.1--h6899075_1' }"
 
     input:
-        tuple val(meta), path(unmapped_bams)
+        tuple val(meta), path(unmapped_bams, stageAs: "input?.bam")
 
     output:
         tuple val(meta), path("${meta.id ?: meta.sample}.unaligned.bam"), emit: merged_unmapped_bam
