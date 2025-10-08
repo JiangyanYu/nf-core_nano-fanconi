@@ -5,16 +5,18 @@ process FAIDX_REFERENCE {
     container "quay.io/biocontainers/samtools:1.16.1--h6899075_1"
 
     input:
-        val(fasta_path)
+        path fasta
         
     output:
         path("genome.fa"), emit: fasta
-        path("genome.fa.fai"), emit: fai
+        path("genome.fa.fai"), emit: fasta_index
         path("versions.yml"), emit: versions
 
     script:
         """
-
+        # Link the input FASTA as genome.fa
+        ln -sf ${fasta} genome.fa
+    
         # Create FAI index
         samtools faidx genome.fa
 
