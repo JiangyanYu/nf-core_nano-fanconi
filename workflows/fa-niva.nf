@@ -329,9 +329,9 @@ workflow FANIVA {
 // */
 
     MERGE_UNMAPPED_BAMS (
-        ch_id_unmapped_bams
+        ch_unmapped_bams
     )
-    ch_id_merged_bams = MERGE_UNMAPPED_BAMS.out.id_merged_unmapped_bam
+    ch_merged_unmapped_bams = MERGE_UNMAPPED_BAMS.out.merged_unmapped_bam
     ch_versions = ch_versions.mix(MERGE_UNMAPPED_BAMS.out.versions)
 
 
@@ -377,7 +377,7 @@ workflow FANIVA {
     // def unmapped_bam = (params.reads_format == 'fastq' || params.reads_format == 'fastq.gz') ? ch_unmapped_bam : ch_basecall_sample_merged_bams
     
     PBMM2_FROM_BAM (
-        ch_id_merged_bams,
+        ch_merged_unmapped_bams,
         ch_fasta
     )
     ch_pbmm2_cram = PBMM2_FROM_BAM.out.cram
