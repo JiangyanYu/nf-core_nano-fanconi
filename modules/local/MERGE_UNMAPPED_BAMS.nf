@@ -15,10 +15,10 @@ process MERGE_UNMAPPED_BAMS {
 
     script:
     def prefix = meta.id
-    def is_single_file = unmapped_bams.size() == 1
+    def is_single_file = id_unmapped_bams.size() == 1
     def merge_cmd = is_single_file ? 
-        "ln -s ${unmapped_bams[0]} ${prefix}.unaligned.bam" :
-        "samtools merge -f -@ ${task.cpus} ${prefix}.unaligned.bam ${unmapped_bams.join(' ')}"
+        "ln -s ${id_unmapped_bams[0]} ${prefix}.unaligned.bam" :
+        "samtools merge -f -@ ${task.cpus} ${prefix}.unaligned.bam ${id_unmapped_bams.join(' ')}"
 
     """
         ${merge_cmd}
