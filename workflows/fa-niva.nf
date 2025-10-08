@@ -301,7 +301,7 @@ workflow FANIVA {
             } else if (bam_path.endsWith('.bam')) {
                 bam_files = [file(bam_path)]
             }
-            bam_files.collect { [[sample: meta.sample], it] }  // Create a list of [meta, file] pairs
+            bam_files.collect { [[id: meta.id, sample: meta.sample], it] }  // Create a list of [meta, file] pairs
         }
         .groupTuple(by: 0) // group bams by meta (i.e sample) which is zero-indexed
         // .dump(tag: 'basecall_sample', pretty: true)
