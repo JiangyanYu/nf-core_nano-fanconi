@@ -143,7 +143,6 @@ workflow FANIVA {
     ch_versions = ch_versions.mix(INPUT_CHECK.out.versions)
     ch_phased_vcf = INPUT_CHECK.out.reads.map{ meta, files -> [[sample: meta.sample],meta.vcf] }.dump(tag: "ch_phased_vcf")
 
-    println "INPUT_CHECK: ${meta.id ?: 'N/A'}"
 
 // /*
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -322,7 +321,13 @@ workflow FANIVA {
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // */
 
-    println "Merging unmapped BAMs for sample: ${meta.id ?: 'N/A'}"
+    // Print ch_sample_unmapped_bams
+    ch_sample_unmapped_bams
+    .map { meta, bams -> 
+        println "Sample: ${meta.sample}, ID: ${meta.id ?: 'N/A'}, BAMs: ${bams.collect{ it.getName() }.join(', ')}"
+        [meta, bams]
+    }
+
 
     MERGE_UNMAPPED_BAMS (
         ch_sample_unmapped_bams
