@@ -312,7 +312,7 @@ workflow FANIVA {
         }
         .groupTuple(by: 0) // group bams by meta (i.e sample) which is zero-indexed
         // .dump(tag: 'basecall_sample', pretty: true)
-        .set { ch_id_unmapped_bams } // set channel name
+        .set { ch_unmapped_bams } // set channel name
     }
 
     
