@@ -124,7 +124,7 @@ workflow FANIVA {
     ch_fasta_index = FAIDX_REFERENCE.out.fasta_index
     ch_versions   = ch_versions.mix(FAIDX_REFERENCE.out.versions)
 
-}
+
 
 
 // /*
@@ -133,14 +133,16 @@ workflow FANIVA {
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // */
 
-//     //
-//     // SUBWORKFLOW: Read in samplesheet, validate and stage input files
-//     //
-//     INPUT_CHECK (
-//         ch_input
-//     )
-//     ch_versions = ch_versions.mix(INPUT_CHECK.out.versions)
-//     ch_phased_vcf = INPUT_CHECK.out.reads.map{ meta, files -> [[sample: meta.sample],meta.vcf] }.dump(tag: "ch_phased_vcf")
+    //
+    // SUBWORKFLOW: Read in samplesheet, validate and stage input files
+    //
+    INPUT_CHECK (
+        ch_input
+    )
+    ch_versions = ch_versions.mix(INPUT_CHECK.out.versions)
+    ch_phased_vcf = INPUT_CHECK.out.reads.map{ meta, files -> [[sample: meta.sample],meta.vcf] }.dump(tag: "ch_phased_vcf")
+
+}
 
 // /*
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
