@@ -325,8 +325,8 @@ workflow FANIVA {
     MERGE_UNMAPPED_BAMS (
         ch_sample_unmapped_bams
     )
-    ch_pbmm2_cram = PBMM2.out.cram
-    ch_versions = ch_versions.mix(PBMM2.out.versions)
+    ch_sample_merged_bams = MERGE_UNMAPPED_BAMS.out.merged_unmapped_bam
+    ch_versions = ch_versions.mix(MERGE_UNMAPPED_BAMS.out.versions)
 
 }
 
