@@ -51,11 +51,12 @@ include { INPUT_CHECK } from '../subworkflows/local/input_check'
 //
 
 include { FAIDX_REFERENCE                               } from '../modules/local/FAIDX_REFERENCE.nf'
-// include { SAMTOOLS_BGZIP } from '../modules/nf-core/samtools/bgzip.nf'
-// include { SAMTOOLS_FAIDX } from '../modules/nf-core/samtools/faidx.nf'
+// include { SAMTOOLS_BGZIP                                } from '../modules/nf-core/samtools/bgzip.nf'
+// include { SAMTOOLS_FAIDX                                } from '../modules/nf-core/samtools/faidx.nf'
 // include { FAST5_TO_POD5                                 } from '../modules/local/FAST5_TO_POD5.nf'
 // include { DORADO_BASECALLER_FROM_FAST5                  } from '../modules/local/DORADO_BASECALLER_FROM_FAST5.nf'
 // include { DORADO_BASECALLER_FROM_POD5                   } from '../modules/local/DORADO_BASECALLER_FROM_POD5.nf'
+include { MERGE_BAM                                     } from '../modules/local/MERGE_BAM.nf'
 // include { MERGE_BASECALL as MERGE_BASECALL_ID           } from '../modules/local/MERGE_BASECALL.nf'
 // include { MERGE_BASECALL as MERGE_BASECALL_SAMPLE       } from '../modules/local/MERGE_BASECALL.nf'
 // include { DORADO_BASECALL_SUMMARY                       } from '../modules/local/DORADO_BASECALL_SUMMARY.nf'
@@ -142,7 +143,7 @@ workflow FANIVA {
     ch_versions = ch_versions.mix(INPUT_CHECK.out.versions)
     ch_phased_vcf = INPUT_CHECK.out.reads.map{ meta, files -> [[sample: meta.sample],meta.vcf] }.dump(tag: "ch_phased_vcf")
 
-}
+
 
 // /*
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -289,30 +290,46 @@ workflow FANIVA {
 
 //     }
 
-//     if (params.reads_format == 'bam' ) {
-//         INPUT_CHECK
-//         .out
-//         .reads
-//         .flatMap { meta, files -> 
-//             def bam_path = meta.input_path
-//             def bam_files = []
-//             if (file(bam_path).isDirectory()) {
-//                 bam_files = file("${bam_path}/*.bam")
-//             } else if (bam_path.endsWith('.bam')) {
-//                 bam_files = [file(bam_path)]
-//             }
-//             bam_files.collect { [[sample: meta.sample], it] }  // Create a list of [meta, file] pairs
-//         }
-//         .groupTuple(by: 0) // group bams by meta (i.e sample) which is zero-indexed
-//         // .dump(tag: 'basecall_sample', pretty: true)
-//         .set { ch_basecall_sample_merged_bams } // set channel name
-//     }
+    if (params.reads_format == 'bam' ) {
+        INPUT_CHECK
+        .out
+        .reads
+        .flatMap { meta, files -> 
+            def bam_path = meta.input_path
+            def bam_files = []
+            if (file(bam_path).isDirectory()) {
+                bam_files = file("${bam_path}/*.bam")
+            } else if (bam_path.endsWith('.bam')) {
+                bam_files = [file(bam_path)]
+            }
+            bam_files.collect { [[sample: meta.sample], it] }  // Create a list of [meta, file] pairs
+        }
+        .groupTuple(by: 0) // group bams by meta (i.e sample) which is zero-indexed
+        // .dump(tag: 'basecall_sample', pretty: true)
+        .set { ch_sample_unmapped_bams } // set channel name
+    }
 
     
 //     MERGE_BASECALL_SAMPLE (
 //         ch_basecall_sample_merged_bams
 //     )
 //     ch_versions = ch_versions.mix(MERGE_BASECALL_SAMPLE.out.versions)
+
+
+// /*
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+//     FANIVA: Merge unmapped BAMs
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// */
+
+    MERGE_UNMAPPED_BAMS (
+        ch_sample_unmapped_bams
+    )
+    ch_pbmm2_cram = PBMM2.out.cram
+    ch_versions = ch_versions.mix(PBMM2.out.versions)
+
+}
+
 
 // /*
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
