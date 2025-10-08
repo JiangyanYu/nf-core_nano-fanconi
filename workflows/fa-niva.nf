@@ -118,7 +118,7 @@ workflow FANIVA {
 */
 
     FAIDX_REFERENCE(
-        params.fasta
+        file(params.fasta).toRealPath()
     )
     ch_fasta      = FAIDX_REFERENCE.out.fasta
     ch_fasta_index = FAIDX_REFERENCE.out.fasta_index
