@@ -15,9 +15,9 @@ process MERGE_BASECALL {
 
     script:
     def prefix = meta.id ?: meta.sample
-    def is_single_file = input_bams instanceof Path
+    def is_single_file = input_bams.size() == 1
     def merge_cmd = is_single_file ? 
-        "ln -s ${input_bams} ${prefix}.unaligned.bam" :
+        "ln -s ${input_bams[0]} ${prefix}.unaligned.bam" :
         "samtools merge -f -@ ${task.cpus} ${prefix}.unaligned.bam ${input_bams.join(' ')}"
 
     """
