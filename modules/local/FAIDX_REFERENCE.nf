@@ -20,7 +20,6 @@ process FAIDX_REFERENCE {
         cat <<-END_VERSIONS > versions.yml
         "${task.process}":
             samtools: \$(samtools --version | head -n1 | sed 's/^samtools //')
-            wget: \$(samtools --version | grep '^samtools' | head -n1)
         END_VERSIONS
         """
 }
