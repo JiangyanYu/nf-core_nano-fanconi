@@ -3,10 +3,10 @@ process SPLIT_CRAM_BY_CHROM {
     maxForks 24  // Limits the number of concurrent executions of this process to 24
     label 'process_medium'
 
-    conda "bioconda::samtools=1.21"
+    conda "bioconda::samtools=1.16.1"
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-        'https://depot.galaxyproject.org/singularity/samtools:1.21--h50ea8bc_0' :
-        'biocontainers/samtools:1.21--h50ea8bc_0' }"
+        'https://depot.galaxyproject.org/singularity/samtools:1.16.1--h6899075_1' :
+        'quay.io/biocontainers/samtools:1.16.1--h6899075_1' }"
 
     input:
         tuple val(meta), path(cram), path(crai), val(chrom)
