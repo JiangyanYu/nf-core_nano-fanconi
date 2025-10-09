@@ -25,13 +25,16 @@ process PBMM2_FROM_BAM {
                 --num-threads ${task.cpus} \\
                 --preset CCS \\
                 ${fasta} \\
-                ${meta.id}.fofn | \\
-        cat > ${meta.id}.bam
+                ${meta.id}.fofn \\
+                ${meta.id}.bam
+                
+        #        | \\
+        #cat > ${meta.id}.bam
 
         #samtools sort -@ ${task.cpus} | \\
         #samtools addreplacerg -@ ${task.cpus} --reference ${fasta} -r "ID:${meta.id}\\tSM:${meta.id}" -O cram -o ${meta.id}.cram /dev/stdin \\
 
-        samtools index -@ ${task.cpus} ${meta.id}.cram
+        #samtools index -@ ${task.cpus} ${meta.id}.cram
 
         cat <<-END_VERSIONS > versions.yml
         "${task.process}":
