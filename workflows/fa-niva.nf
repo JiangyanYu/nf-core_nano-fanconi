@@ -411,8 +411,6 @@ workflow FANIVA {
 
     }
 
-}
-
 
 // /*
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -458,6 +456,7 @@ workflow FANIVA {
     ch_deepvariant_split_by_chrom_tbi = SPLIT_VCF_BY_CHROM.out.tbi
     ch_versions = ch_versions.mix(SPLIT_VCF_BY_CHROM.out.versions)
 
+}
 
     //         ch_short_calls_vcf.map { meta, vcf -> [meta, vcf] }
     // )
