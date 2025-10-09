@@ -18,7 +18,6 @@ process PBMM2_FROM_BAM {
         path "versions.yml", emit: versions
 
     script:
-        def args = task.ext.args ?: ''
         """
         samtools cat \\
             -@ ${task.cpus} \\

@@ -57,15 +57,13 @@ include { PBMM2_INDEX_REFERENCE                         } from '../modules/local
 // include { FAST5_TO_POD5                                 } from '../modules/local/FAST5_TO_POD5.nf'
 // include { DORADO_BASECALLER_FROM_FAST5                  } from '../modules/local/DORADO_BASECALLER_FROM_FAST5.nf'
 // include { DORADO_BASECALLER_FROM_POD5                   } from '../modules/local/DORADO_BASECALLER_FROM_POD5.nf'
-//include { MERGE_UNMAPPED_BAMS                           } from '../modules/local/MERGE_UNMAPPED_BAMS.nf'
 // include { MERGE_BASECALL as MERGE_BASECALL_ID           } from '../modules/local/MERGE_BASECALL.nf'
 // include { MERGE_BASECALL as MERGE_BASECALL_SAMPLE       } from '../modules/local/MERGE_BASECALL.nf'
 // include { DORADO_BASECALL_SUMMARY                       } from '../modules/local/DORADO_BASECALL_SUMMARY.nf'
 // include { PYCOQC                                        } from '../modules/local/PYCOQC.nf'
 include { PBMM2_FROM_BAM                                } from '../modules/local/PBMM2_FROM_BAM.nf'
-// include { SAMTOOLS_SORT                                 } from '../modules/local/SAMTOOLS_SORT'
-// include { SAMTOOLS_INDEX                                } from '../modules/local/SAMTOOLS_INDEX'
 // include { SAMTOOLS_STATS                                } from '../modules/local/SAMTOOLS_STATS.nf'
+include { DEEPVARIANT                                   } from '../modules/local/DEEPVARIANT.nf'
 include { SAWFISH                                       } from '../modules/local/SAWFISH.nf'
 // include { BCFTOOLS_SORT as SNIFFLES_SORT_VCF            } from '../modules/nf-core/bcftools/sort/main.nf'
 // include { TABIX_BGZIP as SNIFFLES_BGZIP_VCF             } from '../modules/nf-core/tabix/bgzip/main.nf'
@@ -82,7 +80,6 @@ include { SAWFISH                                       } from '../modules/local
 // include { TABIX_BGZIP as PHASE_BGZIP_VCF                } from '../modules/nf-core/tabix/bgzip/main.nf'
 // include { TABIX_TABIX as PHASE_TABIX_VCF                } from '../modules/nf-core/tabix/tabix/main.nf'
 // include { MOSDEPTH                                      } from '../modules/local/MOSDEPTH.nf'
-// include { DEEPVARIANT                                   } from '../modules/local/DEEPVARIANT.nf'
 // include { TABIX_TABIX as DEEPVARIANT_TABIX_VCF          } from '../modules/nf-core/tabix/tabix/main.nf'
 // include { TABIX_TABIX as DEEPVARIANT_TABIX_GVCF         } from '../modules/nf-core/tabix/tabix/main.nf'
 // include { CUSTOM_DUMPSOFTWAREVERSIONS                   } from '../modules/nf-core/custom/dumpsoftwareversions/main.nf'
@@ -120,6 +117,7 @@ workflow FANIVA {
 */
 
     FAIDX_REFERENCE(
+        
         file(params.fasta).toRealPath()
     )
     ch_fasta      = FAIDX_REFERENCE.out.fasta
@@ -359,6 +357,38 @@ workflow FANIVA {
 
 // /*
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+//     FANIVA: DeepVariant
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// */
+
+    if (params.run_deepvariant) {
+        /*
+        * Call variants with deepvariant
+        */
+               
+        DEEPVARIANT( 
+            ch_pbmm2_cram,
+            ch_pbmm2_crai,
+            ch_fasta,
+            ch_fasta_index
+        )  
+        ch_short_calls_vcf  = DEEPVARIANT.out.vcf
+        ch_short_calls_vcf_tbi  = DEEPVARIANT.out.tbi
+        ch_versions = ch_versions.mix(DEEPVARIANT.out.versions)
+
+        /*
+        * Filter deepvariant .vcf file
+         */
+
+        // DEEPVARIANT_FILTER_VCF( ch_short_calls_vcf )
+        //     ch_short_calls_vcf_filter =  DEEPVARIANT_FILTER_VCF.out.filtered.vcf
+        //     ch_versions = ch_versions.mix(DEEPVARIANT_FILTER_VCF.out.versions)
+
+    }
+
+
+// /*
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 //     FANIVA: Sawfish
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // */
@@ -405,38 +435,7 @@ workflow FANIVA {
         
 //     }
     
-// /*
-// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-//     FANIVA: DeepVariant
-// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-// */
 
-//     if (params.run_deepvariant) {
-//         /*
-//         * Call variants with deepvariant
-//         */
-        
-//     ch_deepvariant_input = SAMTOOLS_SORT.out.cram.mix(SAMTOOLS_SORT.out.crai).groupTuple(size:2).map{ meta, files -> [ meta, files.flatten() ]}
-//     deepvariant_cram_input = ch_deepvariant_input.join(ch_phased_vcf).dump(tag: "joined")
-        
-//         DEEPVARIANT( 
-//             deepvariant_cram_input, 
-//             file(params.fasta), 
-//             file(params.fasta_index) 
-//         )
-        
-//         ch_short_calls_vcf  = DEEPVARIANT.out.vcf
-//         ch_versions = ch_versions.mix(DEEPVARIANT.out.versions)
-
-//         /*
-//         * Filter deepvariant .vcf file
-//          */
-
-//         DEEPVARIANT_FILTER_VCF( ch_short_calls_vcf )
-//         ch_short_calls_vcf_filter  = DEEPVARIANT_FILTER_VCF.out.filteredvcf
-//         ch_versions = ch_versions.mix(DEEPVARIANT_FILTER_VCF.out.versions)
-
-//         /*
 // /*
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 //     FANIVA: SPLIT_VCF_BY_CHR

@@ -16,38 +16,33 @@ process DEEPVARIANT {
     }
 
     input:
-    tuple val(meta), path(phased_bam_file), path(phased_bai_file)
-    path(fasta)
-    path(fai)
+        tuple val(meta), path(cram)
+        tuple val(meta), path(crai)
+        path(fasta)
+        path(fai)
 
     output:
-    tuple val(meta), path("${prefix}.deepvariant.unfiltered.vcf.gz")  ,  emit: vcf
-    tuple val(meta), path("${prefix}.deepvariant.unfiltered.g.vcf.gz"),  emit: gvcf
-    path "versions.yml"                        ,  emit: versions
+        tuple val(meta), path("${meta.id}.deepvariant.unfiltered.vcf.gz"), emit: vcf
+        tuple val(meta), path("${meta.id}.deepvariant.unfiltered.vcf.gz.tbi"), emit: tbi
+        path "versions.yml", emit: versions
 
     when:
-    task.ext.when == null || task.ext.when
+        task.ext.when == null || task.ext.when
 
     script:
-    def args    = task.ext.args ?: ''
-    prefix      = task.ext.prefix ?: "${meta.id}"
-    //def regions = intervals ? "--regions ${intervals}" : ""
+        """
+        /opt/deepvariant/bin/run_deepvariant \\
+            --model_type=ONT_R104 \\
+            --ref=${fasta} \\
+            --reads=${cram} \\
+            --output_vcf=${meta.id}.deepvariant.unfiltered.vcf.gz \\
+            --num_shards=${task.cpus} 
 
-    """
+        tabix ${meta.id}.deepvariant.unfiltered.vcf.gz
 
-    /opt/deepvariant/bin/run_deepvariant \\
-        --model_type=ONT_R104 \\
-        --ref=${fasta} \\
-        --reads=${prefix}.sorted.bam \\
-        --output_vcf=${prefix}.deepvariant.unfiltered.vcf.gz \\
-        ${args} \\
-        --num_shards=${task.cpus} 
-
-    
-
-    cat <<-END_VERSIONS > versions.yml
-    "${task.process}":
-        deepvariant: \$(echo \$(/opt/deepvariant/bin/run_deepvariant --version) | sed 's/^.*version //; s/ .*\$//' )
-    END_VERSIONS
-    """
+        cat <<-END_VERSIONS > versions.yml
+        "${task.process}":
+            deepvariant: \$(echo \$(/opt/deepvariant/bin/run_deepvariant --version) | sed 's/^.*version //; s/ .*\$//' )
+        END_VERSIONS
+        """
 }
