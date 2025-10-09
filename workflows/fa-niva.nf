@@ -433,7 +433,7 @@ workflow FANIVA {
 
 // /*
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-//     FANIVA: SPLIT_VCF_BY_CHR
+//     FANIVA: SPLIT_VCF_BY_CHROM
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // */
 
@@ -446,8 +446,9 @@ workflow FANIVA {
         }
         .set { ch_deepvariant_vcf_chrom }
 
+
     // Split VCF by chromosome
-    SPLIT_VCF_BY_CHR(
+    SPLIT_VCF_BY_CHROM(
 
         ch_deepvariant_vcf_chrom
     )
