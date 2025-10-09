@@ -441,7 +441,7 @@ workflow FANIVA {
     ch_deepvariant_vcf
         .flatMap { meta, vcf ->
             chroms.collect { chr ->
-                [meta, vcf, chr]
+                [meta, vcf, "deepvariant", chr]
             }
         }
         .set { ch_deepvariant_vcf_chrom }
@@ -449,8 +449,7 @@ workflow FANIVA {
     // Split VCF by chromosome
     SPLIT_VCF_BY_CHR(
 
-        ch_deepvariant_vcf_chrom,
-        val("deepvariant")
+        ch_deepvariant_vcf_chrom
     )
     ch_deepvariant_split_by_chrom_vcf = SPLIT_VCF_BY_CHROM.out.vcf
     ch_deepvariant_split_by_chrom_tbi = SPLIT_VCF_BY_CHROM.out.tbi
