@@ -22,7 +22,10 @@ process PBMM2_FROM_BAM {
         samtools cat \\
             -@ ${task.cpus} \\
             ${unmapped_bams} | \\
-        samtools fastq -c 9 > ${meta.id}.fastq.gz
+        samtools fastq \\
+            -@ ${task.cpus} \\
+            -c 9 \\
+            -o ${meta.id}.fastq.gz
         
         pbmm2 align \\
                 ${fasta_mmi} \\
