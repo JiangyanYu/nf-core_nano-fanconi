@@ -21,12 +21,14 @@ process PBMM2_FROM_BAM {
         """
         samtools cat \\
             -@ ${task.cpus} \\
-            -o ${meta.id}.unaligned.bam \\
-            ${unmapped_bams}
+            ${unmapped_bams} | \\
+        samtools fastq | \\
+        gzip > ${meta.id}.fastq.gz
+
         
         pbmm2 align \\
                 ${fasta_mmi} \\
-                ${meta.id}.unaligned.bam \\
+                ${meta.id}.fastq.gz \\
                 --num-threads ${task.cpus} \\
                 --preset CCS | \\
         samtools sort -@ ${task.cpus} --reference ${fasta} -O cram -o ${meta.id}.cram
@@ -34,6 +36,8 @@ process PBMM2_FROM_BAM {
         samtools addreplacerg -@ ${task.cpus} --reference ${fasta} -r "ID:${meta.id}\\tSM:${meta.id}" -O cram -o ${meta.id}.reheader.cram ${meta.id}.cram
 
         samtools index -@ ${task.cpus} ${meta.id}.reheader.cram
+
+        rm ${meta.id}.fastq.gz
 
         cat <<-END_VERSIONS > versions.yml
         "${task.process}":

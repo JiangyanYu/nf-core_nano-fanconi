@@ -19,7 +19,8 @@ process PBMM2_INDEX_REFERENCE {
         pbmm2 index \\
                 ${fasta} \\
                 ${fasta}.mmi \\
-                --num-threads ${task.cpus}
+                --num-threads ${task.cpus} \\
+                --preset CCS
 
         cat <<-END_VERSIONS > versions.yml
         "${task.process}":
