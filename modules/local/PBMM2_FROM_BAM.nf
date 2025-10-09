@@ -28,6 +28,7 @@ process PBMM2_FROM_BAM {
                 ${args} \\
                 ${fasta} \\
                 ${meta.id}.fofn | \\
+        samtools addreplacerg -@ ${task.cpus} -r "ID:${meta.id}" /dev/stdin | \\
         samtools sort -@ ${task.cpus} -O cram -o ${meta.id}.cram
         samtools index -@ ${task.cpus} ${meta.id}.cram
 
