@@ -51,6 +51,7 @@ include { INPUT_CHECK } from '../subworkflows/local/input_check'
 //
 
 include { FAIDX_REFERENCE                               } from '../modules/local/FAIDX_REFERENCE.nf'
+include { PBMM2_INDEX_REFERENCE                         } from '../modules/local/PBMM2_INDEX_REFERENCE.nf'
 // include { SAMTOOLS_BGZIP                                } from '../modules/nf-core/samtools/bgzip.nf'
 // include { SAMTOOLS_FAIDX                                } from '../modules/nf-core/samtools/faidx.nf'
 // include { FAST5_TO_POD5                                 } from '../modules/local/FAST5_TO_POD5.nf'
