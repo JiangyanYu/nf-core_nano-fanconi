@@ -22,7 +22,7 @@ process PBMM2_FROM_BAM {
         pbmm2 align \\
                 --num-threads ${task.cpus} \\
                 --preset CCS \\
-                --rg '@RG\tID:${meta.id}'  \\
+                --rg '@RG\tID:${meta.id}' \\
                 ${args} \\
                 ${fasta} \\
                 /dev/stdin | \\

@@ -7,7 +7,6 @@ process PBMM2 {
         'jiangyanyu/pacbio_wgs:v1.2' }"
 
     input:
-
         tuple val(meta), path (fastq_paths) 
         path (fasta)
 
@@ -17,11 +16,12 @@ process PBMM2 {
 
     script:
         def args = task.ext.args ?: ''
-        """      
-        samtools concat -@ ${task.cpus} ${bam_paths} | \\
+        """
+        cat ${fastq_paths} | \\
         pbmm2 align \\
                 --num-threads ${task.cpus} \\
                 --preset CCS \\
+                --rg '@RG\tID:${meta.id}' \\
                 ${args} \\
                 ${fasta} \\
                 /dev/stdin | \\
