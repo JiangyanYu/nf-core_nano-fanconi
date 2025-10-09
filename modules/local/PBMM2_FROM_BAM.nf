@@ -7,7 +7,7 @@ process PBMM2_FROM_BAM {
         'jiangyanyu/pacbio_wgs:v1.2' }"
 
     input:
-        tuple val(meta), path (unmapped_bams, stageAs: "input_bam_??.bam") 
+        tuple val(meta), path (unmapped_bams)
         path (fasta)
         path (fasta_index)
 
@@ -24,10 +24,9 @@ process PBMM2_FROM_BAM {
         pbmm2 align \\
                 --num-threads ${task.cpus} \\
                 --preset CCS \\
-                ${args} \\
                 ${fasta} \\
                 ${meta.id}.fofn | \\
-        samtools sort -@ ${task.cpus} /dev/stdin | \\
+        samtools sort -@ ${task.cpus} | \\
         samtools addreplacerg -@ ${task.cpus} --reference ${fasta} -r "ID:${meta.id}\\tSM:${meta.id}" -O cram -o ${meta.id}.cram /dev/stdin \\
 
         samtools index -@ ${task.cpus} ${meta.id}.cram
