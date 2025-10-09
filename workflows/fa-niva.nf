@@ -368,18 +368,19 @@ workflow FANIVA {
 
     // Split CRAM by chromosome
     ch_pbmm2_cram
-        .flatMap { meta, cram ->
+        .join(ch_pbmm2_crai)
+        .flatMap { meta, cram, crai ->
             chroms.collect { chr ->
-                [meta, cram, chr]
+                [meta, cram, crai, chr]
             }
         }
-        .set { ch_pbmm2_cram_chrom }
+        .set { ch_pbmm2_cram_crai_chrom }
 
 
     // Split CRAM by chromosome
     SPLIT_CRAM_BY_CHROM(
 
-        ch_pbmm2_cram_chrom,
+        ch_pbmm2_cram_crai_chrom,
         ch_fasta
     )
     ch_pbmm2_split_by_chrom_cram = SPLIT_CRAM_BY_CHROM.out.cram
