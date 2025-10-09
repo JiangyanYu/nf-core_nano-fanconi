@@ -17,15 +17,20 @@ process PBMM2_FROM_BAM {
     script:
         def args = task.ext.args ?: ''
         """
-        samtools cat -@ ${task.cpus} ${merged_unmapped_bams} | \\
-        samtools fastq -@ ${task.cpus} - | \\
+        // samtools cat -@ ${task.cpus} ${merged_unmapped_bams} | \\
+        // samtools fastq -@ ${task.cpus} - | \\
+
+        echo "${merged_unmapped_bams}" | \\
+        sed 's/ /\\n/g' | \\
+        cat > ${meta.id}.fofn \\
+
         pbmm2 align \\
                 --num-threads ${task.cpus} \\
                 --preset CCS \\
                 --rg '@RG\tID:${meta.id}' \\
                 ${args} \\
                 ${fasta} \\
-                /dev/stdin | \\
+                ${meta.id}.fofn | \\
         samtools sort -@ ${task.cpus} -O cram -o ${meta.id}.cram
         samtools index -@ ${task.cpus} ${meta.id}.cram
 
