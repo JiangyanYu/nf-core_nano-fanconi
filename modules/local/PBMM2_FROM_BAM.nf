@@ -33,7 +33,7 @@ process PBMM2_FROM_BAM {
                 --num-threads ${task.cpus} \\
                 --preset CCS | \\
         samtools addreplacerg -@ ${task.cpus} -r "ID:${meta.id}\\tSM:${meta.id}" - | \\
-        samtools sort -@ ${task.cpus} --reference ${fasta} -O cram -o ${meta.id}.cram -
+        samtools sort -@ ${task.cpus} --reference ${fasta} -O cram -o ${meta.id}.cram
         
 
         samtools index -@ ${task.cpus} ${meta.id}.cram
