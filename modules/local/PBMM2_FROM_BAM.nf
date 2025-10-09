@@ -28,11 +28,12 @@ process PBMM2_FROM_BAM {
                 --num-threads ${task.cpus} \\
                 --preset CCS
 
-        samtools sort -@ ${task.cpus} ${meta.id}.bam | \\
-        samtools addreplacerg -@ ${task.cpus} --reference ${fasta} -r "ID:${meta.id}\\tSM:${meta.id}" -O cram -o ${meta.id}.cram /dev/stdin
+        samtools sort -@ ${task.cpus} --reference ${fasta} -O cram -o ${meta.id}.cram ${meta.id}.bam
 
-        samtools index -@ ${task.cpus} ${meta.id}.cram
-        
+        samtools addreplacerg -@ ${task.cpus} --reference ${fasta} -r "ID:${meta.id}\\tSM:${meta.id}" -O cram -o ${meta.id}.reheader.cram ${meta.id}.cram
+
+        samtools index -@ ${task.cpus} ${meta.id}.reheader.cram
+
         cat <<-END_VERSIONS > versions.yml
         "${task.process}":
             samtools: \$(samtools --version | head -n 1 | sed 's/^samtools //'),
