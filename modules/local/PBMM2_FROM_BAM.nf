@@ -17,9 +17,6 @@ process PBMM2_FROM_BAM {
     script:
         def args = task.ext.args ?: ''
         """
-        // samtools cat -@ ${task.cpus} ${merged_unmapped_bams} | \\
-        // samtools fastq -@ ${task.cpus} - | \\
-
         echo "${merged_unmapped_bams}" | \\
         sed 's/ /\\n/g' | \\
         cat > ${meta.id}.fofn \\
