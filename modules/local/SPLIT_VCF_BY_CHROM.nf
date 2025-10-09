@@ -7,7 +7,7 @@ process SPLIT_VCF_BY_CHROM {
     container "quay.io/biocontainers/bcftools:1.16--hfe4b78e_1"
 
     input:
-        tuple val(meta), path(vcf), val(caller), val(chrom)
+        tuple val(meta), path(vcf), path(tbi), val(caller), val(chrom)
 
     output:
         tuple val(meta), path("${meta.id}.${caller}.${chrom}.vcf.gz"), emit: vcf
@@ -16,8 +16,6 @@ process SPLIT_VCF_BY_CHROM {
 
     script:
         """
-        tabix ${vcf}
-
         bcftools view \\
             --threads ${task.cpus} \\
             -r ${chrom} \\

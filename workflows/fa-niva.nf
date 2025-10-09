@@ -469,18 +469,19 @@ workflow FANIVA {
 
     // Split VCF by chromosome
     ch_deepvariant_vcf
-        .flatMap { meta, vcf ->
+        .join(ch_deepvariant_tbi)
+        .flatMap { meta, vcf, tbi ->
             chroms.collect { chr ->
-                [meta, vcf, "deepvariant", chr]
+                [meta, vcf, tbi, "deepvariant", chr]
             }
         }
-        .set { ch_deepvariant_vcf_chrom }
+        .set { ch_deepvariant_vcf_tbi_chrom }
 
 
     // Split VCF by chromosome
     SPLIT_VCF_BY_CHROM_DEEPVARIANT(
 
-        ch_deepvariant_vcf_chrom
+        ch_deepvariant_vcf_tbi_chrom
     )
     ch_deepvariant_split_by_chrom_vcf = SPLIT_VCF_BY_CHROM_DEEPVARIANT.out.vcf
     ch_deepvariant_split_by_chrom_tbi = SPLIT_VCF_BY_CHROM_DEEPVARIANT.out.tbi
@@ -495,18 +496,19 @@ workflow FANIVA {
 
     // Split VCF by chromosome
     ch_sawfish_vcf
-        .flatMap { meta, vcf ->
+        .join(ch_sawfish_tbi)
+        .flatMap { meta, vcf, tbi ->
             chroms.collect { chr ->
-                [meta, vcf, "sawfish", chr]
+                [meta, vcf, tbi, "sawfish", chr]
             }
         }
-        .set { ch_sawfish_vcf_chrom }
+        .set { ch_sawfish_vcf_tbi_chrom }
 
 
     // Split VCF by chromosome
     SPLIT_VCF_BY_CHROM_SAWFISH(
-        
-        ch_sawfish_vcf_chrom
+
+        ch_sawfish_vcf_tbi_chrom
     )
     ch_sawfish_split_by_chrom_vcf = SPLIT_VCF_BY_CHROM_SAWFISH.out.vcf
     ch_sawfish_split_by_chrom_tbi = SPLIT_VCF_BY_CHROM_SAWFISH.out.tbi
