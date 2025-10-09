@@ -28,8 +28,7 @@ process PBMM2_FROM_BAM {
                 ${args} \\
                 ${fasta} \\
                 ${meta.id}.fofn | \\
-        samtools addreplacerg -@ ${task.cpus} -r "ID:${meta.id}" /dev/stdin | \\
-        samtools sort -@ ${task.cpus} -O cram -o ${meta.id}.cram
+        samtools sort -@ ${task.cpus} --reference ${fasta} -O cram -o ${meta.id}.cram /dev/stdin
         samtools index -@ ${task.cpus} ${meta.id}.cram
 
         cat <<-END_VERSIONS > versions.yml
@@ -39,3 +38,6 @@ process PBMM2_FROM_BAM {
         END_VERSIONS
         """
 }
+
+// samtools addreplacerg -@ ${task.cpus} -r "ID:${meta.id}" /dev/stdin | \\
+        
