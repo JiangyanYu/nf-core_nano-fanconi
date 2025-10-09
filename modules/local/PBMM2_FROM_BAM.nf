@@ -22,21 +22,13 @@ process PBMM2_FROM_BAM {
         sed 's/ /\\n/g' > ${meta.id}.fofn
 
         pbmm2 align \\
-                --num-threads ${task.cpus} \\
-                --preset CCS \\
                 ${fasta} \\
                 ${meta.id}.fofn \\
-                ${meta.id}.bam
+                ${meta.id}.bam \\
+                --num-threads ${task.cpus} \\
+                --preset CCS
                 
-        #        | \\
-        #cat > ${meta.id}.bam
-
-        #samtools sort -@ ${task.cpus} | \\
-        #samtools addreplacerg -@ ${task.cpus} --reference ${fasta} -r "ID:${meta.id}\\tSM:${meta.id}" -O cram -o ${meta.id}.cram /dev/stdin \\
-
-        #samtools index -@ ${task.cpus} ${meta.id}.cram
-
-        cat <<-END_VERSIONS > versions.yml
+       cat <<-END_VERSIONS > versions.yml
         "${task.process}":
             samtools: \$(samtools --version | head -n 1 | sed 's/^samtools //'),
             pbmm2: \$(pbmm2 --version | head -n 1 | sed 's/^pbmm2 //g')
@@ -44,5 +36,11 @@ process PBMM2_FROM_BAM {
         """
 }
 
-// 
+//         | \\
+        // #cat > ${meta.id}.bam
+
+        // #samtools sort -@ ${task.cpus} | \\
+        // #samtools addreplacerg -@ ${task.cpus} --reference ${fasta} -r "ID:${meta.id}\\tSM:${meta.id}" -O cram -o ${meta.id}.cram /dev/stdin \\
+
+        // #samtools index -@ ${task.cpus} ${meta.id}.cram
         
