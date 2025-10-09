@@ -57,7 +57,7 @@ include { PBMM2_INDEX_REFERENCE                         } from '../modules/local
 // include { FAST5_TO_POD5                                 } from '../modules/local/FAST5_TO_POD5.nf'
 // include { DORADO_BASECALLER_FROM_FAST5                  } from '../modules/local/DORADO_BASECALLER_FROM_FAST5.nf'
 // include { DORADO_BASECALLER_FROM_POD5                   } from '../modules/local/DORADO_BASECALLER_FROM_POD5.nf'
-include { MERGE_UNMAPPED_BAMS                           } from '../modules/local/MERGE_UNMAPPED_BAMS.nf'
+//include { MERGE_UNMAPPED_BAMS                           } from '../modules/local/MERGE_UNMAPPED_BAMS.nf'
 // include { MERGE_BASECALL as MERGE_BASECALL_ID           } from '../modules/local/MERGE_BASECALL.nf'
 // include { MERGE_BASECALL as MERGE_BASECALL_SAMPLE       } from '../modules/local/MERGE_BASECALL.nf'
 // include { DORADO_BASECALL_SUMMARY                       } from '../modules/local/DORADO_BASECALL_SUMMARY.nf'
@@ -333,58 +333,6 @@ workflow FANIVA {
     }
 
     
-//     MERGE_BASECALL_SAMPLE (
-//         ch_basecall_sample_merged_bams
-//     )
-//     ch_versions = ch_versions.mix(MERGE_BASECALL_SAMPLE.out.versions)
-
-
-// /*
-// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-//     FANIVA: Merge unmapped BAMs
-// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-// */
-
-/*     MERGE_UNMAPPED_BAMS (
-        ch_unmapped_bams
-    )
-    ch_merged_unmapped_bams = MERGE_UNMAPPED_BAMS.out.merged_unmapped_bam
-    ch_versions = ch_versions.mix(MERGE_UNMAPPED_BAMS.out.versions) */
-
-
-// /*
-// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-//     FANIVA: samtools_import
-// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-// */
-// if (params.reads_format == 'fastq' || params.reads_format == 'fastq.gz') {
-//     INPUT_CHECK
-//     .out
-//     .reads
-//     .map { meta, files ->
-//         def fq_path = meta.input_path
-//         if (!fq_path) {
-//             throw new IllegalArgumentException("fastq_path is null or empty")
-//         }
-//         def fq_files = []
-//         if (file(fq_path).isDirectory()) {
-//             fq_files = file("${fq_path}/*.fastq*") + file("${fq_path}/*.fastq.gz")
-//         }
-//         [meta, fq_files]
-//     }
-//     .set { ch_fastq }
-
-//     SAMTOOLS_IMPORT(
-//         ch_fastq
-//     )
-//     ch_versions = ch_versions.mix(SAMTOOLS_IMPORT.out.versions)
-//     SAMTOOLS_IMPORT
-//     .out
-//     .bam
-//     .set { ch_unmapped_bam }
-// }
-
-
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     FANIVA: pbmm2 alignment from BAM
@@ -407,21 +355,6 @@ workflow FANIVA {
     ch_pbmm2_cram = PBMM2_FROM_BAM.out.cram
     ch_pbmm2_crai = PBMM2_FROM_BAM.out.crai
     ch_versions = ch_versions.mix(PBMM2_FROM_BAM.out.versions)
-
-
-// /*
-// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-//     FANIVA: samtools sort and index
-// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-// */
-
-//     //
-//     // MODULE: Samtools sort and index aligned crams
-//     //
-//     // SAMTOOLS_SORT (
-//     //     PBMM2.out.cram
-//     // )
-//     // ch_versions = ch_versions.mix(SAMTOOLS_SORT.out.versions)
 
 
 // /*

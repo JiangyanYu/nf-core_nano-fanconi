@@ -13,10 +13,10 @@ process SAWFISH {
         path (fasta_index)
 
     output:
-        // tuple val(meta), path ("joint-call/*alignment*")                  , emit: bam
-        tuple val(meta), path ("joint-call/genotyped.sv.vcf.gz")          , emit: vcf
-        tuple val(meta), path ("joint-call/genotyped.sv.vcf.gz.tbi")      , emit: tbi
-        path "versions.yml"                                               , emit: versions
+        // tuple val(meta), path ("joint-call/*alignment*"), emit: bam
+        tuple val(meta), path ("${meta.id}.joint-call/genotyped.sv.vcf.gz"), emit: vcf
+        tuple val(meta), path ("${meta.id}.joint-call/genotyped.sv.vcf.gz.tbi"), emit: tbi
+        path "versions.yml", emit: versions
 
     script:
         def args = task.ext.args ?: ''
@@ -28,12 +28,12 @@ process SAWFISH {
                 --threads ${task.cpus} \\
                 --ref ${fasta} \\
                 --bam ${crams} \\
-                --output-dir \$(meta.id).discover
+                --output-dir ${meta.id}.discover
 
         sawfish joint-call \\
                 --threads ${task.cpus} \\
-                --sample \$(meta.id).discover \\
-                --output-dir joint-call
+                --sample ${meta.id}.discover \\
+                --output-dir ${meta.id}.joint-call
 
         cat <<-END_VERSIONS > versions.yml
 
