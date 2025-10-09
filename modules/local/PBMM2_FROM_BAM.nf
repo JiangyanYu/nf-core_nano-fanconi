@@ -17,7 +17,7 @@ process PBMM2_FROM_BAM {
     script:
         def args = task.ext.args ?: ''
         """      
-        samtools concat -@ ${task.cpus} ${merged_unmapped_bams} | \\
+        samtools cat -@ ${task.cpus} ${merged_unmapped_bams} | \\
         pbmm2 align \\
                 --num-threads ${task.cpus} \\
                 --preset CCS \\
@@ -30,6 +30,7 @@ process PBMM2_FROM_BAM {
 
         cat <<-END_VERSIONS > versions.yml
         "${task.process}":
+            samtools: \$(samtools --version | head -n1 | sed 's/^samtools //')
             pbmm2: \$(pbmm2 --version 2>&1)
         END_VERSIONS
         """
