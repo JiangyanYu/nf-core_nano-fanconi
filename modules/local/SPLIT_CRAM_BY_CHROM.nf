@@ -7,7 +7,7 @@ process SPLIT_CRAM_BY_CHROM {
     container "quay.io/biocontainers/samtools:1.16--hfe4b78e_1"
 
     input:
-        tuple val(meta), path(cram), val(chrom)            
+        tuple val(meta), path(cram), path(crai), val(chrom)
         path(fasta)
 
     output:

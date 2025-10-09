@@ -384,7 +384,7 @@ workflow FANIVA {
         ch_fasta
     )
     ch_pbmm2_split_by_chrom_cram = SPLIT_CRAM_BY_CHROM.out.cram
-    ch_pbmm2_split_by_chrom_tbi = SPLIT_CRAM_BY_CHROM.out.tbi
+    ch_pbmm2_split_by_chrom_crai = SPLIT_CRAM_BY_CHROM.out.crai
     ch_versions = ch_versions.mix(SPLIT_CRAM_BY_CHROM.out.versions)
 
 
