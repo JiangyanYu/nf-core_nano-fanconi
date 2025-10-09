@@ -23,8 +23,8 @@ process DEEPVARIANT {
         path(fai)
 
     output:
-        tuple val(meta), path("${meta.id}.deepvariant.unfiltered.vcf.gz"), emit: vcf
-        tuple val(meta), path("${meta.id}.deepvariant.unfiltered.vcf.gz.tbi"), emit: tbi
+        tuple val(meta), path("${meta.id}.deepvariant.vcf.gz"), emit: vcf
+        tuple val(meta), path("${meta.id}.deepvariant.vcf.gz.tbi"), emit: tbi
         path "versions.yml", emit: versions
 
     when:
@@ -33,11 +33,12 @@ process DEEPVARIANT {
     script:
         """
         /opt/deepvariant/bin/run_deepvariant \\
+            --num_shards=${task.cpus} \\
             --model_type=ONT_R104 \\
+            --postprocess_variants_extra_args='only_keep_pass=true' \\
             --ref=${fasta} \\
             --reads=${cram} \\
-            --output_vcf=${meta.id}.deepvariant.unfiltered.vcf.gz \\
-            --num_shards=${task.cpus}
+            --output_vcf=${meta.id}.deepvariant.vcf.gz
 
         cat <<-END_VERSIONS > versions.yml
         "${task.process}":
