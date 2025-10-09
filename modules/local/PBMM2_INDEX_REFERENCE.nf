@@ -1,4 +1,4 @@
-process FAIDX_REFERENCE {
+process PBMM2_INDEX_REFERENCE {
     label 'process_medium'
 
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
