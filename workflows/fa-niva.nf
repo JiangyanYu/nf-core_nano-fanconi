@@ -433,7 +433,7 @@ workflow FANIVA {
 
 // /*
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-//     FANIVA: SPLIT_VCF_BY_CHROM
+//     FANIVA: SPLIT_VCF_BY_CHROM for deepvariant
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // */
 
@@ -456,16 +456,35 @@ workflow FANIVA {
     ch_deepvariant_split_by_chrom_tbi = SPLIT_VCF_BY_CHROM.out.tbi
     ch_versions = ch_versions.mix(SPLIT_VCF_BY_CHROM.out.versions)
 
+
+// /*
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+//     FANIVA: SPLIT_VCF_BY_CHROM for sawfish
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// */
+
+    // Split VCF by chromosome
+    ch_sawfish_vcf
+        .flatMap { meta, vcf ->
+            chroms.collect { chr ->
+                [meta, vcf, "sawfish", chr]
+            }
+        }
+        .set { ch_sawfish_vcf_chrom }
+
+
+    // Split VCF by chromosome
+    SPLIT_VCF_BY_CHROM(
+
+        ch_sawfish_vcf_chrom
+    )
+    ch_sawfish_split_by_chrom_vcf = SPLIT_VCF_BY_CHROM.out.vcf
+    ch_sawfish_split_by_chrom_tbi = SPLIT_VCF_BY_CHROM.out.tbi
+    ch_versions = ch_versions.mix(SPLIT_VCF_BY_CHROM.out.versions)
+
 }
 
-    //         ch_short_calls_vcf.map { meta, vcf -> [meta, vcf] }
-    // )
-    // SPLIT_VCF_BY_CHR
-    // .out
-    // .split_vcfs
-    // .flatten()
-    // .set { ch_split_vcfs }
-
+    
 // /*
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 //     FANIVA: WHATSHAP_PHASE
