@@ -7,12 +7,13 @@ process SAWFISH {
         'jiangyanyu/pacbio_wgs:v1.2' }"
 
     input:
-
-        tuple val(meta), path(bam_file), path(bam_bai_file) 
-        path (index)
+        tuple val(meta), path(crams)
+        tuple val(meta), path(crai)
+        path (fasta)
+        path (fasta_index)
 
     output:
-        tuple val(meta), path ("joint-call/*alignment*")                  , emit: bam
+        // tuple val(meta), path ("joint-call/*alignment*")                  , emit: bam
         tuple val(meta), path ("joint-call/genotyped.sv.vcf.gz")          , emit: vcf
         tuple val(meta), path ("joint-call/genotyped.sv.vcf.gz.tbi")      , emit: tbi
         path "versions.yml"                                               , emit: versions
@@ -25,13 +26,13 @@ process SAWFISH {
 
         sawfish discover \\
                 --threads ${task.cpus} \\
-                --ref ${index} \\
-                --bam ${meta.id}.sorted.bam \\
-                --output-dir discover
+                --ref ${fasta} \\
+                --bam ${crams} \\
+                --output-dir \$(meta.id).discover
 
         sawfish joint-call \\
                 --threads ${task.cpus} \\
-                --sample discover \\
+                --sample \$(meta.id).discover \\
                 --output-dir joint-call
 
         cat <<-END_VERSIONS > versions.yml

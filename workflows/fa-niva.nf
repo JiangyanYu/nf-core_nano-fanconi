@@ -66,7 +66,7 @@ include { PBMM2_FROM_BAM                                } from '../modules/local
 // include { SAMTOOLS_SORT                                 } from '../modules/local/SAMTOOLS_SORT'
 // include { SAMTOOLS_INDEX                                } from '../modules/local/SAMTOOLS_INDEX'
 // include { SAMTOOLS_STATS                                } from '../modules/local/SAMTOOLS_STATS.nf'
-// include { SAWFISH                                       } from '../modules/local/SAWFISH.nf'
+include { SAWFISH                                       } from '../modules/local/SAWFISH.nf'
 // include { BCFTOOLS_SORT as SNIFFLES_SORT_VCF            } from '../modules/nf-core/bcftools/sort/main.nf'
 // include { TABIX_BGZIP as SNIFFLES_BGZIP_VCF             } from '../modules/nf-core/tabix/bgzip/main.nf'
 // include { TABIX_TABIX as SNIFFLES_TABIX_VCF             } from '../modules/nf-core/tabix/tabix/main.nf'
@@ -405,9 +405,8 @@ workflow FANIVA {
         ch_fasta_mmi
     )
     ch_pbmm2_cram = PBMM2_FROM_BAM.out.cram
+    ch_pbmm2_crai = PBMM2_FROM_BAM.out.crai
     ch_versions = ch_versions.mix(PBMM2_FROM_BAM.out.versions)
-
-}
 
 
 // /*
@@ -431,24 +430,28 @@ workflow FANIVA {
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // */
 
-//     if (params.run_sawfish) {
+    if (params.run_sawfish) {
 
-//         /*
-//          * Call structural variants with sawfish
-//          */
+        // ch_sawfish_input = SAMTOOLS_SORT.out.crai
+        //     .mix(SAMTOOLS_SORT.out.cram)
+        //     .groupTuple(size:2)
+        //     .map{ meta, files -> [ meta, files.flatten() ]}
 
-//         ch_sawfish_input = SAMTOOLS_SORT.out.crai
-//             .mix(SAMTOOLS_SORT.out.cram)
-//             .groupTuple(size:2)
-//             .map{ meta, files -> [ meta, files.flatten() ]}
+        // sawfish_input = ch_sawfish_input.join(ch_phased_vcf).dump(tag: "joined")
 
-//         sawfish_input = ch_sawfish_input.join(ch_phased_vcf).dump(tag: "joined")
+        SAWFISH( 
+            ch_pbmm2_cram,
+            ch_pbmm2_crai,
+            ch_fasta,
+            ch_fasta_index
+        )
+        ch_sawfish_vcf  = SAWFISH.out.vcf
+        ch_sawfish_tbi  = SAWFISH.out.tbi
+        ch_versions = ch_versions.mix(SAWFISH.out.versions)
 
-//         SAWFISH( 
-//             sawfish_input,
-//             file(params.fasta)
-//             )
-//         ch_versions = ch_versions.mix(SAWFISH.out.versions)
+    }
+
+}
 
 
 // /*

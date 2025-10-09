@@ -14,6 +14,7 @@ process PBMM2_FROM_BAM {
 
     output:
         tuple val(meta), path ("*.cram"), emit: cram
+        tuple val(meta), path ("*.cram.crai"), emit: crai
         path "versions.yml", emit: versions
 
     script:
@@ -34,7 +35,6 @@ process PBMM2_FROM_BAM {
                 --preset CCS | \\
         samtools addreplacerg -@ ${task.cpus} -r "ID:${meta.id}\\tSM:${meta.id}" - | \\
         samtools sort -@ ${task.cpus} --reference ${fasta} -O cram -o ${meta.id}.cram
-        
 
         samtools index -@ ${task.cpus} ${meta.id}.cram
 
@@ -47,12 +47,3 @@ process PBMM2_FROM_BAM {
         END_VERSIONS
         """
 }
-
-//         | \\
-        // #cat > ${meta.id}.bam
-
-        // #samtools sort -@ ${task.cpus} | \\
-        // #samtools addreplacerg -@ ${task.cpus} --reference ${fasta} -r "ID:${meta.id}\\tSM:${meta.id}" -O cram -o ${meta.id}.cram /dev/stdin \\
-
-        // #samtools index -@ ${task.cpus} ${meta.id}.cram
-        
