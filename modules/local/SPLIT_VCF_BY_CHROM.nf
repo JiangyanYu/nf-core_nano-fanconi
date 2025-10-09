@@ -16,6 +16,8 @@ process SPLIT_VCF_BY_CHROM {
 
     script:
         """
+        tabix ${vcf}
+
         bcftools view \\
             --threads ${task.cpus} \\
             -r ${chrom} \\
