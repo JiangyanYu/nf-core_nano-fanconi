@@ -6,6 +6,7 @@ def processLabel = determineLabel()
 
 process DEEPVARIANT {
     tag "$meta.id"
+    maxForks 8  // Limits the number of concurrent executions of this process to 8
     label processLabel
 
     container "google/deepvariant:1.9.0-gpu"
@@ -36,9 +37,7 @@ process DEEPVARIANT {
             --ref=${fasta} \\
             --reads=${cram} \\
             --output_vcf=${meta.id}.deepvariant.unfiltered.vcf.gz \\
-            --num_shards=${task.cpus} 
-
-        tabix ${meta.id}.deepvariant.unfiltered.vcf.gz
+            --num_shards=${task.cpus}
 
         cat <<-END_VERSIONS > versions.yml
         "${task.process}":
