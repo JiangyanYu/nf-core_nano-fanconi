@@ -25,7 +25,7 @@ process PBMM2_FROM_BAM {
         samtools fastq \\
             -@ ${task.cpus} \\
             -c 9 \\
-            -o ${meta.id}.fastq.gz
+            -0 ${meta.id}.fastq.gz
         
         pbmm2 align \\
                 ${fasta_mmi} \\
