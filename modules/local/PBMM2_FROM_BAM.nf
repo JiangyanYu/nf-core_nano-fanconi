@@ -35,7 +35,7 @@ process PBMM2_FROM_BAM {
 
         cat <<-END_VERSIONS > versions.yml
         "${task.process}":
-            samtools: \$(samtools --version | head -n 1 | sed 's/^samtools //')
+            samtools: \$(samtools --version | head -n 1 | sed 's/^samtools //'),
             pbmm2: \$(pbmm2 --version | head -n 1 | sed 's/^pbmm2 //g')
         END_VERSIONS
         """
