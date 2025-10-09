@@ -16,8 +16,9 @@ process PBMM2_FROM_BAM {
 
     script:
         def args = task.ext.args ?: ''
-        """      
+        """
         samtools cat -@ ${task.cpus} ${merged_unmapped_bams} | \\
+        samtools fastq -@ ${task.cpus} - | \\
         pbmm2 align \\
                 --num-threads ${task.cpus} \\
                 --preset CCS \\
