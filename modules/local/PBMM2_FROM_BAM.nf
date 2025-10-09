@@ -10,6 +10,7 @@ process PBMM2_FROM_BAM {
         tuple val(meta), path (unmapped_bams)
         path (fasta)
         path (fasta_index)
+        path (fasta_mmi)
 
     output:
         tuple val(meta), path ("*.cram"), emit: cram
@@ -21,8 +22,12 @@ process PBMM2_FROM_BAM {
         echo "${unmapped_bams}" | \\
         sed 's/ /\\n/g' > ${meta.id}.fofn
 
+        samtools view -H ${unmapped_bams[0]} > header.sam
+
+        samtools view ${unmapped_bams[0]} | head -n 10 > body.sam
+        
         pbmm2 align \\
-                ${fasta} \\
+                ${fasta_mmi} \\
                 ${meta.id}.fofn \\
                 ${meta.id}.bam \\
                 --num-threads ${task.cpus} \\

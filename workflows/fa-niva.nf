@@ -126,6 +126,18 @@ workflow FANIVA {
     ch_versions   = ch_versions.mix(FAIDX_REFERENCE.out.versions)
 
 
+// /*
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+//     FANIVA: pbmm2 index reference
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// */
+
+    PBMM2_INDEX_REFERENCE(
+        ch_fasta,
+        ch_fasta_index
+    )
+    ch_fasta_mmi = PBMM2_INDEX_REFERENCE.out.mmi
+    ch_versions   = ch_versions.mix(PBMM2_INDEX_REFERENCE.out.versions)
 
 
 // /*
@@ -388,7 +400,8 @@ workflow FANIVA {
     PBMM2_FROM_BAM (
         ch_unmapped_bams,
         ch_fasta,
-        ch_fasta_index
+        ch_fasta_index,
+        ch_fasta_mmi
     )
     ch_pbmm2_cram = PBMM2_FROM_BAM.out.cram
     ch_versions = ch_versions.mix(PBMM2_FROM_BAM.out.versions)
