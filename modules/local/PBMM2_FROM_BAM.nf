@@ -20,7 +20,7 @@ process PBMM2_FROM_BAM {
         def args = task.ext.args ?: ''
         """
         echo "${unmapped_bams}" | \\
-        sed 's/ /\\n/g' > ${meta.id}.fofn
+        sed 's/ /\\n/g' > bam.fofn
 
         samtools view -H ${unmapped_bams[0]} > header.sam
 
@@ -28,7 +28,7 @@ process PBMM2_FROM_BAM {
         
         pbmm2 align \\
                 ${fasta_mmi} \\
-                ${meta.id}.fofn \\
+                bam.fofn \\
                 ${meta.id}.bam \\
                 --num-threads ${task.cpus} \\
                 --preset CCS
