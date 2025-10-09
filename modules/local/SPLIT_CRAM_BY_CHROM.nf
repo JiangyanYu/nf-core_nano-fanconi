@@ -28,7 +28,7 @@ process SPLIT_CRAM_BY_CHROM {
         
         cat <<-END_VERSIONS > versions.yml
         "${task.process}":
-            samtools: $(samtools --version | head -n1 | sed 's/^samtools //')
+            samtools: \$(samtools --version | head -n1 | sed 's/^samtools //')
         END_VERSIONS
         """
 }
