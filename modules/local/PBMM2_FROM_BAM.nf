@@ -7,7 +7,7 @@ process PBMM2_FROM_BAM {
         'jiangyanyu/pacbio_wgs:v1.2' }"
 
     input:
-        tuple val(meta), path (unmapped_bams) 
+        tuple val(meta), path (unmapped_bams, stageAs: "input_bam_??.bam") 
         path (fasta)
         path (fasta_index)
 
