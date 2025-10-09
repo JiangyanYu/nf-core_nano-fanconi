@@ -311,7 +311,11 @@ workflow FANIVA {
             bam_files.collect { [[id: meta.id], it] }  // Create a list of [meta, file] pairs
         }
         .groupTuple(by: 0) // group bams by meta (i.e sample) which is zero-indexed
-        // .dump(tag: 'basecall_sample', pretty: true)
+        .map { meta, files -> 
+            // Remove duplicates from the file list
+            def unique_files = files.unique()
+            [meta, unique_files]
+        }
         .set { ch_unmapped_bams } // set channel name
     }
 
