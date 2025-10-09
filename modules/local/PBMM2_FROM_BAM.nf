@@ -7,8 +7,9 @@ process PBMM2_FROM_BAM {
         'jiangyanyu/pacbio_wgs:v1.2' }"
 
     input:
-        tuple val(meta), path (merged_unmapped_bams) 
+        tuple val(meta), path (unmapped_bams) 
         path (fasta)
+        path (fasta_index)
 
     output:
         tuple val(meta), path ("*.cram"), emit: cram
@@ -17,7 +18,7 @@ process PBMM2_FROM_BAM {
     script:
         def args = task.ext.args ?: ''
         """
-        echo "${merged_unmapped_bams}" | \\
+        echo "${unmapped_bams}" | \\
         sed 's/ /\\n/g' | \\
         cat > ${meta.id}.fofn \\
 
@@ -27,16 +28,17 @@ process PBMM2_FROM_BAM {
                 ${args} \\
                 ${fasta} \\
                 ${meta.id}.fofn | \\
+        samtools addreplacerg -@ ${task.cpus} -r "ID:${meta.id}\tSM:${meta.id}" /dev/stdin | \\
         samtools sort -@ ${task.cpus} --reference ${fasta} -O cram -o ${meta.id}.cram /dev/stdin
         samtools index -@ ${task.cpus} ${meta.id}.cram
 
         cat <<-END_VERSIONS > versions.yml
         "${task.process}":
-            samtools: \$(samtools --version | head -n1 | sed 's/^samtools //')
-            pbmm2: \$(pbmm2 --version 2>&1)
+            samtools: \$(samtools --version | head -n 1 | sed 's/^samtools //')
+            pbmm2: \$(pbmm2 --version 2>&1 | head -n 1 | sed 's/^pbmm2 //')
         END_VERSIONS
         """
 }
 
-// samtools addreplacerg -@ ${task.cpus} -r "ID:${meta.id}" /dev/stdin | \\
+// 
         
