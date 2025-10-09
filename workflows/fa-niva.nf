@@ -63,6 +63,7 @@ include { PBMM2_INDEX_REFERENCE                                } from '../module
 // include { PYCOQC                                        } from '../modules/local/PYCOQC.nf'
 include { PBMM2_FROM_BAM                                       } from '../modules/local/PBMM2_FROM_BAM.nf'
 // include { SAMTOOLS_STATS                                } from '../modules/local/SAMTOOLS_STATS.nf'
+include { SPLIT_CRAM_BY_CHROM                                  } from '../modules/local/SPLIT_CRAM_BY_CHROM.nf'
 include { DEEPVARIANT                                          } from '../modules/local/DEEPVARIANT.nf'
 include { SAWFISH                                              } from '../modules/local/SAWFISH.nf'
 include { SPLIT_VCF_BY_CHROM as SPLIT_VCF_BY_CHROM_DEEPVARIANT } from '../modules/local/SPLIT_VCF_BY_CHROM.nf'
@@ -357,6 +358,33 @@ workflow FANIVA {
     ch_pbmm2_cram = PBMM2_FROM_BAM.out.cram
     ch_pbmm2_crai = PBMM2_FROM_BAM.out.crai
     ch_versions = ch_versions.mix(PBMM2_FROM_BAM.out.versions)
+
+
+// /*
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+//     FANIVA: SPLIT_CRAM_BY_CHROM
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// */
+
+    // Split CRAM by chromosome
+    ch_pbmm2_cram
+        .flatMap { meta, cram ->
+            chroms.collect { chr ->
+                [meta, cram, chr]
+            }
+        }
+        .set { ch_pbmm2_cram_chrom }
+
+
+    // Split CRAM by chromosome
+    SPLIT_CRAM_BY_CHROM(
+
+        ch_pbmm2_cram_chrom,
+        ch_fasta
+    )
+    ch_pbmm2_split_by_chrom_cram = SPLIT_CRAM_BY_CHROM.out.cram
+    ch_pbmm2_split_by_chrom_tbi = SPLIT_CRAM_BY_CHROM.out.tbi
+    ch_versions = ch_versions.mix(SPLIT_CRAM_BY_CHROM.out.versions)
 
 
 // /*
