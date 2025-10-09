@@ -21,7 +21,6 @@ process PBMM2_FROM_BAM {
         """
         samtools cat \\
             -@ ${task.cpus} \\
-            --output-fmt BAM \\
             -o ${meta.id}.unaligned.bam \\
             ${unmapped_bams}
         
