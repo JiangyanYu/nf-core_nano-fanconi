@@ -19,8 +19,7 @@ process PBMM2_FROM_BAM {
         def args = task.ext.args ?: ''
         """
         echo "${unmapped_bams}" | \\
-        sed 's/ /\\n/g' | \\
-        cat > ${meta.id}.fofn \\
+        sed 's/ /\\n/g' > ${meta.id}.fofn
 
         pbmm2 align \\
                 --num-threads ${task.cpus} \\
@@ -28,14 +27,15 @@ process PBMM2_FROM_BAM {
                 ${args} \\
                 ${fasta} \\
                 ${meta.id}.fofn | \\
-        samtools sort -@ ${task.cpus} --reference ${fasta} /dev/stdin | \\
-        samtools addreplacerg -@ ${task.cpus} -r "ID:${meta.id}\\tSM:${meta.id}" -O cram -o ${meta.id}.cram /dev/stdin \\
+        samtools sort -@ ${task.cpus} /dev/stdin | \\
+        samtools addreplacerg -@ ${task.cpus} --reference ${fasta} -r "ID:${meta.id}\\tSM:${meta.id}" -O cram -o ${meta.id}.cram /dev/stdin \\
+        
         samtools index -@ ${task.cpus} ${meta.id}.cram
 
         cat <<-END_VERSIONS > versions.yml
         "${task.process}":
             samtools: \$(samtools --version | head -n 1 | sed 's/^samtools //')
-            pbmm2: \$(pbmm2 --version 2>&1 | head -n 1)
+            pbmm2: \$(pbmm2 --version 2>&1 | head -n 1 | sed 's/^pbmm2 //')
         END_VERSIONS
         """
 }
