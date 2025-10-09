@@ -1,4 +1,5 @@
 process PBMM2_FROM_FASTQ {
+    tag "$meta.id"
     maxForks 8  // Limits the number of concurrent executions of this process to 8
     label 'process_high'
 

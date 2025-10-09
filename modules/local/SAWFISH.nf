@@ -1,5 +1,6 @@
 process SAWFISH {
-    maxForks 2  // Limits the number of concurrent executions of this process to 2
+    tag "$meta.id"
+    maxForks 8  // Limits the number of concurrent executions of this process to 8
     label 'process_high'
 
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
