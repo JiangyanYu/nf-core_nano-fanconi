@@ -65,6 +65,7 @@ include { PBMM2_FROM_BAM                                } from '../modules/local
 // include { SAMTOOLS_STATS                                } from '../modules/local/SAMTOOLS_STATS.nf'
 include { DEEPVARIANT                                   } from '../modules/local/DEEPVARIANT.nf'
 include { SAWFISH                                       } from '../modules/local/SAWFISH.nf'
+include { SPLIT_VCF_BY_CHROM                            } from '../modules/local/SPLIT_VCF_BY_CHROM.nf'
 // include { BCFTOOLS_SORT as SNIFFLES_SORT_VCF            } from '../modules/nf-core/bcftools/sort/main.nf'
 // include { TABIX_BGZIP as SNIFFLES_BGZIP_VCF             } from '../modules/nf-core/tabix/bgzip/main.nf'
 // include { TABIX_TABIX as SNIFFLES_TABIX_VCF             } from '../modules/nf-core/tabix/tabix/main.nf'
@@ -95,9 +96,11 @@ include { SAWFISH                                       } from '../modules/local
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
-// def chroms = (1..22).collect { "chr${it}" } + ["chrX", "chrY"]
-        
 
+// Define chromosome names
+// This should be extracted from the reference fai index file
+def chroms = (1..22).collect { "chr${it}" } + ["chrX", "chrY"]
+        
 
 // Info required for completion email and summary
 def multiqc_report = []
@@ -107,9 +110,6 @@ workflow FANIVA {
     ch_versions = Channel.empty()
 
 
-
-
-
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     FANIVA: FAIDX_REFERENCE
@@ -117,12 +117,12 @@ workflow FANIVA {
 */
 
     FAIDX_REFERENCE(
-        
+
         file(params.fasta).toRealPath()
     )
-    ch_fasta      = FAIDX_REFERENCE.out.fasta
+    ch_fasta = FAIDX_REFERENCE.out.fasta
     ch_fasta_index = FAIDX_REFERENCE.out.fasta_index
-    ch_versions   = ch_versions.mix(FAIDX_REFERENCE.out.versions)
+    ch_versions = ch_versions.mix(FAIDX_REFERENCE.out.versions)
 
 
 // /*
@@ -132,11 +132,12 @@ workflow FANIVA {
 // */
 
     PBMM2_INDEX_REFERENCE(
+
         ch_fasta,
         ch_fasta_index
     )
     ch_fasta_mmi = PBMM2_INDEX_REFERENCE.out.mmi
-    ch_versions   = ch_versions.mix(PBMM2_INDEX_REFERENCE.out.versions)
+    ch_versions = ch_versions.mix(PBMM2_INDEX_REFERENCE.out.versions)
 
 
 // /*
@@ -149,6 +150,7 @@ workflow FANIVA {
     // SUBWORKFLOW: Read in samplesheet, validate and stage input files
     //
     INPUT_CHECK (
+
         ch_input
     )
     ch_versions = ch_versions.mix(INPUT_CHECK.out.versions)
@@ -340,11 +342,12 @@ workflow FANIVA {
     // def unmapped_bam = (params.reads_format == 'fastq' || params.reads_format == 'fastq.gz') ? ch_unmapped_bam : ch_basecall_sample_merged_bams
     
     // Debug: Print the tuples meta.id, unmapped_bams in ch_unmapped_bams
-    ch_unmapped_bams = ch_unmapped_bams.view { meta, unmapped_bams ->
-        "ch_unmapped_bams: ${meta.id}, ${unmapped_bams}"
-    }
+    // ch_unmapped_bams = ch_unmapped_bams.view { meta, unmapped_bams ->
+    //     "ch_unmapped_bams: ${meta.id}, ${unmapped_bams}"
+    // }
 
     PBMM2_FROM_BAM (
+
         ch_unmapped_bams,
         ch_fasta,
         ch_fasta_index,
@@ -367,22 +370,15 @@ workflow FANIVA {
         */
                
         DEEPVARIANT( 
+
             ch_pbmm2_cram,
             ch_pbmm2_crai,
             ch_fasta,
             ch_fasta_index
         )  
-        ch_short_calls_vcf  = DEEPVARIANT.out.vcf
-        ch_short_calls_vcf_tbi  = DEEPVARIANT.out.tbi
+        ch_deepvariant_vcf  = DEEPVARIANT.out.vcf
+        ch_deepvariant_tbi  = DEEPVARIANT.out.tbi
         ch_versions = ch_versions.mix(DEEPVARIANT.out.versions)
-
-        /*
-        * Filter deepvariant .vcf file
-         */
-
-        // DEEPVARIANT_FILTER_VCF( ch_short_calls_vcf )
-        //     ch_short_calls_vcf_filter =  DEEPVARIANT_FILTER_VCF.out.filtered.vcf
-        //     ch_versions = ch_versions.mix(DEEPVARIANT_FILTER_VCF.out.versions)
 
     }
 
@@ -402,7 +398,8 @@ workflow FANIVA {
 
         // sawfish_input = ch_sawfish_input.join(ch_phased_vcf).dump(tag: "joined")
 
-        SAWFISH( 
+        SAWFISH(
+
             ch_pbmm2_cram,
             ch_pbmm2_crai,
             ch_fasta,
@@ -441,15 +438,34 @@ workflow FANIVA {
 //     FANIVA: SPLIT_VCF_BY_CHR
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // */
-//     // Split VCF by chromosome
-//     SPLIT_VCF_BY_CHR(
-//         ch_short_calls_vcf.map { meta, vcf -> [meta, vcf] }
-//     )
-//     SPLIT_VCF_BY_CHR
-//     .out
-//     .split_vcfs
-//     .flatten()
-//     .set { ch_split_vcfs }
+
+    // Split VCF by chromosome
+    ch_deepvariant_vcf
+        .flatMap { meta, vcf ->
+            chroms.collect { chr ->
+                [meta, vcf, chr]
+            }
+        }
+        .set { ch_deepvariant_vcf_chrom }
+
+    // Split VCF by chromosome
+    SPLIT_VCF_BY_CHR(
+
+        ch_deepvariant_vcf_chrom,
+        val("deepvariant")
+    )
+    ch_deepvariant_split_by_chrom_vcf = SPLIT_VCF_BY_CHROM.out.vcf
+    ch_deepvariant_split_by_chrom_tbi = SPLIT_VCF_BY_CHROM.out.tbi
+    ch_versions = ch_versions.mix(SPLIT_VCF_BY_CHROM.out.versions)
+
+
+    //         ch_short_calls_vcf.map { meta, vcf -> [meta, vcf] }
+    // )
+    // SPLIT_VCF_BY_CHR
+    // .out
+    // .split_vcfs
+    // .flatten()
+    // .set { ch_split_vcfs }
 
 // /*
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

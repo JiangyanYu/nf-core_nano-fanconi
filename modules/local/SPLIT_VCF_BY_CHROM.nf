@@ -1,0 +1,33 @@
+process SPLIT_VCF_BY_CHROM {
+    tag "$meta.id"
+    label 'process_medium'
+
+    conda "bioconda::bcftools=1.16"
+    container "quay.io/biocontainers/bcftools:1.16--hfe4b78e_1"
+
+    input:
+        tuple val(meta), path(vcf), val(chrom)
+        val(caller)
+
+    output:
+        tuple val(meta), path("${meta.id}.${caller}.${chrom}.vcf.gz"), emit: vcf
+        tuple val(meta), path("${meta.id}.${caller}.${chrom}.vcf.gz.tbi"), emit: tbi
+        path("versions.yml"), emit: versions
+
+    script:
+        """
+        bcftools view \\
+            --threads ${task.cpus} \\
+            -r ${chrom} \\
+            -O z \\
+            -o ${meta.id}.${caller}.${chrom}.vcf.gz \\
+            ${vcf}
+
+        tabix ${meta.id}.${caller}.${chrom}.vcf.gz
+
+        cat <<-END_VERSIONS > versions.yml
+        "${task.process}":
+            bcftools: $(bcftools --version | head -n1 | sed 's/^bcftools //')
+        END_VERSIONS
+        """
+}
