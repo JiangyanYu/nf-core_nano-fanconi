@@ -27,11 +27,9 @@ process PBMM2_FROM_BAM {
         pbmm2 align \\
                 ${fasta_mmi} \\
                 ${meta.id}.unaligned.bam \\
-                ${meta.id}.bam \\
                 --num-threads ${task.cpus} \\
-                --preset CCS
-
-        samtools sort -@ ${task.cpus} --reference ${fasta} -O cram -o ${meta.id}.cram ${meta.id}.bam
+                --preset CCS | \\
+        samtools sort -@ ${task.cpus} --reference ${fasta} -O cram -o ${meta.id}.cram
 
         samtools addreplacerg -@ ${task.cpus} --reference ${fasta} -r "ID:${meta.id}\\tSM:${meta.id}" -O cram -o ${meta.id}.reheader.cram ${meta.id}.cram
 
