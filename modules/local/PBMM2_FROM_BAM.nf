@@ -28,14 +28,14 @@ process PBMM2_FROM_BAM {
                 ${args} \\
                 ${fasta} \\
                 ${meta.id}.fofn | \\
-        samtools addreplacerg -@ ${task.cpus} -r "ID:${meta.id}\tSM:${meta.id}" /dev/stdin | \\
-        samtools sort -@ ${task.cpus} --reference ${fasta} -O cram -o ${meta.id}.cram /dev/stdin
+        samtools sort -@ ${task.cpus} --reference ${fasta} /dev/stdin | \\
+        samtools addreplacerg -@ ${task.cpus} -r "ID:${meta.id}\\tSM:${meta.id}" -O cram -o ${meta.id}.cram /dev/stdin \\
         samtools index -@ ${task.cpus} ${meta.id}.cram
 
         cat <<-END_VERSIONS > versions.yml
         "${task.process}":
             samtools: \$(samtools --version | head -n 1 | sed 's/^samtools //')
-            pbmm2: \$(pbmm2 --version 2>&1 | head -n 1 | sed 's/^pbmm2 //')
+            pbmm2: \$(pbmm2 --version 2>&1 | head -n 1)
         END_VERSIONS
         """
 }
