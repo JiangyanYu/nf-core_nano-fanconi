@@ -50,8 +50,8 @@ include { INPUT_CHECK } from '../subworkflows/local/input_check'
 // MODULE: Installed directly from nf-core/modules
 //
 
-include { FAIDX_REFERENCE                               } from '../modules/local/FAIDX_REFERENCE.nf'
-include { PBMM2_INDEX_REFERENCE                         } from '../modules/local/PBMM2_INDEX_REFERENCE.nf'
+include { FAIDX_REFERENCE                                      } from '../modules/local/FAIDX_REFERENCE.nf'
+include { PBMM2_INDEX_REFERENCE                                } from '../modules/local/PBMM2_INDEX_REFERENCE.nf'
 // include { SAMTOOLS_BGZIP                                } from '../modules/nf-core/samtools/bgzip.nf'
 // include { SAMTOOLS_FAIDX                                } from '../modules/nf-core/samtools/faidx.nf'
 // include { FAST5_TO_POD5                                 } from '../modules/local/FAST5_TO_POD5.nf'
@@ -61,11 +61,12 @@ include { PBMM2_INDEX_REFERENCE                         } from '../modules/local
 // include { MERGE_BASECALL as MERGE_BASECALL_SAMPLE       } from '../modules/local/MERGE_BASECALL.nf'
 // include { DORADO_BASECALL_SUMMARY                       } from '../modules/local/DORADO_BASECALL_SUMMARY.nf'
 // include { PYCOQC                                        } from '../modules/local/PYCOQC.nf'
-include { PBMM2_FROM_BAM                                } from '../modules/local/PBMM2_FROM_BAM.nf'
+include { PBMM2_FROM_BAM                                       } from '../modules/local/PBMM2_FROM_BAM.nf'
 // include { SAMTOOLS_STATS                                } from '../modules/local/SAMTOOLS_STATS.nf'
-include { DEEPVARIANT                                   } from '../modules/local/DEEPVARIANT.nf'
-include { SAWFISH                                       } from '../modules/local/SAWFISH.nf'
-include { SPLIT_VCF_BY_CHROM                            } from '../modules/local/SPLIT_VCF_BY_CHROM.nf'
+include { DEEPVARIANT                                          } from '../modules/local/DEEPVARIANT.nf'
+include { SAWFISH                                              } from '../modules/local/SAWFISH.nf'
+include { SPLIT_VCF_BY_CHROM as SPLIT_VCF_BY_CHROM_DEEPVARIANT } from '../modules/local/SPLIT_VCF_BY_CHROM.nf'
+include { SPLIT_VCF_BY_CHROM as SPLIT_VCF_BY_CHROM_SAWFISH     } from '../modules/local/SPLIT_VCF_BY_CHROM.nf'
 // include { BCFTOOLS_SORT as SNIFFLES_SORT_VCF            } from '../modules/nf-core/bcftools/sort/main.nf'
 // include { TABIX_BGZIP as SNIFFLES_BGZIP_VCF             } from '../modules/nf-core/tabix/bgzip/main.nf'
 // include { TABIX_TABIX as SNIFFLES_TABIX_VCF             } from '../modules/nf-core/tabix/tabix/main.nf'
@@ -448,13 +449,13 @@ workflow FANIVA {
 
 
     // Split VCF by chromosome
-    SPLIT_VCF_BY_CHROM(
+    SPLIT_VCF_BY_CHROM_DEEPVARIANT(
 
         ch_deepvariant_vcf_chrom
     )
-    ch_deepvariant_split_by_chrom_vcf = SPLIT_VCF_BY_CHROM.out.vcf
-    ch_deepvariant_split_by_chrom_tbi = SPLIT_VCF_BY_CHROM.out.tbi
-    ch_versions = ch_versions.mix(SPLIT_VCF_BY_CHROM.out.versions)
+    ch_deepvariant_split_by_chrom_vcf = SPLIT_VCF_BY_CHROM_DEEPVARIANT.out.vcf
+    ch_deepvariant_split_by_chrom_tbi = SPLIT_VCF_BY_CHROM_DEEPVARIANT.out.tbi
+    ch_versions = ch_versions.mix(SPLIT_VCF_BY_CHROM_DEEPVARIANT.out.versions)
 
 
 // /*
@@ -474,13 +475,13 @@ workflow FANIVA {
 
 
     // Split VCF by chromosome
-    SPLIT_VCF_BY_CHROM(
-
+    SPLIT_VCF_BY_CHROM_SAWFISH(
+        
         ch_sawfish_vcf_chrom
     )
-    ch_sawfish_split_by_chrom_vcf = SPLIT_VCF_BY_CHROM.out.vcf
-    ch_sawfish_split_by_chrom_tbi = SPLIT_VCF_BY_CHROM.out.tbi
-    ch_versions = ch_versions.mix(SPLIT_VCF_BY_CHROM.out.versions)
+    ch_sawfish_split_by_chrom_vcf = SPLIT_VCF_BY_CHROM_SAWFISH.out.vcf
+    ch_sawfish_split_by_chrom_tbi = SPLIT_VCF_BY_CHROM_SAWFISH.out.tbi
+    ch_versions = ch_versions.mix(SPLIT_VCF_BY_CHROM_SAWFISH.out.versions)
 
 }
 
