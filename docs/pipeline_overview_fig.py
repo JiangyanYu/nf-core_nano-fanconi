@@ -12,13 +12,13 @@ import matplotlib.pyplot as plt
 nodes = {
     "fast5": (1, 4),
     "pod5": (0.3, 3.5),
-    "bam": (1.7, 3.5),
+    "bam": (2, 3.5),
     "dorado": (1, 3),
     "pycoQC": (1, 2),
     "pbmm2": (2, 2),
     "Sniffles": (3, 3),
-    "AnnotSV": (6, 2),
-    "WhatsHap": (4.5, 1),
+    "AnnotSV": (4, 2),
+    "WhatsHap": (5.5, 2),
     "DeepVariant": (3, 1),
 }
 
@@ -26,18 +26,20 @@ nodes = {
 edges = [
     ("fast5", "dorado"),
     ("pod5", "dorado"),
-    ("bam", "dorado"),
+    ("bam", "pbmm2"),
     ("dorado", "pycoQC"),
     ("pycoQC", "pbmm2"),
     ("pbmm2", "Sniffles"),
     ("pbmm2", "DeepVariant"),
-    ("DeepVariant", "WhatsHap"),
+    ("Sniffles", "AnnotSV"),
+    ("DeepVariant", "AnnotSV"),
 ]
 
 # Define special edges (square stepwise connections)
 square_edges = [
-    ("Sniffles", "AnnotSV"),
-    ("WhatsHap", "AnnotSV"),
+    
+    ("Sniffles", "WhatsHap"),
+    ("DeepVariant", "WhatsHap"),
 ]
 
 # Nodes with background color
@@ -73,8 +75,9 @@ for label, (x, y) in nodes.items():
             bbox=dict(boxstyle="square", facecolor="white", edgecolor="green", linewidth=1)
         )
 
-# Add "nano-Fanconi" text at coordinates (3, 5)
-ax.text(3.5, 4, "nano-Fanconi", fontsize=25, ha="center", va="center", color="green", zorder=4)
+# Add "FA-NIVA" text at coordinates (3, 5)
+ax.text(3.5, 4.5, "FA-NIVA", fontsize=25, ha="center", va="center", color="green", zorder=4)
+ax.text(3.5, 4.2, "Fanconi anemia – Nanopore Indel and Variant Analysis", fontsize=11, ha="center", va="center", color="green", zorder=4)
 
 # Customize plot appearance
 ax.set_xlim(0, 7)
