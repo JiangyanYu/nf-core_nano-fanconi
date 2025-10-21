@@ -60,7 +60,7 @@ include { DORADO_BASECALLER_FROM_POD5                   } from '../modules/local
 include { MERGE_BASECALL as MERGE_BASECALL_ID           } from '../modules/local/MERGE_BASECALL.nf'
 include { MERGE_BASECALL as MERGE_BASECALL_SAMPLE       } from '../modules/local/MERGE_BASECALL.nf'
 include { DORADO_BASECALL_SUMMARY                       } from '../modules/local/DORADO_BASECALL_SUMMARY.nf'
-include { PYCOQC                                        } from '../modules/local/PYCOQC.nf'
+// include { PYCOQC                                        } from '../modules/local/PYCOQC.nf'
 include { PBMM2_FROM_BAM                                       } from '../modules/local/PBMM2_FROM_BAM.nf'
 // include { SAMTOOLS_STATS                                } from '../modules/local/SAMTOOLS_STATS.nf'
 // include { SPLIT_CRAM_BY_CHROM                                  } from '../modules/local/SPLIT_CRAM_BY_CHROM.nf'
@@ -341,12 +341,12 @@ workflow FANIVA {
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // */
 
-    // def unmapped_bam = (params.reads_format == 'fastq' || params.reads_format == 'fastq.gz') ? ch_unmapped_bam : ch_basecall_sample_merged_bams
+    def unmapped_bam = (params.reads_format == 'fastq' || params.reads_format == 'fastq.gz') ? ch_unmapped_bam : ch_basecall_sample_merged_bams
     
-    // Debug: Print the tuples meta.id, unmapped_bams in ch_unmapped_bams
-    // ch_unmapped_bams = ch_unmapped_bams.view { meta, unmapped_bams ->
-    //     "ch_unmapped_bams: ${meta.id}, ${unmapped_bams}"
-    // }
+    Debug: Print the tuples meta.id, unmapped_bams in ch_unmapped_bams
+    ch_unmapped_bams = ch_unmapped_bams.view { meta, unmapped_bams ->
+        "ch_unmapped_bams: ${meta.id}, ${unmapped_bams}"
+    }
 
     PBMM2_FROM_BAM (
 
@@ -514,7 +514,7 @@ workflow FANIVA {
 //     ch_sawfish_split_by_chrom_tbi = SPLIT_VCF_BY_CHROM_SAWFISH.out.tbi
 //     ch_versions = ch_versions.mix(SPLIT_VCF_BY_CHROM_SAWFISH.out.versions)
 
-// }
+}
 
     
 // /*
