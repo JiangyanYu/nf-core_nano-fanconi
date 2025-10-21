@@ -14,8 +14,8 @@ process SAWFISH {
         path (fasta_index)
 
     output:
-        tuple val(meta), path ("${meta.id}.joint-call/genotyped.sv.vcf.gz"), emit: vcf
-        tuple val(meta), path ("${meta.id}.joint-call/genotyped.sv.vcf.gz.tbi"), emit: tbi
+        tuple val(meta), path ("${meta.id}.sawfish.vcf.gz"), emit: vcf
+        tuple val(meta), path ("${meta.id}.sawfish.vcf.gz.tbi"), emit: tbi
         path "versions.yml", emit: versions
 
     script:
@@ -33,6 +33,9 @@ process SAWFISH {
                 --threads ${task.cpus} \\
                 --sample ${meta.id}.discover \\
                 --output-dir ${meta.id}.joint-call
+
+        cp -l ${meta.id}.joint-call/genotyped.sv.vcf.gz ${meta.id}.sawfish.vcf.gz
+        cp -l ${meta.id}.joint-call/genotyped.sv.vcf.gz.tbi ${meta.id}.sawfish.vcf.gz.tbi
 
         cat <<-END_VERSIONS > versions.yml
         "${task.process}":

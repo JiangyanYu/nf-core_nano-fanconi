@@ -23,7 +23,7 @@ process EDIT_SNV_GENOTYPE {
     """
     SNV_modify_GT.py \\
         --snv_vcf ${meta.id}_filtered.vcf.gz  \\
-        --sv_vcf genotyped.sv.vcf.gz \\
+        --sv_vcf ${meta.id}_genotyped.sv.vcf.gz \\
         --output_vcf ${meta.id}_gt.converted.vcf
 
     cat <<-END_VERSIONS > versions.yml
