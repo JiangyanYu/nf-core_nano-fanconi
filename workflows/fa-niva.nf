@@ -255,7 +255,7 @@ workflow FANIVA {
         DORADO_BASECALLER
         .out
         .bam
-        .map { meta, bam -> [[id: meta.id, sample: meta.sample, flowcell: meta.flowcell, batch: meta.batch, kit: meta.kit] , bam]} // make sample name the only mets (remove flow cell and other info)
+        .map { meta, bam -> [[id: meta.id, sample: meta.sample, flowcell: meta.flowcell, batch: meta.batch, kit: meta.kit] , bam]} // make sample name the only meta (remove flow cell and other info)
         .groupTuple(by: 0) // group bams by meta (i.e sample) which zero indexed
         // .dump(pretty: true)
         .set { ch_basecall_single_bams }
