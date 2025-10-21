@@ -56,10 +56,8 @@ include { SAMTOOLS_BGZIP                                       } from '../module
 include { SAMTOOLS_FAIDX                                       } from '../modules/nf-core/samtools/faidx.nf'
 include { FAST5_TO_POD5                                        } from '../modules/local/FAST5_TO_POD5.nf'
 include { DORADO_BASECALLER                                    } from '../modules/local/DORADO_BASECALLER.nf'
-include { MERGE_BASECALL as MERGE_BASECALL_ID                  } from '../modules/local/MERGE_BASECALL.nf'
-include { MERGE_BASECALL as MERGE_BASECALL_SAMPLE              } from '../modules/local/MERGE_BASECALL.nf'
 include { DORADO_BASECALL_SUMMARY                              } from '../modules/local/DORADO_BASECALL_SUMMARY.nf'
-// include { PYCOQC                                        } from '../modules/local/PYCOQC.nf'
+include { PYCOQC                                               } from '../modules/local/PYCOQC.nf'
 include { PBMM2_FROM_BAM                                       } from '../modules/local/PBMM2_FROM_BAM.nf'
 // include { SAMTOOLS_STATS                                } from '../modules/local/SAMTOOLS_STATS.nf'
 // include { SPLIT_CRAM_BY_CHROM                                  } from '../modules/local/SPLIT_CRAM_BY_CHROM.nf'
@@ -262,31 +260,10 @@ workflow FANIVA {
         // .dump(pretty: true)
         .set { ch_basecall_single_bams }
 
-        MERGE_BASECALL_ID (
-        ch_basecall_single_bams
-        )
-        ch_versions = ch_versions.mix(MERGE_BASECALL_ID.out.versions)
-
-        MERGE_BASECALL_ID
-        .out
-        .merged_bam
-        // .dump(tag: 'basecall_id', pretty: true)
-        .set { ch_basecall_id_merged_bams }
-
         // Dorado basecall summary
         DORADO_BASECALL_SUMMARY (
-            ch_basecall_id_merged_bams
+            ch_basecall_id_single_bams
         )
-
-        //
-        // CHANNEL: Channel operation group unaligned bams paths by sample (i.e bams of reads from multiple flow cells but the same sample streamed together to be fed for alignment module)
-        //
-        ch_basecall_id_merged_bams
-        .map { meta, bam -> [[sample: meta.sample] , bam]} // make sample name the only mets (remove flow cell and other info)
-        .groupTuple(by: 0) // group bams by meta (i.e sample) which zero indexed
-        // .dump(tag: 'basecall_sample', pretty: true)
-        .set { ch_basecall_sample_merged_bams } // set channel name
-
 
         DORADO_BASECALL_SUMMARY
         .out
@@ -300,6 +277,23 @@ workflow FANIVA {
             ch_basecall_summary
         )
         ch_versions = ch_versions.mix(PYCOQC.out.versions)
+
+    // /*
+    // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    //     FANIVA: pbmm2 alignment from BAM
+    // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    // */
+
+        PBMM2_FROM_BAM (
+
+            ch_basecall_single_bams,
+            ch_fasta,
+            ch_fasta_index,
+            ch_fasta_mmi
+        )
+        ch_pbmm2_cram = PBMM2_FROM_BAM.out.cram
+        ch_pbmm2_crai = PBMM2_FROM_BAM.out.crai
+        ch_versions = ch_versions.mix(PBMM2_FROM_BAM.out.versions)
 
     }
 
@@ -331,32 +325,28 @@ workflow FANIVA {
             [meta, unique_files]
         }
         .set { ch_unmapped_bams } // set channel name
+
+    // /*
+    // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    //     FANIVA: pbmm2 alignment from BAM
+    // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    // */
+
+        PBMM2_FROM_BAM (
+
+            ch_unmapped_bams,
+            ch_fasta,
+            ch_fasta_index,
+            ch_fasta_mmi
+        )
+        ch_pbmm2_cram = PBMM2_FROM_BAM.out.cram
+        ch_pbmm2_crai = PBMM2_FROM_BAM.out.crai
+        ch_versions = ch_versions.mix(PBMM2_FROM_BAM.out.versions)
+
     }
 
     
-// /*
-// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-//     FANIVA: pbmm2 alignment from BAM
-// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-// */
 
-    // def unmapped_bam = (params.reads_format == 'fastq' || params.reads_format == 'fastq.gz') ? ch_unmapped_bam : ch_basecall_sample_merged_bams
-    
-    // Debug: Print the tuples meta.id, unmapped_bams in ch_unmapped_bams
-    // ch_unmapped_bams = ch_unmapped_bams.view { meta, unmapped_bams ->
-    //     "ch_unmapped_bams: ${meta.id}, ${unmapped_bams}"
-    // }
-
-    PBMM2_FROM_BAM (
-
-        ch_unmapped_bams,
-        ch_fasta,
-        ch_fasta_index,
-        ch_fasta_mmi
-    )
-    ch_pbmm2_cram = PBMM2_FROM_BAM.out.cram
-    ch_pbmm2_crai = PBMM2_FROM_BAM.out.crai
-    ch_versions = ch_versions.mix(PBMM2_FROM_BAM.out.versions)
 
 
 // // /*
