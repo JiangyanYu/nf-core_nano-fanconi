@@ -1,2 +1,2 @@
 id,sample,flowcell,input_path,batch,kit
-pod5,pod5_input,flowcell1,/home/yu_j/smbshare/fa_niva/pod5,20250215,LSK114
+fast5,fast5_input,flowcell1,/home/yu_j/smbshare/fa_niva/fast5,20250215,LSK114
