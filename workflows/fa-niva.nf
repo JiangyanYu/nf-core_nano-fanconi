@@ -341,12 +341,12 @@ workflow FANIVA {
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // */
 
-    def unmapped_bam = (params.reads_format == 'fastq' || params.reads_format == 'fastq.gz') ? ch_unmapped_bam : ch_basecall_sample_merged_bams
+    // def unmapped_bam = (params.reads_format == 'fastq' || params.reads_format == 'fastq.gz') ? ch_unmapped_bam : ch_basecall_sample_merged_bams
     
-    Debug: Print the tuples meta.id, unmapped_bams in ch_unmapped_bams
-    ch_unmapped_bams = ch_unmapped_bams.view { meta, unmapped_bams ->
-        "ch_unmapped_bams: ${meta.id}, ${unmapped_bams}"
-    }
+    // Debug: Print the tuples meta.id, unmapped_bams in ch_unmapped_bams
+    // ch_unmapped_bams = ch_unmapped_bams.view { meta, unmapped_bams ->
+    //     "ch_unmapped_bams: ${meta.id}, ${unmapped_bams}"
+    // }
 
     PBMM2_FROM_BAM (
 
