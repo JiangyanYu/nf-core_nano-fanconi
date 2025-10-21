@@ -262,7 +262,7 @@ workflow FANIVA {
 
         // Dorado basecall summary
         DORADO_BASECALL_SUMMARY (
-            ch_basecall_id_single_bams
+            ch_basecall_single_bams
         )
 
         DORADO_BASECALL_SUMMARY
