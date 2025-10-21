@@ -1,2 +1,3 @@
 id,sample,flowcell,input_path,batch,kit
-run29test,run29_pipeline_test,flowcell1,/path/to/input/folder,20250215,LSK114
+fast5,fast5_input1,flowcell1,./data/fast5_1,20250215,LSK114
+fast5,fast5_input2,flowcell1,./data/fast5_2,20250215,LSK114
