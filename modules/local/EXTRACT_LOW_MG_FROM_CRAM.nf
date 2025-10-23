@@ -26,8 +26,7 @@ process EXTRACT_LOW_MG_FROM_CRAM {
             -e '[mg]<95' \\
             -O cram \\
             -o ${meta.id}.low_MG.cram \\
-            ${cram} \\
-            ${chrom}
+            ${cram}
 
         samtools index -@ ${task.cpus} ${meta.id}.low_MG.cram
 
