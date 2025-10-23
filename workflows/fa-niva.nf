@@ -279,24 +279,24 @@ workflow FANIVA {
         )
         ch_versions = ch_versions.mix(PYCOQC.out.versions)
 
-    // /*
-    // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    //     FANIVA: pbmm2 alignment from BAM
-    // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    // */
-
-        PBMM2_FROM_BAM (
-
-            ch_basecall_single_bams,
-            ch_fasta,
-            ch_fasta_index,
-            ch_fasta_mmi
-        )
-        ch_pbmm2_cram = PBMM2_FROM_BAM.out.cram
-        ch_pbmm2_crai = PBMM2_FROM_BAM.out.crai
-        ch_versions = ch_versions.mix(PBMM2_FROM_BAM.out.versions)
-
     }
+
+// /*
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+//     FANIVA: pbmm2 alignment from BAM
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// */
+
+    PBMM2_FROM_BAM (
+
+        ch_basecall_single_bams,
+        ch_fasta,
+        ch_fasta_index,
+        ch_fasta_mmi
+    )
+    ch_pbmm2_cram = PBMM2_FROM_BAM.out.cram
+    ch_pbmm2_crai = PBMM2_FROM_BAM.out.crai
+    ch_versions = ch_versions.mix(PBMM2_FROM_BAM.out.versions)
 
 
 // /*
@@ -327,6 +327,8 @@ workflow FANIVA {
         }
         .set { ch_unmapped_bams } // set channel name
 
+    }
+
 
 // /*
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -334,16 +336,16 @@ workflow FANIVA {
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // */
 
-        PBMM2_FROM_BAM (
+    PBMM2_FROM_BAM (
 
-            ch_unmapped_bams,
-            ch_fasta,
-            ch_fasta_index,
-            ch_fasta_mmi
-        )
-        ch_pbmm2_cram = PBMM2_FROM_BAM.out.cram
-        ch_pbmm2_crai = PBMM2_FROM_BAM.out.crai
-        ch_versions = ch_versions.mix(PBMM2_FROM_BAM.out.versions)
+        ch_unmapped_bams,
+        ch_fasta,
+        ch_fasta_index,
+        ch_fasta_mmi
+    )
+    ch_pbmm2_cram = PBMM2_FROM_BAM.out.cram
+    ch_pbmm2_crai = PBMM2_FROM_BAM.out.crai
+    ch_versions = ch_versions.mix(PBMM2_FROM_BAM.out.versions)
 
 
 // /*
@@ -364,7 +366,7 @@ workflow FANIVA {
 
 
     // Extract low mapping quality reads from CRAM
-     EXTRACT_LOW_MG_FROM_CRAM(
+    EXTRACT_LOW_MG_FROM_CRAM(
 
         ch_pbmm2_cram,
         ch_pbmm2_crai,
