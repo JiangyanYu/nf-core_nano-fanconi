@@ -9,7 +9,8 @@ process EXTRACT_LOW_MG_FROM_CRAM {
         'quay.io/biocontainers/samtools:1.16.1--h6899075_1' }"
 
     input:
-        tuple val(meta), path(cram), path(crai)
+        tuple val(meta), path(cram)
+        tuple val(meta), path(crai)
         path(fasta)
 
     output:
