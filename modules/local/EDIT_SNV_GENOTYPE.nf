@@ -9,7 +9,7 @@ process EDIT_SNV_GENOTYPE {
     input:
         tuple val(meta), path(snv_vcf_file)
         tuple val(meta), path(snv_tbi_file)
-        tuple val(meta), path(sv_vcf_file),
+        tuple val(meta), path(sv_vcf_file)
         tuple val(meta), path(sv_tbi_file)
 
     output:
