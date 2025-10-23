@@ -541,15 +541,20 @@ workflow FANIVA {
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // */
 
+    // Combine DeepVariant and Sawfish channels by chromosome
+    ch_deepvariant_split_by_chrom_vcf
+        .join(ch_deepvariant_split_by_chrom_tbi)
+        .join(ch_sawfish_split_by_chrom_vcf)
+        .join(ch_sawfish_split_by_chrom_tbi)
+        .set { ch_matched_vcf_by_chrom }
+
     EDIT_SNV_GENOTYPE (
-
-        ch_deepvariant_split_by_chrom_vcf,
-        ch_deepvariant_split_by_chrom_tbi,
-        ch_sawfish_split_by_chrom_vcf,
-        ch_sawfish_split_by_chrom_tbi
-
+        ch_matched_vcf_by_chrom.map { meta, dv_vcf, dv_tbi, sf_vcf, sf_tbi -> 
+            [meta, dv_vcf, dv_tbi, sf_vcf, sf_tbi]
+        }
     )
-    ch_deepvariant_vcf_tbi_chrom_edited_gt = EDIT_SNV_GENOTYPE.out.vcf
+    ch_deepvariant_vcf_chrom_edited_gt = EDIT_SNV_GENOTYPE.out.vcf
+    ch_deepvariant_tbi_chrom_edited_gt = EDIT_SNV_GENOTYPE.out.tbi
     ch_versions = ch_versions.mix(EDIT_SNV_GENOTYPE.out.versions)
 
 }
