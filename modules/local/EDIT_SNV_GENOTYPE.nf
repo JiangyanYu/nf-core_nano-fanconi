@@ -7,11 +7,8 @@ process EDIT_SNV_GENOTYPE {
         'jiangyanyu/pacbio_wgs:v1.3' }"
 
     input:
-        tuple val(meta), path(snv_vcf_file), val(caller), val(chrom)
-        tuple val(meta), path(snv_tbi_file), val(caller), val(chrom)
-        tuple val(meta), path(sv_vcf_file), val(caller), val(chrom)
-        tuple val(meta), path(sv_tbi_file), val(caller), val(chrom)
-
+        tuple val(meta), path(snv_vcf_file), path(snv_tbi_file), path(sv_vcf_file), path(sv_tbi_file), val(chrom)
+        
     output:
         tuple val(meta), path("${meta.id}.deepvariant.${chrom}.edited_gt.vcf.gz"), val("deepvariant"), val(chrom), emit: vcf
         tuple val(meta), path("${meta.id}.deepvariant.${chrom}.edited_gt.vcf.gz.tbi"), val("deepvariant"), val(chrom), emit: tbi

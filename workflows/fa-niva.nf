@@ -537,28 +537,41 @@ workflow FANIVA {
 
 // /*
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-//     FANIVA: EDIT_SNV_GENOTYPE
+//     FANIVA: EDIT_SNV_GENOTYPE - Match DeepVariant and Sawfish by chromosome
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // */
 
-    // Combine DeepVariant and Sawfish channels by chromosome
+    // Match DeepVariant and Sawfish VCF files by sample and chromosome
     ch_deepvariant_split_by_chrom_vcf
-        .join(ch_deepvariant_split_by_chrom_tbi)
-        .join(ch_sawfish_split_by_chrom_vcf)
-        .join(ch_sawfish_split_by_chrom_tbi)
+        .map { meta, vcf, caller, chrom -> [[meta.id, chrom], meta, vcf, caller, chrom] }
+        .join(
+            ch_deepvariant_split_by_chrom_tbi.map { meta, tbi, caller, chrom -> 
+                [[meta.id, chrom], tbi] 
+            }, by: 0
+        )
+        .join(
+            ch_sawfish_split_by_chrom_vcf.map { meta, vcf, caller, chrom -> 
+                [[meta.id, chrom], vcf] 
+            }, by: 0
+        )
+        .join(
+            ch_sawfish_split_by_chrom_tbi.map { meta, tbi, caller, chrom -> 
+                [[meta.id, chrom], tbi] 
+            }, by: 0
+        )
+        .map { key, meta, dv_vcf, dv_caller, chrom, dv_tbi, sf_vcf, sf_tbi ->
+            [meta, dv_vcf, dv_tbi, sf_vcf, sf_tbi, chrom]
+        }
         .set { ch_matched_vcf_by_chrom }
 
-    EDIT_SNV_GENOTYPE (
-        ch_matched_vcf_by_chrom.map { meta, dv_vcf, dv_tbi, sf_vcf, sf_tbi -> 
-            [meta, dv_vcf, dv_tbi, sf_vcf, sf_tbi]
-        }
+    EDIT_SNV_GENOTYPE(
+        ch_matched_vcf_by_chrom
     )
     ch_deepvariant_vcf_chrom_edited_gt = EDIT_SNV_GENOTYPE.out.vcf
     ch_deepvariant_tbi_chrom_edited_gt = EDIT_SNV_GENOTYPE.out.tbi
     ch_versions = ch_versions.mix(EDIT_SNV_GENOTYPE.out.versions)
 
 }
-
 
 // /*
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
