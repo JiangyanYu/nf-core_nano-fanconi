@@ -259,11 +259,14 @@ workflow FANIVA {
         .map { meta, bam -> [[id: meta.id, sample: meta.sample, flowcell: meta.flowcell, batch: meta.batch, kit: meta.kit] , bam]} // make sample name the only meta (remove flow cell and other info)
         .groupTuple(by: 0) // group bams by meta (i.e sample) which zero indexed
         // .dump(pretty: true)
-        .set { ch_basecall_single_bams }
+        //.set { ch_basecall_single_bams }
+        .set { ch_unmapped_bams }
 
         // Dorado basecall summary
         DORADO_BASECALL_SUMMARY (
-            ch_basecall_single_bams
+            
+            //ch_basecall_single_bams
+            ch_unmapped_bams
         )
 
         DORADO_BASECALL_SUMMARY
@@ -287,16 +290,16 @@ workflow FANIVA {
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // */
 
-    PBMM2_FROM_BAM (
+    // PBMM2_FROM_BAM (
 
-        ch_basecall_single_bams,
-        ch_fasta,
-        ch_fasta_index,
-        ch_fasta_mmi
-    )
-    ch_pbmm2_cram = PBMM2_FROM_BAM.out.cram
-    ch_pbmm2_crai = PBMM2_FROM_BAM.out.crai
-    ch_versions = ch_versions.mix(PBMM2_FROM_BAM.out.versions)
+    //     ch_basecall_single_bams,
+    //     ch_fasta,
+    //     ch_fasta_index,
+    //     ch_fasta_mmi
+    // )
+    // ch_pbmm2_cram = PBMM2_FROM_BAM.out.cram
+    // ch_pbmm2_crai = PBMM2_FROM_BAM.out.crai
+    // ch_versions = ch_versions.mix(PBMM2_FROM_BAM.out.versions)
 
 
 // /*
