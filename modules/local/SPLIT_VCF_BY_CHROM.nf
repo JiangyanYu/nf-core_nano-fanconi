@@ -10,8 +10,8 @@ process SPLIT_VCF_BY_CHROM {
         tuple val(meta), path(vcf), path(tbi), val(caller), val(chrom)
 
     output:
-        tuple val(meta), path("${meta.id}.${caller}.${chrom}.vcf.gz"), emit: vcf
-        tuple val(meta), path("${meta.id}.${caller}.${chrom}.vcf.gz.tbi"), emit: tbi
+        tuple val(meta), path("${meta.id}.${caller}.${chrom}.vcf.gz"), val(caller), val(chrom), emit: vcf
+        tuple val(meta), path("${meta.id}.${caller}.${chrom}.vcf.gz.tbi"), val(caller), val(chrom), emit: tbi
         path("versions.yml"), emit: versions
 
     script:

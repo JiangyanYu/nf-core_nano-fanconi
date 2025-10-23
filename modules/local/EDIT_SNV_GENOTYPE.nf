@@ -7,14 +7,14 @@ process EDIT_SNV_GENOTYPE {
         'jiangyanyu/pacbio_wgs:v1.3' }"
 
     input:
-        tuple val(meta), path(snv_vcf_file)
-        tuple val(meta), path(snv_tbi_file)
-        tuple val(meta), path(sv_vcf_file)
-        tuple val(meta), path(sv_tbi_file)
+        tuple val(meta), path(snv_vcf_file), val(caller), val(chrom)
+        tuple val(meta), path(snv_tbi_file), val(caller), val(chrom)
+        tuple val(meta), path(sv_vcf_file), val(caller), val(chrom)
+        tuple val(meta), path(sv_tbi_file), val(caller), val(chrom)
 
     output:
-        tuple val(meta), path("${meta.id}.${caller}.${chrom}.edited_gt.vcf.gz"), emit: vcf
-        tuple val(meta), path("${meta.id}.${caller}.${chrom}.edited_gt.vcf.gz.tbi"), emit: tbi
+        tuple val(meta), path("${meta.id}.deepvariant.${chrom}.edited_gt.vcf.gz"), val("deepvariant"), val(chrom), emit: vcf
+        tuple val(meta), path("${meta.id}.deepvariant.${chrom}.edited_gt.vcf.gz.tbi"), val("deepvariant"), val(chrom), emit: tbi
         path "versions.yml"                                , emit: versions
 
     when:
@@ -27,18 +27,18 @@ process EDIT_SNV_GENOTYPE {
     SNV_modify_GT.py \\
         --snv_vcf ${snv_vcf_file} \\
         --sv_vcf ${sv_vcf_file} \\
-        --output_vcf ${meta.id}.${caller}.${chrom}.edited_gt.vcf
+        --output_vcf ${meta.id}.deepvariant.${chrom}.edited_gt.vcf
 
 
     bcftools view \\
         --threads ${task.cpus} \\
         -O z \\
-        -o ${meta.id}.${caller}.${chrom}.edited_gt.vcf.gz \\
-        ${meta.id}.${caller}.${chrom}.edited_gt.vcf
+        -o ${meta.id}.deepvariant.${chrom}.edited_gt.vcf.gz \\
+        ${meta.id}.deepvariant.${chrom}.edited_gt.vcf
 
 
-    tabix ${meta.id}.${caller}.${chrom}.edited_gt.vcf.gz
-    
+    tabix ${meta.id}.deepvariant.${chrom}.edited_gt.vcf.gz
+
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
