@@ -1,5 +1,5 @@
 process SPLIT_VCF_BY_CHROM {
-    tag "$meta.id: $caller:$chrom"
+    tag "$meta.id:$caller:$chrom"
     maxForks 24  // Limits the number of concurrent executions of this process to 24
     label 'process_medium'
 

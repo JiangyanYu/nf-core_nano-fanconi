@@ -66,13 +66,13 @@ include { DEEPVARIANT                                          } from '../module
 include { SAWFISH                                              } from '../modules/local/SAWFISH.nf'
 include { SPLIT_VCF_BY_CHROM as SPLIT_VCF_BY_CHROM_DEEPVARIANT } from '../modules/local/SPLIT_VCF_BY_CHROM.nf'
 include { SPLIT_VCF_BY_CHROM as SPLIT_VCF_BY_CHROM_SAWFISH     } from '../modules/local/SPLIT_VCF_BY_CHROM.nf'
+include { EDIT_SNV_GENOTYPE                                    } from '../modules/local/EDIT_SNV_GENOTYPE.nf'
 // include { BCFTOOLS_SORT as SNIFFLES_SORT_VCF            } from '../modules/nf-core/bcftools/sort/main.nf'
 // include { TABIX_BGZIP as SNIFFLES_BGZIP_VCF             } from '../modules/nf-core/tabix/bgzip/main.nf'
 // include { TABIX_TABIX as SNIFFLES_TABIX_VCF             } from '../modules/nf-core/tabix/tabix/main.nf'
 // include { ANNOTSV_SAWFISH                               } from '../modules/local/ANNOTSV_SAWFISH.nf'
 // include { ANNOTSV_DEEPVARIANT                           } from '../modules/local/ANNOTSV_DEEPVARIANT.nf'
 // include { BCFTOOLS_FILTER as DEEPVARIANT_FILTER_VCF     } from '../modules/nf-core/bcftools/filter/main.nf'
-// include { EDIT_SNV_GENOTYPE                             } from '../modules/local/EDIT_SNV_GENOTYPE.nf'
 // include { TABIX_BGZIP as EDIT_SNV_GENOTYPE_BGZIP_VCF    } from '../modules/nf-core/tabix/bgzip/main.nf'
 // include { TABIX_TABIX as EDIT_SNV_GENOTYPE_TABIX_VCF    } from '../modules/nf-core/tabix/tabix/main.nf'
 // include { WHATSHAP_PHASE                                } from '../modules/local/WHATSHAP_PHASE.nf'
@@ -534,9 +534,27 @@ workflow FANIVA {
     ch_sawfish_split_by_chrom_tbi = SPLIT_VCF_BY_CHROM_SAWFISH.out.tbi
     ch_versions = ch_versions.mix(SPLIT_VCF_BY_CHROM_SAWFISH.out.versions)
 
+
+// /*
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+//     FANIVA: EDIT_SNV_GENOTYPE
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// */
+
+    EDIT_SNV_GENOTYPE (
+
+        ch_deepvariant_split_by_chrom_vcf,
+        ch_deepvariant_split_by_chrom_tbi,
+        ch_sawfish_split_by_chrom_vcf,
+        ch_sawfish_split_by_chrom_tbi
+
+    )
+    ch_deepvariant_vcf_tbi_chrom_edited_gt = EDIT_SNV_GENOTYPE.out.vcf
+    ch_versions = ch_versions.mix(EDIT_SNV_GENOTYPE.out.versions)
+
 }
 
-    
+
 // /*
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 //     FANIVA: WHATSHAP_PHASE
