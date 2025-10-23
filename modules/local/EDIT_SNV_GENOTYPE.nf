@@ -2,9 +2,13 @@ process EDIT_SNV_GENOTYPE {
     tag "$meta.id:$chrom"
     label 'process_single'
 
-    container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-        'jiangyanyu/pacbio_wgs:v1.3' :
-        'jiangyanyu/pacbio_wgs:v1.3' }"
+    // container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
+    //     'jiangyanyu/pacbio_wgs:v1.3' :
+    //     'jiangyanyu/pacbio_wgs:v1.3' }"
+
+    conda "bioconda::bcftools=1.16"
+    container "quay.io/biocontainers/bcftools:1.16--hfe4b78e_1"
+
 
     input:
         tuple val(meta), path(snv_vcf_file), path(snv_tbi_file), path(sv_vcf_file), path(sv_tbi_file), val(chrom)
@@ -53,7 +57,7 @@ process EDIT_SNV_GENOTYPE {
 
     rm ${meta.id}.deepvariant.${chrom}.vcf
     rm ${meta.id}.sawfish.${chrom}.vcf
-    
+
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
