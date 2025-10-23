@@ -21,9 +21,23 @@ process EDIT_SNV_GENOTYPE {
 
 
     """
+    bcftools view \\
+        --threads ${task.cpus} \\
+        -O v \\
+        -o ${meta.id}.deepvariant.${chrom}.vcf \\
+        ${snv_vcf_file}
+
+
+    bcftools view \\
+        --threads ${task.cpus} \\
+        -O v \\
+        -o ${meta.id}.sawfish.${chrom}.vcf \\
+        ${sv_vcf_file}
+    
+    
     SNV_modify_GT.py \\
-        --snv_vcf ${snv_vcf_file} \\
-        --sv_vcf ${sv_vcf_file} \\
+        --snv_vcf ${meta.id}.deepvariant.${chrom}.vcf \\
+        --sv_vcf ${meta.id}.sawfish.${chrom}.vcf \\
         --output_vcf ${meta.id}.deepvariant.${chrom}.edited_gt.vcf
 
 
@@ -36,6 +50,10 @@ process EDIT_SNV_GENOTYPE {
 
     tabix ${meta.id}.deepvariant.${chrom}.edited_gt.vcf.gz
 
+
+    rm ${meta.id}.deepvariant.${chrom}.vcf
+    rm ${meta.id}.sawfish.${chrom}.vcf
+    
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
