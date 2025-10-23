@@ -23,7 +23,7 @@ process EXTRACT_LOW_MG_FROM_CRAM {
         samtools view \
             -@ ${task.cpus} \\
             --reference ${fasta} \\
-            -e '[mg]<95)' \\
+            -e '[mg]<95' \\
             -O cram \\
             -o ${meta.id}.low_MG.cram \\
             ${cram} \\
