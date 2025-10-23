@@ -25,8 +25,8 @@ process EDIT_SNV_GENOTYPE {
 
     """
     SNV_modify_GT.py \\
-        --snv_vcf ${meta.id}.deepvariant.${chrom}.vcf \\
-        --sv_vcf ${meta.id}.sawfish.${chrom}.vcf \\
+        --snv_vcf ${snv_vcf_file} \\
+        --sv_vcf ${sv_vcf_file} \\
         --output_vcf ${meta.id}.deepvariant.${chrom}.edited_gt.vcf
 
 
