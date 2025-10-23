@@ -2,12 +2,12 @@ process EDIT_SNV_GENOTYPE {
     tag "$meta.id:$chrom"
     label 'process_single'
 
-    // container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-    //     'jiangyanyu/pacbio_wgs:v1.3' :
-    //     'jiangyanyu/pacbio_wgs:v1.3' }"
+    container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
+        'jiangyanyu/pacbio_wgs:v1.3' :
+        'jiangyanyu/pacbio_wgs:v1.3' }"
 
-    conda "bioconda::bcftools=1.16"
-    container "quay.io/biocontainers/bcftools:1.16--hfe4b78e_1"
+    // conda "bioconda::bcftools=1.16"
+    // container "quay.io/biocontainers/bcftools:1.16--hfe4b78e_1"
 
 
     input:
@@ -25,18 +25,8 @@ process EDIT_SNV_GENOTYPE {
 
 
     """
-    bcftools view \\
-        --threads ${task.cpus} \\
-        -O v \\
-        -o ${meta.id}.deepvariant.${chrom}.vcf \\
-        ${snv_vcf_file}
-
-
-    bcftools view \\
-        --threads ${task.cpus} \\
-        -O v \\
-        -o ${meta.id}.sawfish.${chrom}.vcf \\
-        ${sv_vcf_file}
+    gunzip -c ${snv_vcf_file} > ${meta.id}.deepvariant.${chrom}.vcf 
+    gunzip -c ${sv_vcf_file} > ${meta.id}.sawfish.${chrom}.vcf
     
     
     SNV_modify_GT.py \\
