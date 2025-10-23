@@ -3,6 +3,7 @@
 from cyvcf2 import VCF, Writer
 import sys
 import argparse
+import shutil
 
 # Argument parser
 parser = argparse.ArgumentParser(description="Adjust SNV genotypes within a deletion region.")
@@ -34,8 +35,8 @@ for variant in sv_vcf(f"{query_chrom}:{query_start}-{query_end}"):
 sv_vcf.close()
 
 if region_start is None or region_end is None:
-    print("No overlapping deletion found in SV VCF.")
-    sys.exit(1)
+    print("No overlapping deletion found in SV VCF. Thus original SNV.vcf is used.")
+    shutil.copyfile(args.snv_vcf, args.output_vcf)
 
 # Step 2: Modify SNV VCF based on detected region
 snv_vcf = VCF(args.snv_vcf)
