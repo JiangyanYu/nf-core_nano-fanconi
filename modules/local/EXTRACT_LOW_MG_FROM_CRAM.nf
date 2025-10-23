@@ -1,5 +1,5 @@
 process EXTRACT_LOW_MG_FROM_CRAM {
-    tag "$meta.id:$chrom"
+    tag "$meta.id"
     maxForks 24  // Limits the number of concurrent executions of this process to 24
     label 'process_medium'
 
