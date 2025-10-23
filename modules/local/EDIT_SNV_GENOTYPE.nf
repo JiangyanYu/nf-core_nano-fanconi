@@ -14,8 +14,7 @@ process EDIT_SNV_GENOTYPE {
         tuple val(meta), path(snv_vcf_file), path(snv_tbi_file), path(sv_vcf_file), path(sv_tbi_file), val(chrom)
         
     output:
-        tuple val(meta), path("${meta.id}.deepvariant.${chrom}.edited_gt.vcf.gz"), val("deepvariant"), val(chrom), emit: vcf
-        tuple val(meta), path("${meta.id}.deepvariant.${chrom}.edited_gt.vcf.gz.tbi"), val("deepvariant"), val(chrom), emit: tbi
+        tuple val(meta), path("${meta.id}.deepvariant.${chrom}.edited_gt.vcf"), val("deepvariant"), val(chrom), emit: vcf
         path "versions.yml"                                , emit: versions
 
     when:
@@ -33,16 +32,6 @@ process EDIT_SNV_GENOTYPE {
         --snv_vcf ${meta.id}.deepvariant.${chrom}.vcf \\
         --sv_vcf ${meta.id}.sawfish.${chrom}.vcf \\
         --output_vcf ${meta.id}.deepvariant.${chrom}.edited_gt.vcf
-
-
-    bcftools view \\
-        --threads ${task.cpus} \\
-        -O z \\
-        -o ${meta.id}.deepvariant.${chrom}.edited_gt.vcf.gz \\
-        ${meta.id}.deepvariant.${chrom}.edited_gt.vcf
-
-
-    tabix ${meta.id}.deepvariant.${chrom}.edited_gt.vcf.gz
 
 
     rm ${meta.id}.deepvariant.${chrom}.vcf

@@ -568,7 +568,6 @@ workflow FANIVA {
         ch_matched_vcf_by_chrom
     )
     ch_deepvariant_vcf_chrom_edited_gt = EDIT_SNV_GENOTYPE.out.vcf
-    ch_deepvariant_tbi_chrom_edited_gt = EDIT_SNV_GENOTYPE.out.tbi
     ch_versions = ch_versions.mix(EDIT_SNV_GENOTYPE.out.versions)
 
 }
