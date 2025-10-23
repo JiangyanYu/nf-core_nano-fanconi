@@ -24,18 +24,10 @@ process EDIT_SNV_GENOTYPE {
 
 
     """
-    gunzip -c ${snv_vcf_file} > ${meta.id}.deepvariant.${chrom}.vcf 
-    gunzip -c ${sv_vcf_file} > ${meta.id}.sawfish.${chrom}.vcf
-    
-    
     SNV_modify_GT.py \\
         --snv_vcf ${meta.id}.deepvariant.${chrom}.vcf \\
         --sv_vcf ${meta.id}.sawfish.${chrom}.vcf \\
         --output_vcf ${meta.id}.deepvariant.${chrom}.edited_gt.vcf
-
-
-    rm ${meta.id}.deepvariant.${chrom}.vcf
-    rm ${meta.id}.sawfish.${chrom}.vcf
 
 
     cat <<-END_VERSIONS > versions.yml
