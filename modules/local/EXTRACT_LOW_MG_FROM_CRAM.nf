@@ -1,4 +1,4 @@
-process SPLIT_CRAM_BY_CHROM {
+process EXTRACT_LOW_MG_FROM_CRAM {
     tag "$meta.id:$chrom"
     maxForks 24  // Limits the number of concurrent executions of this process to 24
     label 'process_medium'
@@ -9,12 +9,12 @@ process SPLIT_CRAM_BY_CHROM {
         'quay.io/biocontainers/samtools:1.16.1--h6899075_1' }"
 
     input:
-        tuple val(meta), path(cram), path(crai), val(chrom)
+        tuple val(meta), path(cram), path(crai)
         path(fasta)
 
     output:
-        tuple val(meta), path("${meta.id}.${chrom}.cram"), emit: cram
-        tuple val(meta), path("${meta.id}.${chrom}.cram.crai"), emit: crai
+        tuple val(meta), path("${meta.id}.low_MG.cram"), emit: cram
+        tuple val(meta), path("${meta.id}.low_MG.cram.crai"), emit: crai
         path("versions.yml"), emit: versions
 
     script:
@@ -22,14 +22,14 @@ process SPLIT_CRAM_BY_CHROM {
         samtools view \
             -@ ${task.cpus} \\
             --reference ${fasta} \\
-            -e '[mg]>=95' \\
+            -e '[mg]<95)' \\
             -O cram \\
-            -o ${meta.id}.${chrom}.cram \\
+            -o ${meta.id}.low_MG.cram \\
             ${cram} \\
             ${chrom}
-            
-        samtools index -@ ${task.cpus} ${meta.id}.${chrom}.cram 
-        
+
+        samtools index -@ ${task.cpus} ${meta.id}.low_MG.cram
+
         cat <<-END_VERSIONS > versions.yml
         "${task.process}":
             samtools: \$(samtools --version | head -n1 | sed 's/^samtools //')

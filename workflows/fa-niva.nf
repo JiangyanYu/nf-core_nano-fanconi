@@ -60,11 +60,12 @@ include { DORADO_BASECALL_SUMMARY                              } from '../module
 include { PYCOQC                                               } from '../modules/local/PYCOQC.nf'
 include { PBMM2_FROM_BAM                                       } from '../modules/local/PBMM2_FROM_BAM.nf'
 // include { SAMTOOLS_STATS                                } from '../modules/local/SAMTOOLS_STATS.nf'
-// include { SPLIT_CRAM_BY_CHROM                                  } from '../modules/local/SPLIT_CRAM_BY_CHROM.nf'
-// include { DEEPVARIANT                                          } from '../modules/local/DEEPVARIANT.nf'
-// include { SAWFISH                                              } from '../modules/local/SAWFISH.nf'
-// include { SPLIT_VCF_BY_CHROM as SPLIT_VCF_BY_CHROM_DEEPVARIANT } from '../modules/local/SPLIT_VCF_BY_CHROM.nf'
-// include { SPLIT_VCF_BY_CHROM as SPLIT_VCF_BY_CHROM_SAWFISH     } from '../modules/local/SPLIT_VCF_BY_CHROM.nf'
+include { EXTRACT_LOW_MG_FROM_CRAM                             } from '../modules/local/EXTRACT_LOW_MG_FROM_CRAM.nf'
+include { SPLIT_CRAM_BY_CHROM                                  } from '../modules/local/SPLIT_CRAM_BY_CHROM.nf'
+include { DEEPVARIANT                                          } from '../modules/local/DEEPVARIANT.nf'
+include { SAWFISH                                              } from '../modules/local/SAWFISH.nf'
+include { SPLIT_VCF_BY_CHROM as SPLIT_VCF_BY_CHROM_DEEPVARIANT } from '../modules/local/SPLIT_VCF_BY_CHROM.nf'
+include { SPLIT_VCF_BY_CHROM as SPLIT_VCF_BY_CHROM_SAWFISH     } from '../modules/local/SPLIT_VCF_BY_CHROM.nf'
 // include { BCFTOOLS_SORT as SNIFFLES_SORT_VCF            } from '../modules/nf-core/bcftools/sort/main.nf'
 // include { TABIX_BGZIP as SNIFFLES_BGZIP_VCF             } from '../modules/nf-core/tabix/bgzip/main.nf'
 // include { TABIX_TABIX as SNIFFLES_TABIX_VCF             } from '../modules/nf-core/tabix/tabix/main.nf'
@@ -326,11 +327,12 @@ workflow FANIVA {
         }
         .set { ch_unmapped_bams } // set channel name
 
-    // /*
-    // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    //     FANIVA: pbmm2 alignment from BAM
-    // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    // */
+
+// /*
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+//     FANIVA: pbmm2 alignment from BAM
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// */
 
         PBMM2_FROM_BAM (
 
@@ -343,92 +345,116 @@ workflow FANIVA {
         ch_pbmm2_crai = PBMM2_FROM_BAM.out.crai
         ch_versions = ch_versions.mix(PBMM2_FROM_BAM.out.versions)
 
+
+// /*
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+//     FANIVA: EXTRACT_LOW_MG_FROM_CRAM
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// */
+
+    // Split CRAM by chromosome
+    ch_pbmm2_cram
+        .join(ch_pbmm2_crai)
+        .flatMap { meta, cram, crai ->
+            chroms.collect { chr ->
+                [meta, cram, crai, chr]
+            }
+        }
+        .set { ch_pbmm2_cram_crai_chrom }
+
+
+    // Extract low mapping quality reads from CRAM
+     EXTRACT_LOW_MG_FROM_CRAM(
+
+        ch_pbmm2_cram,
+        ch_pbmm2_crai,
+        ch_fasta,
+    )
+    ch_pbmm2_low_mg_cram = EXTRACT_LOW_MG_FROM_CRAM.out.cram
+    ch_pbmm2_low_mg_crai = EXTRACT_LOW_MG_FROM_CRAM.out.crai
+    ch_versions = ch_versions.mix(EXTRACT_LOW_MG_FROM_CRAM.out.versions)
+
+
+// /*
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+//     FANIVA: SPLIT_CRAM_BY_CHROM
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// */
+
+    // Split CRAM by chromosome
+    ch_pbmm2_cram
+        .join(ch_pbmm2_crai)
+        .flatMap { meta, cram, crai ->
+            chroms.collect { chr ->
+                [meta, cram, crai, chr]
+            }
+        }
+        .set { ch_pbmm2_cram_crai_chrom }
+
+
+    // Split CRAM by chromosome
+    SPLIT_CRAM_BY_CHROM(
+
+        ch_pbmm2_cram_crai_chrom,
+        ch_fasta
+    )
+    ch_pbmm2_split_by_chrom_cram = SPLIT_CRAM_BY_CHROM.out.cram
+    ch_pbmm2_split_by_chrom_crai = SPLIT_CRAM_BY_CHROM.out.crai
+    ch_versions = ch_versions.mix(SPLIT_CRAM_BY_CHROM.out.versions)
+
+
+// /*
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+//     FANIVA: DeepVariant
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// */
+
+    if (params.run_deepvariant) {
+        /*
+        * Call variants with deepvariant
+        */
+               
+        DEEPVARIANT( 
+
+            ch_pbmm2_cram,
+            ch_pbmm2_crai,
+            ch_fasta,
+            ch_fasta_index
+        )  
+        ch_deepvariant_vcf  = DEEPVARIANT.out.vcf
+        ch_deepvariant_tbi  = DEEPVARIANT.out.tbi
+        ch_versions = ch_versions.mix(DEEPVARIANT.out.versions)
+
     }
 
-    
 
+// /*
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+//     FANIVA: Sawfish
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// */
 
+    if (params.run_sawfish) {
 
-// // /*
-// // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-// //     FANIVA: SPLIT_CRAM_BY_CHROM
-// // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-// // */
+        // ch_sawfish_input = SAMTOOLS_SORT.out.crai
+        //     .mix(SAMTOOLS_SORT.out.cram)
+        //     .groupTuple(size:2)
+        //     .map{ meta, files -> [ meta, files.flatten() ]}
 
-//     // Split CRAM by chromosome
-//     ch_pbmm2_cram
-//         .join(ch_pbmm2_crai)
-//         .flatMap { meta, cram, crai ->
-//             chroms.collect { chr ->
-//                 [meta, cram, crai, chr]
-//             }
-//         }
-//         .set { ch_pbmm2_cram_crai_chrom }
+        // sawfish_input = ch_sawfish_input.join(ch_phased_vcf).dump(tag: "joined")
 
+        SAWFISH(
 
-//     // Split CRAM by chromosome
-//     SPLIT_CRAM_BY_CHROM(
+            ch_pbmm2_cram,
+            ch_pbmm2_crai,
+            ch_fasta,
+            ch_fasta_index
+        )
+        ch_sawfish_vcf  = SAWFISH.out.vcf
+        ch_sawfish_tbi  = SAWFISH.out.tbi
+        ch_versions = ch_versions.mix(SAWFISH.out.versions)
 
-//         ch_pbmm2_cram_crai_chrom,
-//         ch_fasta
-//     )
-//     ch_pbmm2_split_by_chrom_cram = SPLIT_CRAM_BY_CHROM.out.cram
-//     ch_pbmm2_split_by_chrom_crai = SPLIT_CRAM_BY_CHROM.out.crai
-//     ch_versions = ch_versions.mix(SPLIT_CRAM_BY_CHROM.out.versions)
-
-
-// // /*
-// // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-// //     FANIVA: DeepVariant
-// // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-// // */
-
-//     if (params.run_deepvariant) {
-//         /*
-//         * Call variants with deepvariant
-//         */
-               
-//         DEEPVARIANT( 
-
-//             ch_pbmm2_cram,
-//             ch_pbmm2_crai,
-//             ch_fasta,
-//             ch_fasta_index
-//         )  
-//         ch_deepvariant_vcf  = DEEPVARIANT.out.vcf
-//         ch_deepvariant_tbi  = DEEPVARIANT.out.tbi
-//         ch_versions = ch_versions.mix(DEEPVARIANT.out.versions)
-
-//     }
-
-
-// // /*
-// // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-// //     FANIVA: Sawfish
-// // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-// // */
-
-//     if (params.run_sawfish) {
-
-//         // ch_sawfish_input = SAMTOOLS_SORT.out.crai
-//         //     .mix(SAMTOOLS_SORT.out.cram)
-//         //     .groupTuple(size:2)
-//         //     .map{ meta, files -> [ meta, files.flatten() ]}
-
-//         // sawfish_input = ch_sawfish_input.join(ch_phased_vcf).dump(tag: "joined")
-
-//         SAWFISH(
-
-//             ch_pbmm2_cram,
-//             ch_pbmm2_crai,
-//             ch_fasta,
-//             ch_fasta_index
-//         )
-//         ch_sawfish_vcf  = SAWFISH.out.vcf
-//         ch_sawfish_tbi  = SAWFISH.out.tbi
-//         ch_versions = ch_versions.mix(SAWFISH.out.versions)
-
-//     }
+    }
 
 
 // /*
@@ -450,58 +476,58 @@ workflow FANIVA {
 //     }
     
 
-// // /*
-// // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-// //     FANIVA: SPLIT_VCF_BY_CHROM for deepvariant
-// // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-// // */
+// /*
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+//     FANIVA: SPLIT_VCF_BY_CHROM for deepvariant
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// */
 
-//     // Split VCF by chromosome
-//     ch_deepvariant_vcf
-//         .join(ch_deepvariant_tbi)
-//         .flatMap { meta, vcf, tbi ->
-//             chroms.collect { chr ->
-//                 [meta, vcf, tbi, "deepvariant", chr]
-//             }
-//         }
-//         .set { ch_deepvariant_vcf_tbi_chrom }
-
-
-//     // Split VCF by chromosome
-//     SPLIT_VCF_BY_CHROM_DEEPVARIANT(
-
-//         ch_deepvariant_vcf_tbi_chrom
-//     )
-//     ch_deepvariant_split_by_chrom_vcf = SPLIT_VCF_BY_CHROM_DEEPVARIANT.out.vcf
-//     ch_deepvariant_split_by_chrom_tbi = SPLIT_VCF_BY_CHROM_DEEPVARIANT.out.tbi
-//     ch_versions = ch_versions.mix(SPLIT_VCF_BY_CHROM_DEEPVARIANT.out.versions)
+    // Split VCF by chromosome
+    ch_deepvariant_vcf
+        .join(ch_deepvariant_tbi)
+        .flatMap { meta, vcf, tbi ->
+            chroms.collect { chr ->
+                [meta, vcf, tbi, "deepvariant", chr]
+            }
+        }
+        .set { ch_deepvariant_vcf_tbi_chrom }
 
 
-// // /*
-// // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-// //     FANIVA: SPLIT_VCF_BY_CHROM for sawfish
-// // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-// // */
+    // Split VCF by chromosome
+    SPLIT_VCF_BY_CHROM_DEEPVARIANT(
 
-//     // Split VCF by chromosome
-//     ch_sawfish_vcf
-//         .join(ch_sawfish_tbi)
-//         .flatMap { meta, vcf, tbi ->
-//             chroms.collect { chr ->
-//                 [meta, vcf, tbi, "sawfish", chr]
-//             }
-//         }
-//         .set { ch_sawfish_vcf_tbi_chrom }
+        ch_deepvariant_vcf_tbi_chrom
+    )
+    ch_deepvariant_split_by_chrom_vcf = SPLIT_VCF_BY_CHROM_DEEPVARIANT.out.vcf
+    ch_deepvariant_split_by_chrom_tbi = SPLIT_VCF_BY_CHROM_DEEPVARIANT.out.tbi
+    ch_versions = ch_versions.mix(SPLIT_VCF_BY_CHROM_DEEPVARIANT.out.versions)
 
 
-//     // Split VCF by chromosome
-//     SPLIT_VCF_BY_CHROM_SAWFISH(
+// /*
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+//     FANIVA: SPLIT_VCF_BY_CHROM for sawfish
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// */
 
-//         ch_sawfish_vcf_tbi_chrom
-//     )
-//     ch_sawfish_split_by_chrom_vcf = SPLIT_VCF_BY_CHROM_SAWFISH.out.vcf
-//     ch_sawfish_split_by_chrom_tbi = SPLIT_VCF_BY_CHROM_SAWFISH.out.tbi
-//     ch_versions = ch_versions.mix(SPLIT_VCF_BY_CHROM_SAWFISH.out.versions)
+    // Split VCF by chromosome
+    ch_sawfish_vcf
+        .join(ch_sawfish_tbi)
+        .flatMap { meta, vcf, tbi ->
+            chroms.collect { chr ->
+                [meta, vcf, tbi, "sawfish", chr]
+            }
+        }
+        .set { ch_sawfish_vcf_tbi_chrom }
+
+
+    // Split VCF by chromosome
+    SPLIT_VCF_BY_CHROM_SAWFISH(
+
+        ch_sawfish_vcf_tbi_chrom
+    )
+    ch_sawfish_split_by_chrom_vcf = SPLIT_VCF_BY_CHROM_SAWFISH.out.vcf
+    ch_sawfish_split_by_chrom_tbi = SPLIT_VCF_BY_CHROM_SAWFISH.out.tbi
+    ch_versions = ch_versions.mix(SPLIT_VCF_BY_CHROM_SAWFISH.out.versions)
 
 }
 
