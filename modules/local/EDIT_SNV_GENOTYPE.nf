@@ -12,10 +12,11 @@ process EDIT_SNV_GENOTYPE {
 
     input:
         tuple val(meta), path(snv_vcf_file), path(snv_tbi_file), path(sv_vcf_file), path(sv_tbi_file), val(chrom)
+        path regions_csv
         
     output:
         tuple val(meta), path("${meta.id}.deepvariant.${chrom}.edited_gt.vcf"), val("deepvariant"), val(chrom), emit: vcf
-        path "versions.yml"                                , emit: versions
+        path "versions.yml"                                                                                   , emit: versions
 
     when:
     task.ext.when == null || task.ext.when
@@ -27,6 +28,7 @@ process EDIT_SNV_GENOTYPE {
     SNV_modify_GT.py \\
         --snv_vcf ${snv_vcf_file} \\
         --sv_vcf ${sv_vcf_file} \\
+        --regions_csv ${regions_csv} \\
         --output_vcf ${meta.id}.deepvariant.${chrom}.edited_gt.vcf
 
 
