@@ -566,6 +566,11 @@ workflow FANIVA {
         }
         .set { ch_matched_vcf_by_chrom }
 
+
+    // Load SNV_modify_regions csv file
+    ch_SNV_modify_regions = Channel.of(file(params.SNV_modify_regions))
+
+
     // load the SNV_modify_regions csv file
     // if (params.joint_SNV_SV_phasing) { 
     //     ch_SNV_modify_regions = Channel.of(file(params.SNV_modify_regions))
