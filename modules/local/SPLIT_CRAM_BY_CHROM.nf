@@ -13,8 +13,7 @@ process SPLIT_CRAM_BY_CHROM {
         path(fasta)
 
     output:
-        tuple val(meta), path("${meta.id}.${chrom}.cram"), emit: cram
-        tuple val(meta), path("${meta.id}.${chrom}.cram.crai"), emit: crai
+        tuple val(meta), path("${meta.id}.${chrom}.cram"), path("${meta.id}.${chrom}.cram.crai"), val(chrom), emit: cram_crai
         path("versions.yml"), emit: versions
 
     script:

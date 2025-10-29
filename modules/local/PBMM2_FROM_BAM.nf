@@ -14,8 +14,9 @@ process PBMM2_FROM_BAM {
         path (fasta_mmi)
 
     output:
-        tuple val(meta), path ("*.cram"), emit: cram
-        tuple val(meta), path ("*.cram.crai"), emit: crai
+        // tuple val(meta), path ("*.cram"), emit: cram
+        // tuple val(meta), path ("*.cram.crai"), emit: crai
+        tuple val(meta), path ("${meta.id}.cram"), path ("${meta.id}.cram.crai"), emit: cram_crai
         path "versions.yml", emit: versions
 
     script:

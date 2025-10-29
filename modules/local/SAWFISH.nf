@@ -8,14 +8,12 @@ process SAWFISH {
         'jiangyanyu/pacbio_wgs:v1.2' }"
 
     input:
-        tuple val(meta), path(cram)
-        tuple val(meta), path(crai)
+        tuple val(meta), path(cram), path(crai)
         path (fasta)
         path (fasta_index)
 
     output:
-        tuple val(meta), path ("${meta.id}.sawfish.vcf.gz"), emit: vcf
-        tuple val(meta), path ("${meta.id}.sawfish.vcf.gz.tbi"), emit: tbi
+        tuple val(meta), path ("${meta.id}.sawfish.vcf.gz"), path ("${meta.id}.sawfish.vcf.gz.tbi"), val("sawfish"), emit: vcf_tbi
         path "versions.yml", emit: versions
 
     script:

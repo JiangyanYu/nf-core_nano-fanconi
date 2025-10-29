@@ -17,14 +17,12 @@ process DEEPVARIANT {
     }
 
     input:
-        tuple val(meta), path(cram)
-        tuple val(meta), path(crai)
+        tuple val(meta), path(cram), path(crai)
         path(fasta)
         path(fai)
 
     output:
-        tuple val(meta), path("${meta.id}.deepvariant.vcf.gz"), emit: vcf
-        tuple val(meta), path("${meta.id}.deepvariant.vcf.gz.tbi"), emit: tbi
+        tuple val(meta), path("${meta.id}.deepvariant.vcf.gz"), path("${meta.id}.deepvariant.vcf.gz.tbi"), val("deepvariant"), emit: vcf_tbi
         path "versions.yml", emit: versions
 
     when:
