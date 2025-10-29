@@ -567,6 +567,10 @@ workflow FANIVA {
         .set { ch_matched_vcf_by_chrom }
 
 
+    println "DEBUG: ch_matched_vcf_by_chrom"
+    ch_matched_vcf_by_chrom.dump(pretty: true)
+
+
     // Load SNV_modify_regions csv file
     ch_SNV_modify_regions = Channel.of(file(params.SNV_modify_regions))
 
