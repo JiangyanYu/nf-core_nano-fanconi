@@ -493,8 +493,7 @@ workflow FANIVA {
 
         ch_sawfish_vcf_tbi_chrom
     )
-    ch_sawfish_split_by_chrom_vcf = SPLIT_VCF_BY_CHROM_SAWFISH.out.vcf
-    ch_sawfish_split_by_chrom_tbi = SPLIT_VCF_BY_CHROM_SAWFISH.out.tbi
+    ch_sawfish_split_by_chrom_vcf_tbi = SPLIT_VCF_BY_CHROM_SAWFISH.out.vcf_tbi
     ch_versions = ch_versions.mix(SPLIT_VCF_BY_CHROM_SAWFISH.out.versions)
 
 
@@ -505,35 +504,27 @@ workflow FANIVA {
 // */
 
     // Match DeepVariant and Sawfish VCF files by sample and chromosome
-    ch_deepvariant_split_by_chrom_vcf
-        .map { meta, vcf, caller, chrom -> [[meta.id, chrom], meta, vcf, caller, chrom] }
+    ch_deepvariant_split_by_chrom_vcf_tbi
+        .map { meta, vcf, tbi, caller, chrom -> [[meta.id, chrom], meta, vcf, tbi, caller] }
         .join(
-            ch_deepvariant_split_by_chrom_tbi.map { meta, tbi, caller, chrom -> 
-                [[meta.id, chrom], tbi] 
+            ch_sawfish_split_by_chrom_vcf_tbi.map { meta, vcf, tbi, caller, chrom -> 
+                [[meta.id, chrom], vcf, tbi, caller, chrom] 
             }, by: 0
         )
-        .join(
-            ch_sawfish_split_by_chrom_vcf.map { meta, vcf, caller, chrom -> 
-                [[meta.id, chrom], vcf] 
-            }, by: 0
-        )
-        .join(
-            ch_sawfish_split_by_chrom_tbi.map { meta, tbi, caller, chrom -> 
-                [[meta.id, chrom], tbi] 
-            }, by: 0
-        )
-        .map { key, meta, dv_vcf, dv_caller, chrom, dv_tbi, sf_vcf, sf_tbi ->
-            [meta, dv_vcf, dv_tbi, sf_vcf, sf_tbi, chrom]
+        .map { key, meta, snv_vcf, snv_tbi, snv_caller, sv_vcf, sv_tbi, sv_caller, sv_chrom ->
+            [meta, snv_vcf, snv_tbi, snv_caller, sv_vcf, sv_tbi, sv_caller, sv_chrom]
         }
-        .view { meta, dv_vcf, dv_tbi, sf_vcf, sf_tbi, chrom ->
+        .view { meta, snv_vcf, snv_tbi, snv_caller, sv_vcf, sv_tbi, sv_caller, sv_chrom ->
             """
             DEBUG ch_matched_vcf_by_chrom:
             - Sample: ${meta.id}
-            - Chromosome: ${chrom}
-            - DeepVariant VCF: ${dv_vcf.name}
-            - DeepVariant TBI: ${dv_tbi.name}
-            - Sawfish VCF: ${sf_vcf.name}
-            - Sawfish TBI: ${sf_tbi.name}
+            - DeepVariant VCF: ${snv_vcf.name}
+            - DeepVariant TBI: ${snv_tbi.name}
+            - DeepVariant caller: ${snv_caller}
+            - Sawfish VCF: ${sv_vcf.name}
+            - Sawfish TBI: ${sv_tbi.name}
+            - Sawfish caller: ${sv_caller}
+            - Chromosome: ${sv_chrom}
             ---
             """
         }
