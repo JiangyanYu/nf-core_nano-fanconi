@@ -545,41 +545,41 @@ workflow FANIVA {
 
     // Match DeepVariant and Sawfish VCF files by sample and chromosome
     ch_deepvariant_split_by_chrom_vcf
-        .map { meta, vcf, caller, chrom -> [chrom, meta, vcf, caller, chrom] }
+        .map { meta, vcf, caller, chrom -> [[meta.id, chrom], meta, vcf, caller, chrom] }
         .join(
             ch_deepvariant_split_by_chrom_tbi.map { meta, tbi, caller, chrom -> 
-                [chrom, tbi] 
+                [[meta.id, chrom], tbi] 
             }, by: 0
         )
         .join(
             ch_sawfish_split_by_chrom_vcf.map { meta, vcf, caller, chrom -> 
-                [chrom, vcf] 
+                [[meta.id, chrom], vcf] 
             }, by: 0
         )
         .join(
             ch_sawfish_split_by_chrom_tbi.map { meta, tbi, caller, chrom -> 
-                [chrom, tbi] 
+                [[meta.id, chrom], tbi] 
             }, by: 0
         )
         .map { key, meta, dv_vcf, dv_caller, chrom, dv_tbi, sf_vcf, sf_tbi ->
             [meta, dv_vcf, dv_tbi, sf_vcf, sf_tbi, chrom]
         }
+        .view { meta, dv_vcf, dv_tbi, sf_vcf, sf_tbi, chrom ->
+            """
+            DEBUG ch_matched_vcf_by_chrom:
+            - Sample: ${meta.id}
+            - Chromosome: ${chrom}
+            - DeepVariant VCF: ${dv_vcf.name}
+            - DeepVariant TBI: ${dv_tbi.name}
+            - Sawfish VCF: ${sf_vcf.name}
+            - Sawfish TBI: ${sf_tbi.name}
+            ---
+            """
+        }
         .set { ch_matched_vcf_by_chrom }
-        
-
-    println "DEBUG: ch_matched_vcf_by_chrom"
-    ch_matched_vcf_by_chrom.dump(pretty: true)
-
 
     // Load SNV_modify_regions csv file
     ch_SNV_modify_regions = Channel.of(file(params.SNV_modify_regions))
-
-
-    // load the SNV_modify_regions csv file
-    // if (params.joint_SNV_SV_phasing) { 
-    //     ch_SNV_modify_regions = Channel.of(file(params.SNV_modify_regions))
-        
-    //     } else { exit 1, 'SNV_modify_regions.csv not specified!' }
 
     EDIT_SNV_GENOTYPE(
         ch_matched_vcf_by_chrom,
