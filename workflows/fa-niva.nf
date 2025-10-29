@@ -564,22 +564,11 @@ workflow FANIVA {
         .map { key, meta, dv_vcf, dv_caller, chrom, dv_tbi, sf_vcf, sf_tbi ->
             [meta, dv_vcf, dv_tbi, sf_vcf, sf_tbi, chrom]
         }
-        .view { meta, dv_vcf, dv_tbi, sf_vcf, sf_tbi, chrom ->
-                """
-                DEBUG ch_matched_vcf_by_chrom:
-                - Sample: ${meta.id}
-                - Chromosome: ${chrom}
-                - DeepVariant VCF: ${dv_vcf}
-                - DeepVariant TBI: ${dv_tbi}
-                - Sawfish VCF: ${sf_vcf}
-                - Sawfish TBI: ${sf_tbi}
-                ---
-                """
-        }.set { ch_matched_vcf_by_chrom }
+        .set { ch_matched_vcf_by_chrom }
         
 
-    // println "DEBUG: ch_matched_vcf_by_chrom"
-    // ch_matched_vcf_by_chrom.dump(pretty: true)
+    println "DEBUG: ch_matched_vcf_by_chrom"
+    ch_matched_vcf_by_chrom.dump(pretty: true)
 
 
     // Load SNV_modify_regions csv file
