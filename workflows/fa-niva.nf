@@ -567,10 +567,10 @@ workflow FANIVA {
         .set { ch_matched_vcf_by_chrom }
 
     // load the SNV_modify_regions csv file
-    if (params.joint_SNV_SV_phasing) { 
-        ch_SNV_modify_regions = Channel.of(file(params.SNV_modify_regions))
+    // if (params.joint_SNV_SV_phasing) { 
+    //     ch_SNV_modify_regions = Channel.of(file(params.SNV_modify_regions))
         
-        } else { exit 1, 'SNV_modify_regions.csv not specified!' }
+    //     } else { exit 1, 'SNV_modify_regions.csv not specified!' }
 
     EDIT_SNV_GENOTYPE(
         ch_matched_vcf_by_chrom,
