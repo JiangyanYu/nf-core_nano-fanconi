@@ -545,20 +545,20 @@ workflow FANIVA {
 
     // Match DeepVariant and Sawfish VCF files by sample and chromosome
     ch_deepvariant_split_by_chrom_vcf
-        .map { meta, vcf, caller, chrom -> [[meta.id, chrom], meta, vcf, caller, chrom] }
+        .map { meta, vcf, caller, chrom -> [chrom, meta, vcf, caller, chrom] }
         .join(
             ch_deepvariant_split_by_chrom_tbi.map { meta, tbi, caller, chrom -> 
-                [[meta.id, chrom], tbi] 
+                [chrom, tbi] 
             }, by: 0
         )
         .join(
             ch_sawfish_split_by_chrom_vcf.map { meta, vcf, caller, chrom -> 
-                [[meta.id, chrom], vcf] 
+                [chrom, vcf] 
             }, by: 0
         )
         .join(
             ch_sawfish_split_by_chrom_tbi.map { meta, tbi, caller, chrom -> 
-                [[meta.id, chrom], tbi] 
+                [chrom, tbi] 
             }, by: 0
         )
         .map { key, meta, dv_vcf, dv_caller, chrom, dv_tbi, sf_vcf, sf_tbi ->
