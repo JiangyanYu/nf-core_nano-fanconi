@@ -18,6 +18,8 @@ for (param in checkPathParamList) { if (param) { file(param, checkIfExists: true
 
 // Check mandatory parameters
 if (params.input) { ch_input = file(params.input) } else { exit 1, 'Input samplesheet not specified!' }
+
+
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     CONFIG FILES
@@ -564,8 +566,15 @@ workflow FANIVA {
         }
         .set { ch_matched_vcf_by_chrom }
 
+    // load the SNV_modify_regions csv file
+    if (params.joint_SNV_SV_phasing) { 
+        ch_SNV_modify_regions = Channel.of(file(params.SNV_modify_regions))
+        
+        } else { exit 1, 'SNV_modify_regions.csv not specified!' }
+
     EDIT_SNV_GENOTYPE(
-        ch_matched_vcf_by_chrom
+        ch_matched_vcf_by_chrom,
+        ch_SNV_modify_regions
     )
     ch_deepvariant_vcf_chrom_edited_gt = EDIT_SNV_GENOTYPE.out.vcf
     ch_versions = ch_versions.mix(EDIT_SNV_GENOTYPE.out.versions)
