@@ -503,32 +503,14 @@ workflow FANIVA {
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // */
 
-    // Count chromosomes for debugging
-    ch_deepvariant_split_by_chrom_vcf_tbi
-        .count()
-        .view { "Total DeepVariant chromosomes: $it" }
-    
-    ch_sawfish_split_by_chrom_vcf_tbi
-        .count()
-        .view { "Total Sawfish chromosomes: $it" }
-
-    // Debug individual channels first
-    ch_deepvariant_split_by_chrom_vcf_tbi
-        // .view { "DEBUG DeepVariant: ${it}" }
-        .set { ch_deepvariant_debug }
-    
-    ch_sawfish_split_by_chrom_vcf_tbi
-        // .view { "DEBUG Sawfish: ${it}" }
-        .set { ch_sawfish_debug }
-
     // Match DeepVariant and Sawfish VCF files by sample and chromosome
-    ch_deepvariant_debug
+    ch_deepvariant_split_by_chrom_vcf_tbi
         .map { meta, vcf, tbi, caller, chrom -> 
             // Create join key: [sample_id, chromosome]
             [[meta.id, chrom], meta, vcf, tbi, caller, chrom] 
         }
         .join(
-            ch_sawfish_debug.map { meta, vcf, tbi, caller, chrom -> 
+            ch_sawfish_split_by_chrom_vcf_tbi.map { meta, vcf, tbi, caller, chrom -> 
                 // Create matching join key: [sample_id, chromosome]
                 [[meta.id, chrom], vcf, tbi, caller] 
             }, 
@@ -538,33 +520,8 @@ workflow FANIVA {
             // Reconstruct tuple with all necessary elements
             [meta, snv_vcf, snv_tbi, snv_caller, sv_vcf, sv_tbi, sv_caller, snv_chrom]
         }
-        // .view { meta, snv_vcf, snv_tbi, snv_caller, sv_vcf, sv_tbi, sv_caller, chrom ->
-        //     """
-        //     DEBUG ch_matched_vcf_by_chrom:
-        //     - Sample: ${meta.id}
-        //     - Chromosome: ${chrom}
-        //     - DeepVariant VCF: ${snv_vcf.name}
-        //     - Sawfish VCF: ${sv_vcf.name}
-        //     ---
-        //     """ 
-        // }
-        .count()
-        .view { "Total matched chromosomes: $it" }
-        .set { ch_matched_count }
-
-    // Recreate the channel for actual processing (since count() consumes the channel)
-    ch_deepvariant_debug
-        .map { meta, vcf, tbi, caller, chrom -> 
-            [[meta.id, chrom], meta, vcf, tbi, caller, chrom] 
-        }
-        .join(
-            ch_sawfish_debug.map { meta, vcf, tbi, caller, chrom -> 
-                [[meta.id, chrom], vcf, tbi, caller] 
-            }, 
-            by: 0
-        )
-        .map { key, meta, snv_vcf, snv_tbi, snv_caller, snv_chrom, sv_vcf, sv_tbi, sv_caller ->
-            [meta, snv_vcf, snv_tbi, snv_caller, sv_vcf, sv_tbi, sv_caller, snv_chrom]
+        .view { meta, snv_vcf, snv_tbi, snv_caller, sv_vcf, sv_tbi, sv_caller, chrom ->
+            "DEBUG: Processing ${meta.id} ${chrom} - DV:${snv_vcf.name} SF:${sv_vcf.name}"
         }
         .set { ch_matched_vcf_by_chrom }
 
