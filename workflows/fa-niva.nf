@@ -516,10 +516,13 @@ workflow FANIVA {
             }, 
             by: 0
         )
-        .map { key, meta, snv_vcf, snv_tbi, snv_caller, snv_chrom, sv_vcf, sv_tbi, sv_caller->
-            [meta, snv_vcf, snv_tbi, snv_caller, sv_vcf, sv_tbi, sv_caller, snv_chrom]
+        .map { join_key, snv_meta, snv_vcf, snv_tbi, snv_caller, snv_chrom, sv_vcf, sv_tbi, sv_caller ->
+            [snv_meta, snv_vcf, snv_tbi, snv_caller, sv_vcf, sv_tbi, sv_caller, snv_chrom]
         }
-        .unique()
+        .unique { snv_meta, snv_vcf, snv_tbi, snv_caller, sv_vcf, sv_tbi, sv_caller, snv_chrom ->
+            // Ensure uniqueness by sample_id + chromosome
+            "${snv_meta.id}_${snv_chrom}"
+        }
         .set { ch_matched_vcf_by_chrom }
 
     // Load SNV_modify_regions csv file
