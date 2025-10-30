@@ -499,34 +499,25 @@ workflow FANIVA {
 
 // /*
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-//     FANIVA: EDIT_SNV_GENOTYPE - Match DeepVariant and Sawfish by chromosome (FIXED)
+//     FANIVA: EDIT_SNV_GENOTYPE - Fixed channel consumption
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // */
 
-    // Debug the input channels first
+    // Create the matched channel directly without intermediate debug channels
     ch_deepvariant_split_by_chrom_vcf_tbi
-        .view { "DeepVariant input: ${it}" }
-        .set { ch_deepvariant_debug }
-    
-    ch_sawfish_split_by_chrom_vcf_tbi
-        .view { "Sawfish input: ${it}" }
-        .set { ch_sawfish_debug }
-
-    // Match DeepVariant and Sawfish VCF files by sample and chromosome
-    ch_deepvariant_debug
         .map { meta, vcf, tbi, caller, chrom -> 
             // Create join key: [sample_id, chromosome]
             [[meta.id, chrom], [meta, vcf, tbi, caller, chrom]] 
         }
         .join(
-            ch_sawfish_debug.map { meta, vcf, tbi, caller, chrom -> 
+            ch_sawfish_split_by_chrom_vcf_tbi.map { meta, vcf, tbi, caller, chrom -> 
                 // Create matching join key: [sample_id, chromosome]
                 [[meta.id, chrom], [vcf, tbi, caller]] 
             }, 
             by: 0
         )
         .map { key, deepvariant_data, sawfish_data ->
-            // Reconstruct tuple: extract data from nested lists
+            // Reconstruct tuple with proper structure
             def meta = deepvariant_data[0]
             def snv_vcf = deepvariant_data[1]
             def snv_tbi = deepvariant_data[2] 
@@ -538,54 +529,18 @@ workflow FANIVA {
             def sv_caller = sawfish_data[2]
             
             [meta, snv_vcf, snv_tbi, snv_caller, sv_vcf, sv_tbi, sv_caller, chrom]
-        }
-        .view { meta, snv_vcf, snv_tbi, snv_caller, sv_vcf, sv_tbi, sv_caller, chrom ->
-            "DEBUG MATCHED: Processing ${meta.id} ${chrom} - DV:${snv_vcf.name} SF:${sv_vcf.name}"
         }
         .set { ch_matched_vcf_by_chrom }
-
-    // Count how many matched tuples we have
-    ch_matched_vcf_by_chrom
-        .count()
-        .view { "Total matched chromosomes for EDIT_SNV_GENOTYPE: $it" }
-
-    // Create the channel again for actual processing (since count() consumes it)
-    ch_deepvariant_debug
-        .map { meta, vcf, tbi, caller, chrom -> 
-            [[meta.id, chrom], [meta, vcf, tbi, caller, chrom]] 
-        }
-        .join(
-            ch_sawfish_debug.map { meta, vcf, tbi, caller, chrom -> 
-                [[meta.id, chrom], [vcf, tbi, caller]] 
-            }, 
-            by: 0
-        )
-        .map { key, deepvariant_data, sawfish_data ->
-            def meta = deepvariant_data[0]
-            def snv_vcf = deepvariant_data[1]
-            def snv_tbi = deepvariant_data[2] 
-            def snv_caller = deepvariant_data[3]
-            def chrom = deepvariant_data[4]
-            
-            def sv_vcf = sawfish_data[0]
-            def sv_tbi = sawfish_data[1]
-            def sv_caller = sawfish_data[2]
-            
-            [meta, snv_vcf, snv_tbi, snv_caller, sv_vcf, sv_tbi, sv_caller, chrom]
-        }
-        .set { ch_matched_vcf_by_chrom_final }
 
     // Load SNV_modify_regions csv file
     ch_SNV_modify_regions = Channel.of(file(params.SNV_modify_regions))
 
     EDIT_SNV_GENOTYPE(
-        ch_matched_vcf_by_chrom_final,
+        ch_matched_vcf_by_chrom,
         ch_SNV_modify_regions
     )
     ch_deepvariant_vcf_chrom_edited_gt = EDIT_SNV_GENOTYPE.out.vcf
     ch_versions = ch_versions.mix(EDIT_SNV_GENOTYPE.out.versions)
-
-}
 
 // /*
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
