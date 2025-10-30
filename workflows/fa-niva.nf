@@ -537,7 +537,8 @@ workflow FANIVA {
             - DeepVariant VCF: ${snv_vcf.name}
             - Sawfish VCF: ${sv_vcf.name}
             ---
-            """
+            """ 
+        }
         .set { ch_matched_vcf_by_chrom }
 
     // Load SNV_modify_regions csv file
