@@ -514,11 +514,11 @@ workflow FANIVA {
 
     // Debug individual channels first
     ch_deepvariant_split_by_chrom_vcf_tbi
-        .view { "DEBUG DeepVariant: ${it}" }
+        // .view { "DEBUG DeepVariant: ${it}" }
         .set { ch_deepvariant_debug }
     
     ch_sawfish_split_by_chrom_vcf_tbi
-        .view { "DEBUG Sawfish: ${it}" }
+        // .view { "DEBUG Sawfish: ${it}" }
         .set { ch_sawfish_debug }
 
     // Match DeepVariant and Sawfish VCF files by sample and chromosome
