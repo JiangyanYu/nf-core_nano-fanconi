@@ -514,20 +514,20 @@ workflow FANIVA {
         .map { key, meta, snv_vcf, snv_tbi, snv_caller, sv_vcf, sv_tbi, sv_caller, sv_chrom ->
             [meta, snv_vcf, snv_tbi, snv_caller, sv_vcf, sv_tbi, sv_caller, sv_chrom]
         }
-        .view { meta, snv_vcf, snv_tbi, snv_caller, sv_vcf, sv_tbi, sv_caller, sv_chrom ->
-            """
-            DEBUG ch_matched_vcf_by_chrom:
-            - Sample: ${meta.id}
-            - DeepVariant VCF: ${snv_vcf.name}
-            - DeepVariant TBI: ${snv_tbi.name}
-            - DeepVariant caller: ${snv_caller}
-            - Sawfish VCF: ${sv_vcf.name}
-            - Sawfish TBI: ${sv_tbi.name}
-            - Sawfish caller: ${sv_caller}
-            - Chromosome: ${sv_chrom}
-            ---
-            """
-        }
+        // .view { meta, snv_vcf, snv_tbi, snv_caller, sv_vcf, sv_tbi, sv_caller, sv_chrom ->
+        //     """
+        //     DEBUG ch_matched_vcf_by_chrom:
+        //     - Sample: ${meta.id}
+        //     - DeepVariant VCF: ${snv_vcf.name}
+        //     - DeepVariant TBI: ${snv_tbi.name}
+        //     - DeepVariant caller: ${snv_caller}
+        //     - Sawfish VCF: ${sv_vcf.name}
+        //     - Sawfish TBI: ${sv_tbi.name}
+        //     - Sawfish caller: ${sv_caller}
+        //     - Chromosome: ${sv_chrom}
+        //     ---
+        //     """
+        // }
         .set { ch_matched_vcf_by_chrom }
 
     // Load SNV_modify_regions csv file
