@@ -505,31 +505,21 @@ workflow FANIVA {
 
     // Create the matched channel directly without intermediate debug channels
     ch_deepvariant_split_by_chrom_vcf_tbi
-        .map { meta, vcf, tbi, caller, chrom -> 
+        .map { snv_meta, snv_vcf, snv_tbi, snv_caller, snv_chrom -> 
             // Create join key: [sample_id, chromosome]
-            [[meta.id, chrom], [meta, vcf, tbi, caller, chrom]] 
+            [[snv_chrom], [snv_meta, snv_vcf, snv_tbi, snv_caller, snv_chrom]] 
         }
         .join(
-            ch_sawfish_split_by_chrom_vcf_tbi.map { meta, vcf, tbi, caller, chrom -> 
+            ch_sawfish_split_by_chrom_vcf_tbi.map { sv_meta, sv_vcf, sv_tbi, sv_caller, sv_chrom -> 
                 // Create matching join key: [sample_id, chromosome]
-                [[meta.id, chrom], [vcf, tbi, caller]] 
+                [[sv_chrom], [sv_vcf, sv_tbi, sv_caller]] 
             }, 
             by: 0
         )
-        .map { key, deepvariant_data, sawfish_data ->
-            // Reconstruct tuple with proper structure
-            def meta = deepvariant_data[0]
-            def snv_vcf = deepvariant_data[1]
-            def snv_tbi = deepvariant_data[2] 
-            def snv_caller = deepvariant_data[3]
-            def chrom = deepvariant_data[4]
-            
-            def sv_vcf = sawfish_data[0]
-            def sv_tbi = sawfish_data[1]
-            def sv_caller = sawfish_data[2]
-            
-            [meta, snv_vcf, snv_tbi, snv_caller, sv_vcf, sv_tbi, sv_caller, chrom]
+        .map { key, meta, snv_vcf, snv_tbi, snv_caller, snv_chrom, sv_vcf, sv_tbi, sv_caller->
+            [meta, snv_vcf, snv_tbi, snv_caller, sv_vcf, sv_tbi, sv_caller, snv_chrom]
         }
+        .unique()
         .set { ch_matched_vcf_by_chrom }
 
     // Load SNV_modify_regions csv file
