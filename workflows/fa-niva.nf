@@ -542,6 +542,8 @@ workflow FANIVA {
     ch_deepvariant_vcf_chrom_edited_gt = EDIT_SNV_GENOTYPE.out.vcf
     ch_versions = ch_versions.mix(EDIT_SNV_GENOTYPE.out.versions)
 
+}
+
 // /*
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 //     FANIVA: WHATSHAP_PHASE
