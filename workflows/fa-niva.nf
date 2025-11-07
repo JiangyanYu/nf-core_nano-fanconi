@@ -580,7 +580,8 @@ workflow FANIVA {
     WHATSHAP_PHASE (
 
         ch_cram_crai_vcf_tbi_caller_chrom,
-        ch_fasta
+        ch_fasta,
+        ch_fasta_index
     )
     ch_whatshap_phase_vcf_tbi_caller_chrom = WHATSHAP_PHASE.out.vcf_tbi_caller_chrom
     ch_versions = ch_versions.mix(WHATSHAP_PHASE.out.versions)

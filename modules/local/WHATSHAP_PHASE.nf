@@ -9,6 +9,7 @@ process WHATSHAP_PHASE {
     input:
         tuple val(meta), path(split_cram), path(split_crai), path(split_vcf), path(split_tbi), val(caller), val(chrom)
         path(fasta)
+        path(fasta_index)
 
     output:
         tuple val(meta), path("${meta.id}.${caller}.${chrom}.whatshap_phase.vcf.gz"), path("${meta.id}.${caller}.${chrom}.whatshap_phase.vcf.gz.tbi"), val(caller), val(chrom), emit: vcf_tbi_caller_chrom
