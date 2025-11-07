@@ -555,7 +555,7 @@ workflow FANIVA {
     ch_versions = ch_versions.mix(WHATSHAP_PHASE.out.versions)
 
 
-
+}
 
 
 
