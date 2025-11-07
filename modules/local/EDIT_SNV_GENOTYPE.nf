@@ -11,11 +11,11 @@ process EDIT_SNV_GENOTYPE {
 
 
     input:
-        tuple val(meta), path(snv_vcf), path(snv_tbi), val(snv_caller), path(sv_vcf), path(sv_tbi), val(sv_caller), val(chrom)
+        tuple val(meta), path(snv_vcf), path(snv_tbi), path(sv_vcf), path(sv_tbi), val(chrom)
         path regions_csv
         
     output:
-        tuple val(meta), path("${meta.id}.${snv_caller}.${chrom}.edited_gt.vcf"), val(snv_caller), val(chrom), emit: vcf
+        tuple val(meta), path("${meta.id}.deepvariant.${chrom}.edited_gt.vcf"), val(chrom), emit: vcf
         path "versions.yml"                                                                                   , emit: versions
 
     when:

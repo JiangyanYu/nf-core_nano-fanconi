@@ -525,16 +525,48 @@ workflow FANIVA {
     //     }
     //     .set { ch_matched_vcf_by_chrom }
 
+
+    // Join CRAM and VCF data by chromosome for phasing
+    ch_matched_vcfs_tbis_by_chrom = ch_deepvariant_split_by_chrom_vcf_tbi
+        .map { meta, vcf, tbi, caller, chrom -> 
+            // Create join key: chromosome for matching
+            [chrom, [meta, vcf, tbi]] 
+        }
+        .join(
+            ch_sawfish_split_by_chrom_vcf_tbi
+                .map { meta, vcf, tbi, caller, chrom -> 
+                    // Create matching join key: chromosome
+                    [chrom, [vcf, tbi]] 
+                }
+        )
+        .map { chrom, deepvariant_data, sawfish_data ->
+            // Extract data from joined structure - this is where the error occurred
+            def meta = deepvariant_data[0]
+            def deepvariant_vcf = deepvariant_data[1]
+            def deepvariant_tbi = deepvariant_data[2]
+
+            def sawfish_vcf = sawfish_data[0]
+            def sawfish_tbi = sawfish_data[1]
+
+            // Return tuple for WHATSHAP_PHASE following nf-core module patterns
+            [meta, deepvariant_vcf, deepvariant_tbi, sawfish_vcf, sawfish_tbi, chrom]
+        }
+
+    // Print debug info following nf-core patterns
+    ch_matched_vcfs_tbis_by_chrom.view { meta, cram, crai, vcf, tbi, caller, chrom ->
+        "EDIT_SNV_GENOTYPE input: ${meta.id} ${chrom} - DEEPVARIANT VCF: ${deepvariant_vcf.name}, SAWFISH VCF: ${sawfish_vcf.name}"
+    }
+
+
     // Load SNV_modify_regions csv file
-    // ch_SNV_modify_regions = Channel.of(file(params.SNV_modify_regions))
+    ch_SNV_modify_regions = Channel.of(file(params.SNV_modify_regions))
 
-    // EDIT_SNV_GENOTYPE(
-    //     ch_matched_vcf_by_chrom,
-    //     ch_SNV_modify_regions
-    // )
-    // ch_deepvariant_vcf_chrom_edited_gt = EDIT_SNV_GENOTYPE.out.vcf
-    // ch_versions = ch_versions.mix(EDIT_SNV_GENOTYPE.out.versions)
-
+    EDIT_SNV_GENOTYPE(
+        ch_matched_vcfs_tbis_by_chrom,
+        ch_SNV_modify_regions
+    )
+    ch_deepvariant_vcf_chrom_edited_gt = EDIT_SNV_GENOTYPE.out.vcf
+    ch_versions = ch_versions.mix(EDIT_SNV_GENOTYPE.out.versions)
 
 
 // /*
