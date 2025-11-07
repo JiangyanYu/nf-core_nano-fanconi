@@ -547,9 +547,9 @@ workflow FANIVA {
       .map { meta, cram, crai, chr -> tuple(chr, [ cram, crai ]) }
         .join(
             ch_deepvariant_split_by_chrom_vcf_tbi
-            .map { meta, vcf, tbi, chr -> tuple(chr, [ vcf, tbi ]) }
+            .map { meta, vcf, tbi, caller, chr -> tuple(chr, [ vcf, tbi, caller ]) }
         )
-        .map { chr, cram, crai, vcf, tbi -> tuple(cram, crai, vcf, tbi, chr) }
+        .map { chr, cram, crai, vcf, tbi, caller -> tuple(cram, crai, vcf, tbi, caller, chr) }
 
 
 // ch_cram_keyed = ch_cram.map { cram, crai, chr -> tuple(chr, cram, crai) }
@@ -561,7 +561,7 @@ workflow FANIVA {
     // Run WHATSHAP_PHASE on the split CRAM and split deepvariant VCF
     WHATSHAP_PHASE (
 
-        ch_cram_crai_vcf_tbi_chrom,
+        ch_cram_crai_vcf_tbi_caller_chrom,
         // ch_split_by_chrom_cram_crai,
         // ch_deepvariant_split_by_chrom_vcf_tbi,
         ch_fasta,

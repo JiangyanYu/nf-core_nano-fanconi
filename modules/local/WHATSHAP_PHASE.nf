@@ -9,7 +9,7 @@ process WHATSHAP_PHASE {
     input:
         // tuple val(meta), path(cram_file), path(cram_crai_file), val(chrom)
         // tuple val(meta), path(split_vcfs), path(split_vcfs_tbi), val(caller), val(chrom)
-        tuple val(meta), path(cram_file), path(cram_crai_file), path(split_vcfs), path(split_vcfs_tbi), val(caller), val(chrom)
+        tuple val(meta), path(split_cram), path(split_crai), path(split_vcf), path(split_tbi), val(caller), val(chrom)
         path(fasta)
         path(fasta_index)
 
