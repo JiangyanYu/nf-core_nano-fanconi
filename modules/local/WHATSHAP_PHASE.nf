@@ -23,7 +23,7 @@ process WHATSHAP_PHASE {
     whatshap phase -o ${meta.id}.${caller}.${chrom}.phased.vcf.gz \\
         --reference=${fasta} \\
         ${meta.id}.${caller}.${chrom}.vcf.gz \\
-        ${meta.id}.${caller}.${chrom}.cram
+        ${meta.id}.${chrom}.cram
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
