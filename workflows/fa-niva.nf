@@ -543,13 +543,14 @@ workflow FANIVA {
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // */
 
-//     ch_cram_crai_vcf_tbi_chrom = ch_vcf
-//   .map { vcf, tbi, caller, chr -> tuple(chr, [ vcf, tbi, caller ]) }
-//   .groupTuple()                                 // -> [ chr, [ [vcf,tbi,caller], ... ] ]
-//   .map { chr, lst ->
-//     def chosen = lst.first()                    // your selection logic goes here
-//     tuple(chr, chosen[0], chosen[1])            // -> [ chr, vcf, tbi ]
-//   }
+    ch_cram_crai_vcf_tbi_chrom = ch_split_by_chrom_cram_crai
+      .map { meta, cram, crai, chr -> tuple(chr, [ cram, crai ]) }
+        .join(
+            ch_deepvariant_split_by_chrom_vcf_tbi
+            .map { meta, vcf, tbi, chr -> tuple(chr, [ vcf, tbi ]) }
+        )
+        .map { chr, cram, crai, vcf, tbi -> tuple(cram, crai, vcf, tbi, chr) }
+
 
 // ch_cram_keyed = ch_cram.map { cram, crai, chr -> tuple(chr, cram, crai) }
 
@@ -560,8 +561,9 @@ workflow FANIVA {
     // Run WHATSHAP_PHASE on the split CRAM and split deepvariant VCF
     WHATSHAP_PHASE (
 
-        ch_split_by_chrom_cram_crai,
-        ch_deepvariant_split_by_chrom_vcf_tbi,
+        ch_cram_crai_vcf_tbi_chrom,
+        // ch_split_by_chrom_cram_crai,
+        // ch_deepvariant_split_by_chrom_vcf_tbi,
         ch_fasta,
         ch_fasta_index
     )
