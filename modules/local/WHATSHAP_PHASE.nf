@@ -11,19 +11,19 @@ process WHATSHAP_PHASE {
         path(fasta)
 
     output:
-        tuple val(meta), path("${meta.id}.${caller}.${chrom}.phased.vcf.gz"), path("${meta.id}.${caller}.${chrom}.phased.vcf.gz.tbi"), val(caller), val(chrom), emit: vcf_tbi_caller_chrom
+        tuple val(meta), path("${meta.id}.${caller}.${chrom}.whatshap_phase.vcf.gz"), path("${meta.id}.${caller}.${chrom}.whatshap_phase.vcf.gz.tbi"), val(caller), val(chrom), emit: vcf_tbi_caller_chrom
         path  ("versions.yml")                                       , emit: versions
 
     script:
 
     """
-    whatshap phase -o ${meta.id}.${caller}.${chrom}.phased.vcf.gz \\
+    whatshap phase -o ${meta.id}.${caller}.${chrom}.whatshap_phase.vcf.gz \\
         --reference=${fasta} \\
         ${meta.id}.${caller}.${chrom}.vcf.gz \\
         ${meta.id}.${chrom}.cram
 
 
-    tabix ${meta.id}.${caller}.${chrom}.phased.vcf.gz
+    tabix ${meta.id}.${caller}.${chrom}.whatshap_phase.vcf.gz
 
 
     cat <<-END_VERSIONS > versions.yml
