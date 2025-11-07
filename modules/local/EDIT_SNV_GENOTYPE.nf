@@ -18,12 +18,11 @@ process EDIT_SNV_GENOTYPE {
         tuple val(meta), path("${meta.id}.deepvariant.${chrom}.edited_gt.vcf"), val(chrom), emit: vcf
         path "versions.yml"                                                                                   , emit: versions
 
-    when:
-    task.ext.when == null || task.ext.when
+    // when:
+    // task.ext.when == null || task.ext.when
 
     script: // This script is bundled with the pipeline, in nf-core_nano-fanconi/bin/
-
-
+    
     """
     SNV_modify_GT.py \\
         --snv_vcf ${snv_vcf} \\
