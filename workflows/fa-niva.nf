@@ -77,7 +77,7 @@ include { EDIT_SNV_GENOTYPE                                    } from '../module
 // include { BCFTOOLS_FILTER as DEEPVARIANT_FILTER_VCF     } from '../modules/nf-core/bcftools/filter/main.nf'
 // include { TABIX_BGZIP as EDIT_SNV_GENOTYPE_BGZIP_VCF    } from '../modules/nf-core/tabix/bgzip/main.nf'
 // include { TABIX_TABIX as EDIT_SNV_GENOTYPE_TABIX_VCF    } from '../modules/nf-core/tabix/tabix/main.nf'
-// include { WHATSHAP_PHASE                                } from '../modules/local/WHATSHAP_PHASE.nf'
+include { WHATSHAP_PHASE                                       } from '../modules/local/WHATSHAP_PHASE.nf'
 // include { WHATSHAP_HAPLOTAG                             } from '../modules/local/WHATSHAP_HAPLOTAG.nf'
 // include { BCFTOOLS_SORT as PHASE_SORT_VCF               } from '../modules/nf-core/bcftools/sort/main.nf'
 // include { TABIX_BGZIP as PHASE_BGZIP_VCF                } from '../modules/nf-core/tabix/bgzip/main.nf'
@@ -526,22 +526,42 @@ workflow FANIVA {
         .set { ch_matched_vcf_by_chrom }
 
     // Load SNV_modify_regions csv file
-    ch_SNV_modify_regions = Channel.of(file(params.SNV_modify_regions))
+    // ch_SNV_modify_regions = Channel.of(file(params.SNV_modify_regions))
 
-    EDIT_SNV_GENOTYPE(
-        ch_matched_vcf_by_chrom,
-        ch_SNV_modify_regions
-    )
-    ch_deepvariant_vcf_chrom_edited_gt = EDIT_SNV_GENOTYPE.out.vcf
-    ch_versions = ch_versions.mix(EDIT_SNV_GENOTYPE.out.versions)
+    // EDIT_SNV_GENOTYPE(
+    //     ch_matched_vcf_by_chrom,
+    //     ch_SNV_modify_regions
+    // )
+    // ch_deepvariant_vcf_chrom_edited_gt = EDIT_SNV_GENOTYPE.out.vcf
+    // ch_versions = ch_versions.mix(EDIT_SNV_GENOTYPE.out.versions)
 
-}
+
 
 // /*
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 //     FANIVA: WHATSHAP_PHASE
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // */
+
+
+    // Run WHATSHAP_PHASE on the split CRAM and split deepvariant VCF
+    WHATSHAP_PHASE (
+
+        ch_split_by_chrom_cram_crai,
+        ch_deepvariant_split_by_chrom_vcf_tbi,
+        ch_fasta    
+    )
+
+    ch_versions = ch_versions.mix(WHATSHAP_PHASE.out.versions)
+
+
+
+
+
+
+
+
+
 //     // Run WHATSHAP_PHASE on each split VCF
 //     WHATSHAP_PHASE(
 //         ch_split_vcfs.map { meta, vcf_path -> [meta, vcf_path, ch_pbmm2_cram, file(params.fasta), file(params.fasta_index)] }
