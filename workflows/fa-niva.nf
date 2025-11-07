@@ -543,7 +543,7 @@ workflow FANIVA {
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // */
 
-    ch_cram_crai_vcf_tbi_chrom = ch_split_by_chrom_cram_crai
+    ch_cram_crai_vcf_tbi_caller_chrom = ch_split_by_chrom_cram_crai
       .map { meta, cram, crai, chr -> tuple(chr, [ cram, crai ]) }
         .join(
             ch_deepvariant_split_by_chrom_vcf_tbi
