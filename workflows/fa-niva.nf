@@ -543,6 +543,19 @@ workflow FANIVA {
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // */
 
+//     ch_cram_crai_vcf_tbi_chrom = ch_vcf
+//   .map { vcf, tbi, caller, chr -> tuple(chr, [ vcf, tbi, caller ]) }
+//   .groupTuple()                                 // -> [ chr, [ [vcf,tbi,caller], ... ] ]
+//   .map { chr, lst ->
+//     def chosen = lst.first()                    // your selection logic goes here
+//     tuple(chr, chosen[0], chosen[1])            // -> [ chr, vcf, tbi ]
+//   }
+
+// ch_cram_keyed = ch_cram.map { cram, crai, chr -> tuple(chr, cram, crai) }
+
+// ch_out = ch_cram_keyed
+//   .join(ch_vcf_per_chr)
+//   .map { chr, cram, crai, vcf, tbi -> tuple(cram, crai, vcf, tbi, chr) }
 
     // Run WHATSHAP_PHASE on the split CRAM and split deepvariant VCF
     WHATSHAP_PHASE (
@@ -552,7 +565,7 @@ workflow FANIVA {
         ch_fasta,
         ch_fasta_index
     )
-
+    ch_whatshap_phased_chr_vcfs = WHATSHAP_PHASE.out.vcf
     ch_versions = ch_versions.mix(WHATSHAP_PHASE.out.versions)
 
 

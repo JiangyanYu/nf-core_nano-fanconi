@@ -21,7 +21,7 @@ process WHATSHAP_PHASE {
 
     """
     whatshap phase -o ${meta.id}.${caller}.${chrom}.phased.vcf.gz \\
-        --reference=${reference_fasta} \\
+        --reference=${fasta} \\
         ${meta.id}.${caller}.${chrom}.vcf.gz \\
         ${meta.id}.${caller}.${chrom}.cram
 
