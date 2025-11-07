@@ -504,26 +504,26 @@ workflow FANIVA {
 // */
 
     // Create the matched channel directly without intermediate debug channels
-    ch_deepvariant_split_by_chrom_vcf_tbi
-        .map { snv_meta, snv_vcf, snv_tbi, snv_caller, snv_chrom -> 
-            // Create join key: [sample_id, chromosome]
-            [[snv_chrom], [snv_meta, snv_vcf, snv_tbi, snv_caller, snv_chrom]] 
-        }
-        .join(
-            ch_sawfish_split_by_chrom_vcf_tbi.map { sv_meta, sv_vcf, sv_tbi, sv_caller, sv_chrom -> 
-                // Create matching join key: [sample_id, chromosome]
-                [[sv_chrom], [sv_vcf, sv_tbi, sv_caller]] 
-            }, 
-            by: 0
-        )
-        .map { join_key, snv_meta, snv_vcf, snv_tbi, snv_caller, snv_chrom, sv_vcf, sv_tbi, sv_caller ->
-            [snv_meta, snv_vcf, snv_tbi, snv_caller, sv_vcf, sv_tbi, sv_caller, snv_chrom]
-        }
-        .unique { snv_meta, snv_vcf, snv_tbi, snv_caller, sv_vcf, sv_tbi, sv_caller, snv_chrom ->
-            // Ensure uniqueness by sample_id + chromosome
-            "${snv_meta.id}_${snv_chrom}"
-        }
-        .set { ch_matched_vcf_by_chrom }
+    // ch_deepvariant_split_by_chrom_vcf_tbi
+    //     .map { snv_meta, snv_vcf, snv_tbi, snv_caller, snv_chrom -> 
+    //         // Create join key: [sample_id, chromosome]
+    //         [[snv_chrom], [snv_meta, snv_vcf, snv_tbi, snv_caller, snv_chrom]] 
+    //     }
+    //     .join(
+    //         ch_sawfish_split_by_chrom_vcf_tbi.map { sv_meta, sv_vcf, sv_tbi, sv_caller, sv_chrom -> 
+    //             // Create matching join key: [sample_id, chromosome]
+    //             [[sv_chrom], [sv_vcf, sv_tbi, sv_caller]] 
+    //         }, 
+    //         by: 0
+    //     )
+    //     .map { join_key, snv_meta, snv_vcf, snv_tbi, snv_caller, snv_chrom, sv_vcf, sv_tbi, sv_caller ->
+    //         [snv_meta, snv_vcf, snv_tbi, snv_caller, sv_vcf, sv_tbi, sv_caller, snv_chrom]
+    //     }
+    //     .unique { snv_meta, snv_vcf, snv_tbi, snv_caller, sv_vcf, sv_tbi, sv_caller, snv_chrom ->
+    //         // Ensure uniqueness by sample_id + chromosome
+    //         "${snv_meta.id}_${snv_chrom}"
+    //     }
+    //     .set { ch_matched_vcf_by_chrom }
 
     // Load SNV_modify_regions csv file
     // ch_SNV_modify_regions = Channel.of(file(params.SNV_modify_regions))
