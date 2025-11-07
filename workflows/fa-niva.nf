@@ -543,16 +543,37 @@ workflow FANIVA {
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // */
 
+    // Join CRAM and VCF data by chromosome for phasing
     ch_cram_crai_vcf_tbi_caller_chrom = ch_split_by_chrom_cram_crai
-      .map { meta, cram, crai, chrom -> tuple(chrom, [ meta, cram, crai ]) }
+        .map { meta, cram, crai, chrom -> 
+            // Create join key: chromosome for matching
+            [chrom, [meta, cram, crai]] 
+        }
         .join(
             ch_deepvariant_split_by_chrom_vcf_tbi
-            .map { meta, vcf, tbi, caller, chrom -> tuple(chrom, [ vcf, tbi, caller ]) }
+                .map { meta, vcf, tbi, caller, chrom -> 
+                    // Create matching join key: chromosome
+                    [chrom, [vcf, tbi, caller]] 
+                }
         )
-        .map { chrom, meta, cram, crai, vcf, tbi, caller -> tuple(meta, cram, crai, vcf, tbi, caller, chrom) }
+        .map { chrom, cram_data, vcf_data ->
+            // Extract data from joined structure - this is where the error occurred
+            def meta = cram_data[0]
+            def cram = cram_data[1]
+            def crai = cram_data[2]
+            
+            def vcf = vcf_data[0]
+            def tbi = vcf_data[1]
+            def caller = vcf_data[2]
+            
+            // Return tuple for WHATSHAP_PHASE following nf-core module patterns
+            [meta, cram, crai, vcf, tbi, caller, chrom]
+        }
 
-    //Print debug info
-    ch_cram_crai_vcf_tbi_caller_chrom.dump(tag: "ch_cram_crai_vcf_tbi_caller_chrom")
+    // Print debug info following nf-core patterns
+    ch_cram_crai_vcf_tbi_caller_chrom.view { meta, cram, crai, vcf, tbi, caller, chrom ->
+        "WHATSHAP_PHASE input: ${meta.id} ${chrom} - CRAM: ${cram.name}, VCF: ${vcf.name}"
+    }
 
 // ch_cram_keyed = ch_cram.map { cram, crai, chr -> tuple(chr, cram, crai) }
 
