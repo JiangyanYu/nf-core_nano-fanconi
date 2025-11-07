@@ -549,7 +549,8 @@ workflow FANIVA {
 
         ch_split_by_chrom_cram_crai,
         ch_deepvariant_split_by_chrom_vcf_tbi,
-        ch_fasta    
+        ch_fasta,
+        ch_fasta_index
     )
 
     ch_versions = ch_versions.mix(WHATSHAP_PHASE.out.versions)
