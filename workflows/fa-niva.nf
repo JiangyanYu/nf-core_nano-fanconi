@@ -544,12 +544,12 @@ workflow FANIVA {
 // */
 
     ch_cram_crai_vcf_tbi_caller_chrom = ch_split_by_chrom_cram_crai
-      .map { meta, cram, crai, chr -> tuple(chr, [ cram, crai ]) }
+      .map { meta, cram, crai, chrom -> tuple(chrom, [ meta, cram, crai ]) }
         .join(
             ch_deepvariant_split_by_chrom_vcf_tbi
-            .map { meta, vcf, tbi, caller, chr -> tuple(chr, [ vcf, tbi, caller ]) }
+            .map { meta, vcf, tbi, caller, chrom -> tuple(chrom, [ vcf, tbi, caller ]) }
         )
-        .map { chr, cram, crai, vcf, tbi, caller -> tuple(cram, crai, vcf, tbi, caller, chr) }
+        .map { chrom, meta, cram, crai, vcf, tbi, caller -> tuple(meta, cram, crai, vcf, tbi, caller, chrom) }
 
 
 // ch_cram_keyed = ch_cram.map { cram, crai, chr -> tuple(chr, cram, crai) }
