@@ -499,44 +499,42 @@ workflow FANIVA {
 
 // /*
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-//     FANIVA: EDIT_SNV_GENOTYPE - Fixed channel join and debug view
+//     FANIVA: EDIT_SNV_GENOTYPE - Fixed channel management per project patterns
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // */
 
     // Join DeepVariant and Sawfish VCFs by chromosome following nf-core modular patterns
     ch_matched_vcfs_tbis_by_chrom = ch_deepvariant_split_by_chrom_vcf_tbi
         .map { meta, vcf, tbi, caller, chrom -> 
-            // Create join key: chromosome for matching
             [chrom, [meta, vcf, tbi]] 
         }
         .join(
             ch_sawfish_split_by_chrom_vcf_tbi
                 .map { meta, vcf, tbi, caller, chrom -> 
-                    // Create matching join key: chromosome
                     [chrom, [vcf, tbi]] 
                 }
         )
         .map { chrom, deepvariant_data, sawfish_data ->
-            // Extract data from joined structure following nf-core channel management
             def meta = deepvariant_data[0]
             def deepvariant_vcf = deepvariant_data[1]
             def deepvariant_tbi = deepvariant_data[2]
-
             def sawfish_vcf = sawfish_data[0]
             def sawfish_tbi = sawfish_data[1]
 
-            // Return tuple for EDIT_SNV_GENOTYPE module
+            // Return tuple matching EDIT_SNV_GENOTYPE module input signature
             [meta, deepvariant_vcf, deepvariant_tbi, sawfish_vcf, sawfish_tbi, chrom]
         }
 
-    // Fixed debug view with correct tuple structure following nf-core patterns
+    // Debug output following project conventions
     ch_matched_vcfs_tbis_by_chrom.view { meta, deepvariant_vcf, deepvariant_tbi, sawfish_vcf, sawfish_tbi, chrom ->
         "EDIT_SNV_GENOTYPE input: ${meta.id} ${chrom} - DeepVariant VCF: ${deepvariant_vcf.name}, Sawfish VCF: ${sawfish_vcf.name}"
     }
 
-    // Load SNV_modify_regions csv file following project config patterns
-    ch_SNV_modify_regions = Channel.of(file(params.SNV_modify_regions))
+    // Create regions channel ONCE - following project resource management patterns
+    ch_SNV_modify_regions = Channel.fromPath(params.SNV_modify_regions)
+        .collect()  // Collect to make it available for all processes
 
+    // Run EDIT_SNV_GENOTYPE with proper channel management
     EDIT_SNV_GENOTYPE(
         ch_matched_vcfs_tbis_by_chrom,
         ch_SNV_modify_regions
