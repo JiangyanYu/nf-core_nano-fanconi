@@ -499,34 +499,11 @@ workflow FANIVA {
 
 // /*
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-//     FANIVA: EDIT_SNV_GENOTYPE - Fixed channel consumption
+//     FANIVA: EDIT_SNV_GENOTYPE - Fixed channel join and debug view
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // */
 
-    // Create the matched channel directly without intermediate debug channels
-    // ch_deepvariant_split_by_chrom_vcf_tbi
-    //     .map { snv_meta, snv_vcf, snv_tbi, snv_caller, snv_chrom -> 
-    //         // Create join key: [sample_id, chromosome]
-    //         [[snv_chrom], [snv_meta, snv_vcf, snv_tbi, snv_caller, snv_chrom]] 
-    //     }
-    //     .join(
-    //         ch_sawfish_split_by_chrom_vcf_tbi.map { sv_meta, sv_vcf, sv_tbi, sv_caller, sv_chrom -> 
-    //             // Create matching join key: [sample_id, chromosome]
-    //             [[sv_chrom], [sv_vcf, sv_tbi, sv_caller]] 
-    //         }, 
-    //         by: 0
-    //     )
-    //     .map { join_key, snv_meta, snv_vcf, snv_tbi, snv_caller, snv_chrom, sv_vcf, sv_tbi, sv_caller ->
-    //         [snv_meta, snv_vcf, snv_tbi, snv_caller, sv_vcf, sv_tbi, sv_caller, snv_chrom]
-    //     }
-    //     .unique { snv_meta, snv_vcf, snv_tbi, snv_caller, sv_vcf, sv_tbi, sv_caller, snv_chrom ->
-    //         // Ensure uniqueness by sample_id + chromosome
-    //         "${snv_meta.id}_${snv_chrom}"
-    //     }
-    //     .set { ch_matched_vcf_by_chrom }
-
-
-    // Join CRAM and VCF data by chromosome for phasing
+    // Join DeepVariant and Sawfish VCFs by chromosome following nf-core modular patterns
     ch_matched_vcfs_tbis_by_chrom = ch_deepvariant_split_by_chrom_vcf_tbi
         .map { meta, vcf, tbi, caller, chrom -> 
             // Create join key: chromosome for matching
@@ -540,7 +517,7 @@ workflow FANIVA {
                 }
         )
         .map { chrom, deepvariant_data, sawfish_data ->
-            // Extract data from joined structure - this is where the error occurred
+            // Extract data from joined structure following nf-core channel management
             def meta = deepvariant_data[0]
             def deepvariant_vcf = deepvariant_data[1]
             def deepvariant_tbi = deepvariant_data[2]
@@ -548,17 +525,16 @@ workflow FANIVA {
             def sawfish_vcf = sawfish_data[0]
             def sawfish_tbi = sawfish_data[1]
 
-            // Return tuple for WHATSHAP_PHASE following nf-core module patterns
+            // Return tuple for EDIT_SNV_GENOTYPE module
             [meta, deepvariant_vcf, deepvariant_tbi, sawfish_vcf, sawfish_tbi, chrom]
         }
 
-    // Print debug info following nf-core patterns
-    ch_matched_vcfs_tbis_by_chrom.view { meta, cram, crai, vcf, tbi, caller, chrom ->
-        "EDIT_SNV_GENOTYPE input: ${meta.id} ${chrom} - DEEPVARIANT VCF: ${deepvariant_vcf.name}, SAWFISH VCF: ${sawfish_vcf.name}"
+    // Fixed debug view with correct tuple structure following nf-core patterns
+    ch_matched_vcfs_tbis_by_chrom.view { meta, deepvariant_vcf, deepvariant_tbi, sawfish_vcf, sawfish_tbi, chrom ->
+        "EDIT_SNV_GENOTYPE input: ${meta.id} ${chrom} - DeepVariant VCF: ${deepvariant_vcf.name}, Sawfish VCF: ${sawfish_vcf.name}"
     }
 
-
-    // Load SNV_modify_regions csv file
+    // Load SNV_modify_regions csv file following project config patterns
     ch_SNV_modify_regions = Channel.of(file(params.SNV_modify_regions))
 
     EDIT_SNV_GENOTYPE(
@@ -603,9 +579,9 @@ workflow FANIVA {
         }
 
     // Print debug info following nf-core patterns
-    ch_cram_crai_vcf_tbi_caller_chrom.view { meta, cram, crai, vcf, tbi, caller, chrom ->
-        "WHATSHAP_PHASE input: ${meta.id} ${chrom} - CRAM: ${cram.name}, VCF: ${vcf.name}"
-    }
+    // ch_cram_crai_vcf_tbi_caller_chrom.view { meta, cram, crai, vcf, tbi, caller, chrom ->
+    //     "WHATSHAP_PHASE input: ${meta.id} ${chrom} - CRAM: ${cram.name}, VCF: ${vcf.name}"
+    // }
 
 
     // Run WHATSHAP_PHASE on the split CRAM and split deepvariant VCF
