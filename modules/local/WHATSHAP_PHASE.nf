@@ -7,8 +7,9 @@ process WHATSHAP_PHASE {
         'jiangyanyu/docker-whatshap:v240302' }"
 
     input:
-        tuple val(meta), path(cram_file), path(cram_crai_file), val(chrom)
-        tuple val(meta), path(split_vcfs), path(split_vcfs_tbi), val(caller), val(chrom)
+        // tuple val(meta), path(cram_file), path(cram_crai_file), val(chrom)
+        // tuple val(meta), path(split_vcfs), path(split_vcfs_tbi), val(caller), val(chrom)
+        tuple val(meta), path(cram_file), path(cram_crai_file), path(split_vcfs), path(split_vcfs_tbi), val(caller), val(chrom)
         path(fasta)
         path(fasta_index)
 
