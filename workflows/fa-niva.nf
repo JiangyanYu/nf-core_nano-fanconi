@@ -575,22 +575,14 @@ workflow FANIVA {
         "WHATSHAP_PHASE input: ${meta.id} ${chrom} - CRAM: ${cram.name}, VCF: ${vcf.name}"
     }
 
-// ch_cram_keyed = ch_cram.map { cram, crai, chr -> tuple(chr, cram, crai) }
-
-// ch_out = ch_cram_keyed
-//   .join(ch_vcf_per_chr)
-//   .map { chr, cram, crai, vcf, tbi -> tuple(cram, crai, vcf, tbi, chr) }
 
     // Run WHATSHAP_PHASE on the split CRAM and split deepvariant VCF
     WHATSHAP_PHASE (
 
         ch_cram_crai_vcf_tbi_caller_chrom,
-        // ch_split_by_chrom_cram_crai,
-        // ch_deepvariant_split_by_chrom_vcf_tbi,
-        ch_fasta,
-        ch_fasta_index
+        ch_fasta
     )
-    ch_whatshap_phased_chr_vcfs = WHATSHAP_PHASE.out.vcf
+    ch_whatshap_phase_vcf_tbi_caller_chrom = WHATSHAP_PHASE.out.vcf_tbi_caller_chrom
     ch_versions = ch_versions.mix(WHATSHAP_PHASE.out.versions)
 
 

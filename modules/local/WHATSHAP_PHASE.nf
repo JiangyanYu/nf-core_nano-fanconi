@@ -7,15 +7,11 @@ process WHATSHAP_PHASE {
         'jiangyanyu/docker-whatshap:v240302' }"
 
     input:
-        // tuple val(meta), path(cram_file), path(cram_crai_file), val(chrom)
-        // tuple val(meta), path(split_vcfs), path(split_vcfs_tbi), val(caller), val(chrom)
         tuple val(meta), path(split_cram), path(split_crai), path(split_vcf), path(split_tbi), val(caller), val(chrom)
         path(fasta)
-        path(fasta_index)
-
 
     output:
-        tuple val(meta), path("${meta.id}.${caller}.${chrom}.phased.vcf.gz")           , emit: vcf
+        tuple val(meta), path("${meta.id}.${caller}.${chrom}.phased.vcf.gz"), path("${meta.id}.${caller}.${chrom}.phased.vcf.gz.tbi"), val(caller), val(chrom), emit: vcf_tbi_caller_chrom
         path  ("versions.yml")                                       , emit: versions
 
     script:
@@ -25,6 +21,10 @@ process WHATSHAP_PHASE {
         --reference=${fasta} \\
         ${meta.id}.${caller}.${chrom}.vcf.gz \\
         ${meta.id}.${chrom}.cram
+
+
+    tabix ${meta.id}.${caller}.${chrom}.phased.vcf.gz
+
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
