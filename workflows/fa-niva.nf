@@ -551,6 +551,8 @@ workflow FANIVA {
         )
         .map { chrom, meta, cram, crai, vcf, tbi, caller -> tuple(meta, cram, crai, vcf, tbi, caller, chrom) }
 
+    //Print debug info
+    ch_cram_crai_vcf_tbi_caller_chrom.dump(tag: "ch_cram_crai_vcf_tbi_caller_chrom")
 
 // ch_cram_keyed = ch_cram.map { cram, crai, chr -> tuple(chr, cram, crai) }
 
