@@ -38,7 +38,7 @@ adjust_regions = []
 for chrom, qstart, qend in regions:
     region_found = False
 
-    for variant in sv_vcf(f"{chrom}:{qstart}-{qend}-{gt}"):
+    for variant in sv_vcf(f"{chrom}:{qstart}-{qend}"):
         if variant.is_sv and variant.INFO.get("SVTYPE") == "DEL":
             sv_start = variant.POS
             sv_end = int(variant.INFO.get("END", 0))
