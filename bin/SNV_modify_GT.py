@@ -46,6 +46,8 @@ for chrom, qstart, qend in regions:
 
             if sv_start <= qend and sv_end >= qstart:
                 
+                #FUTURE WORK: Check genotype is het or hom alt
+
                 # Collect genotype info per sample
                 genotypes = variant.genotypes  # list of tuples [(0, 1, True), (1, 1, False), ...]
  
@@ -55,9 +57,9 @@ for chrom, qstart, qend in regions:
                     for gt in genotypes
                 ]
  
-                adjust_regions.append((chrom, sv_start, sv_end, gt_strings))
-                
-                print(f"Found deletion: {chrom}:{sv_start}-{sv_end}-{gt_strings} overlapping region {chrom}:{qstart}-{qend}")
+                adjust_regions.append((chrom, sv_start, sv_end))
+
+                print(f"Found deletion: {chrom}:{sv_start}-{sv_end} overlapping region {chrom}:{qstart}-{qend}")
                 region_found = True
                 break
 
