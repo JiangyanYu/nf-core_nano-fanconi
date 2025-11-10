@@ -13,7 +13,7 @@ parser = argparse.ArgumentParser(description="Adjust SNV genotypes within a dele
 parser.add_argument("--sv_vcf", required=True, help="Input SV VCF file (bgzipped and indexed).")
 parser.add_argument("--snv_vcf", required=True, help="Input SNV VCF file (bgzipped and indexed).")
 parser.add_argument("--regions_csv", required=True, help="CSV file with chrom,start,end per line.")
-parser.add_argument("--output_vcf", required=True, help="Output gzipped VCF file with adjusted genotypes.")
+parser.add_argument("--output_vcf", required=True, help="Output VCF file with adjusted genotypes.")
 args = parser.parse_args()
 
 # Load query regions from CSV
@@ -77,7 +77,7 @@ sv_vcf.close()
 
 # Step 2: Modify SNV VCF based on detected region
 snv_vcf = VCF(args.snv_vcf)
-out = open(args.output_vcf.replace(".gz", ""), "w")
+out = open(args.output_vcf, "w")
 
 # Write header
 for line in snv_vcf.raw_header.strip().split("\n"):
@@ -124,9 +124,3 @@ for variant in snv_vcf:
  
 out.close()
 snv_vcf.close()
-
-# Compress using bgzip
-subprocess.run(["bgzip", "-c", args.output_vcf.replace(".gz", "")], stdout=open(args.output_vcf, "wb"), check=True)
- 
-# Optionally index with tabix
-subprocess.run(["tabix", "-p", "vcf", args.output_vcf], check=True)

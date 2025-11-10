@@ -15,7 +15,7 @@ process EDIT_SNV_GENOTYPE {
         path regions_csv
         
     output:
-        tuple val(meta), path("${meta.id}.deepvariant.${chrom}.edited_gt.vcf.gz"), val(chrom), emit: vcf
+        tuple val(meta), path("${meta.id}.deepvariant.${chrom}.edited_gt.vcf"), val(chrom), emit: vcf
         path "versions.yml"                                                                                   , emit: versions
 
     // when:
@@ -28,7 +28,11 @@ process EDIT_SNV_GENOTYPE {
         --snv_vcf ${snv_vcf} \\
         --sv_vcf ${sv_vcf} \\
         --regions_csv ${regions_csv} \\
-        --output_vcf ${meta.id}.deepvariant.${chrom}.edited_gt.vcf.gz
+        --output_vcf ${meta.id}.deepvariant.${chrom}.edited_gt.vcf
+
+
+    // bgzip ${meta.id}.deepvariant.${chrom}.edited_gt.vcf > ${meta.id}.deepvariant.${chrom}.edited_gt.vcf.gz
+    // tabix -p vcf ${meta.id}.deepvariant.${chrom}.edited_gt.vcf.gz
 
 
     cat <<-END_VERSIONS > versions.yml
