@@ -37,14 +37,26 @@ adjust_regions = []
 for chrom, qstart, qend in regions:
     region_found = False
 
-    for variant in sv_vcf(f"{chrom}:{qstart}-{qend}"):
+    for variant in sv_vcf(f"{chrom}:{qstart}-{qend}-{gt}"):
         if variant.is_sv and variant.INFO.get("SVTYPE") == "DEL":
             sv_start = variant.POS
             sv_end = int(variant.INFO.get("END", 0))
+            sv_gt = variant.genotypes[0]  # Assuming single sample VCF
 
             if sv_start <= qend and sv_end >= qstart:
-                adjust_regions.append((chrom, sv_start, sv_end))
-                print(f"Found deletion: {chrom}:{sv_start}-{sv_end}")
+                
+                # Collect genotype info per sample
+                genotypes = variant.genotypes  # list of tuples [(0, 1, True), (1, 1, False), ...]
+ 
+                # Optional: format as strings like '0/1', '1/1', etc.
+                gt_strings = [
+                    f"{gt[0]}/{gt[1]}" if gt[0] is not None else "./."
+                    for gt in genotypes
+                ]
+ 
+                adjust_regions.append((chrom, sv_start, sv_end, gt_strings))
+                
+                print(f"Found deletion: {chrom}:{sv_start}-{sv_end}-{gt_strings} overlapping region {chrom}:{qstart}-{qend}")
                 region_found = True
                 break
 
@@ -54,10 +66,11 @@ for chrom, qstart, qend in regions:
 sv_vcf.close()
 
 # If no regions require adjustment, simply copy file
-if not adjust_regions:
-    print("No overlapping deletions found — copying original SNV VCF.")
-    shutil.copyfile(args.snv_vcf, args.output_vcf)
-    sys.exit(0)
+# if not adjust_regions:
+#     print("No overlapping deletions found — copying original SNV VCF.")
+#     # shutil.copyfile(args.snv_vcf, args.output_vcf)
+    
+#     sys.exit(0)
 
 # Step 2: Modify SNV VCF based on detected region
 snv_vcf = VCF(args.snv_vcf)
@@ -74,21 +87,37 @@ for variant in snv_vcf:
     fields = str(variant).strip().split("\t")
 
     # Check whether SNV falls inside any deletion interval
-    for (rch, rstart, rend) in adjust_regions:
-        if chrom == rch and rstart <= pos <= rend:
-            format_keys = fields[8].split(":")
-            if "GT" in format_keys:
-                gt_index = format_keys.index("GT")
-                # Adjust genotypes
-                for i in range(9, len(fields)):
-                    sample_data = fields[i].split(":")
-                    gt = sample_data[gt_index]
-                    if gt in ("0/0", "0|0", "1/1", "1|1"):
-                        sample_data[gt_index] = "0/1"
-                        fields[i] = ":".join(sample_data)
-            break
-
-    out.write("\t".join(fields) + "\n")
-
+    if adjust_regions:
+        
+        # There are deletion regions to adjust
+        for variant in snv_vcf:
+            
+            chrom = variant.CHROM
+            pos = variant.POS
+            fields = str(variant).strip().split("\t")
+    
+            # Check whether SNV falls inside any deletion interval
+            for (rch, rstart, rend) in adjust_regions:
+                if chrom == rch and rstart <= pos <= rend:
+                    format_keys = fields[8].split(":")
+                    if "GT" in format_keys:
+                        gt_index = format_keys.index("GT")
+                        # Adjust genotypes
+                        for i in range(9, len(fields)):
+                            sample_data = fields[i].split(":")
+                            gt = sample_data[gt_index]
+                            if gt in ("0/0", "0|0", "1/1", "1|1"):
+                                sample_data[gt_index] = "0/1"
+                                fields[i] = ":".join(sample_data)
+                    break  # stop checking further regions for this SNV
+    
+            out.write("\t".join(fields) + "\n")
+    
+    else:
+        # No deletion regions to adjust — write SNVs unchanged
+        print("No deletion regions found — writing SNVs unchanged.")
+        for variant in snv_vcf:
+            out.write(str(variant).strip() + "\n")
+ 
 out.close()
 snv_vcf.close()
