@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 
+import subprocess
 from cyvcf2 import VCF, Writer
 import sys
 import argparse
 import shutil
 import csv
-import gzip
 import os
 
 # Argument parser
@@ -77,7 +77,7 @@ sv_vcf.close()
 
 # Step 2: Modify SNV VCF based on detected region
 snv_vcf = VCF(args.snv_vcf)
-out = gzip.open(args.output_vcf, "wt")
+out = open(args.output_vcf.replace(".gz", ""), "w")
 
 # Write header
 for line in snv_vcf.raw_header.strip().split("\n"):
@@ -124,3 +124,9 @@ for variant in snv_vcf:
  
 out.close()
 snv_vcf.close()
+
+# Compress using bgzip
+subprocess.run(["bgzip", "-c", args.output_vcf.replace(".gz", "")], stdout=open(args.output_vcf, "wb"), check=True)
+ 
+# Optionally index with tabix
+subprocess.run(["tabix", "-p", "vcf", args.output_vcf], check=True)
