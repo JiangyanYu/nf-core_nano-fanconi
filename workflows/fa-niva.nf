@@ -634,7 +634,7 @@ workflow FANIVA {
         ch_fasta,
         ch_fasta_index
     )
-    ch_haplotagged_cram_crai_chrom = WHATSHAP_HAPLOTAG.out.haplotagged_cram_crai
+    ch_haplotagged_cram_crai_chrom = WHATSHAP_HAPLOTAG.out.cram_crai
     ch_versions = ch_versions.mix(WHATSHAP_HAPLOTAG.out.versions)
 
 
