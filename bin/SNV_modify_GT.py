@@ -16,10 +16,10 @@ parser.add_argument("--output_vcf", required=True, help="Output VCF file with ad
 args = parser.parse_args()
 
 
-# Ensure output directory exists following project conventions
-output_dir = os.path.dirname(args.output_vcf)
-if output_dir and not os.path.exists(output_dir):
-    os.makedirs(output_dir)
+# # Ensure output directory exists following project conventions
+# output_dir = os.path.dirname(args.output_vcf)
+# if output_dir and not os.path.exists(output_dir):
+#     os.makedirs(output_dir)
 
 
 # Load query regions from CSV

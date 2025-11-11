@@ -31,8 +31,8 @@ process EDIT_SNV_GENOTYPE {
         --output_vcf ${meta.id}.deepvariant.${chrom}.edited_gt.vcf
 
 
-    // bgzip ${meta.id}.deepvariant.${chrom}.edited_gt.vcf > ${meta.id}.deepvariant.${chrom}.edited_gt.vcf.gz
-    // tabix -p vcf ${meta.id}.deepvariant.${chrom}.edited_gt.vcf.gz
+    # bgzip ${meta.id}.deepvariant.${chrom}.edited_gt.vcf > ${meta.id}.deepvariant.${chrom}.edited_gt.vcf.gz
+    # tabix -p vcf ${meta.id}.deepvariant.${chrom}.edited_gt.vcf.gz
 
 
     cat <<-END_VERSIONS > versions.yml
