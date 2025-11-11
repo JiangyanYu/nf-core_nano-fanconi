@@ -78,7 +78,7 @@ include { EDIT_SNV_GENOTYPE                                    } from '../module
 // include { TABIX_BGZIP as EDIT_SNV_GENOTYPE_BGZIP_VCF    } from '../modules/nf-core/tabix/bgzip/main.nf'
 // include { TABIX_TABIX as EDIT_SNV_GENOTYPE_TABIX_VCF    } from '../modules/nf-core/tabix/tabix/main.nf'
 include { WHATSHAP_PHASE                                       } from '../modules/local/WHATSHAP_PHASE.nf'
-// include { WHATSHAP_HAPLOTAG                             } from '../modules/local/WHATSHAP_HAPLOTAG.nf'
+include { WHATSHAP_HAPLOTAG                                    } from '../modules/local/WHATSHAP_HAPLOTAG.nf'
 // include { BCFTOOLS_SORT as PHASE_SORT_VCF               } from '../modules/nf-core/bcftools/sort/main.nf'
 // include { TABIX_BGZIP as PHASE_BGZIP_VCF                } from '../modules/nf-core/tabix/bgzip/main.nf'
 // include { TABIX_TABIX as PHASE_TABIX_VCF                } from '../modules/nf-core/tabix/tabix/main.nf'
