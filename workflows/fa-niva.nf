@@ -550,7 +550,7 @@ workflow FANIVA {
 // */
 
     // Join CRAM and VCF data by chromosome for phasing
-    ch_cram_crai_vcf_tbi_caller_chrom = ch_split_by_chrom_cram_crai
+    ch_cram_crai_vcf_tbi_caller_chrom_for_phasing = ch_split_by_chrom_cram_crai
         .map { meta, cram, crai, chrom -> 
             // Create join key: chromosome for matching
             [chrom, [meta, cram, crai]] 
@@ -585,12 +585,59 @@ workflow FANIVA {
     // Run WHATSHAP_PHASE on the split CRAM and split deepvariant VCF
     WHATSHAP_PHASE (
 
-        ch_cram_crai_vcf_tbi_caller_chrom,
+        ch_cram_crai_vcf_tbi_caller_chrom_for_phasing,
         ch_fasta,
         ch_fasta_index
     )
     ch_whatshap_phase_vcf_tbi_caller_chrom = WHATSHAP_PHASE.out.vcf_tbi_caller_chrom
     ch_versions = ch_versions.mix(WHATSHAP_PHASE.out.versions)
+
+
+// /*
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+//     FANIVA: WHATSHAP_HAPLOTAG
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// */
+
+
+    // Join CRAM and VCF data by chromosome for phasing
+    ch_cram_crai_vcf_tbi_caller_chrom_for_haplotagging = ch_split_by_chrom_cram_crai
+        .map { meta, cram, crai, chrom -> 
+            // Create join key: chromosome for matching
+            [chrom, [meta, cram, crai]] 
+        }
+        .join(
+            cch_whatshap_phase_vcf_tbi_caller_chrom
+                .map { meta, vcf, tbi, caller, chrom -> 
+                    // Create matching join key: chromosome
+                    [chrom, [vcf, tbi, caller]] 
+                }
+        )
+        .map { chrom, cram_data, vcf_data ->
+            // Extract data from joined structure - this is where the error occurred
+            def meta = cram_data[0]
+            def cram = cram_data[1]
+            def crai = cram_data[2]
+            
+            def vcf = vcf_data[0]
+            def tbi = vcf_data[1]
+            def caller = vcf_data[2]
+            
+            // Return tuple for WHATSHAP_PHASE following nf-core module patterns
+            [meta, cram, crai, vcf, tbi, caller, chrom]
+        }
+
+
+    // Run WHATSHAP_HAPLOTAG on the split cram and split phased vcf
+    WHATSHAP_HAPLOTAG(
+        ch_cram_crai_vcf_tbi_caller_chrom_for_haplotagging,
+        ch_fasta,
+        ch_fasta_index
+    )
+    ch_haplotagged_cram_crai_chrom = WHATSHAP_HAPLOTAG.out.haplotagged_cram_crai
+    ch_versions = ch_versions.mix(WHATSHAP_HAPLOTAG.out.versions)
+
+
 
 
 }
@@ -626,19 +673,7 @@ workflow FANIVA {
 //     .set { ch_merged_phased_vcf }
 //     ch_multiqc_files = ch_multiqc_files.mix(ch_final_haplotagged_vcf.collect{it[1]}.ifEmpty([]))
 
-// /*
-// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-//     FANIVA: WHATSHAP_HAPLOTAG
-// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-// */
-//     // Run WHATSHAP_HAPLOTAG on the final merged, haplotagged VCF
-//     WHATSHAP_HAPLOTAG(
-//         ch_pbmm2_cram,
-//         ch_final_haplotagged_vcf.map{ meta, vcf -> vcf },
-//         ch_fasta,
-//         ch_fasta_index
-//     )
-//     ch_versions = ch_versions.mix(WHATSHAP_HAPLOTAG.out.versions)
+
 
 
 // /*

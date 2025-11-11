@@ -6,14 +6,12 @@ process WHATSHAP_HAPLOTAG {
         'jiangyanyu/docker-whatshap:v240302' }"
 
     input:
-        tuple val(meta), path(split_crams), path(split_crais)
-        tuple val(meta), path(phased_split_vcfs), path(phased_split_tbis)
-        val(chr)
+        tuple val(meta), path(split_cram), path(split_crai), path(split_vcf), path(split_tbi), val(caller), val(chrom)
         path(fasta)
+        path(fasta_index)
 
     output:
-        tuple val(meta), path("${meta.id}*.${chr}.haplotagged.cram")     , emit: cram
-        tuple val(meta), path("${meta.id}*.${chr}.haplotagged.cram.crai") , emit: crai
+        tuple val(meta), path("${meta.id}.${chrom}.haplotagged.cram"), path("${meta.id}.${chrom}.haplotagged.cram.crai"), val(chrom), emit: cram_crai
         path  ("versions.yml")                                       , emit: versions
 
     script:
@@ -21,21 +19,18 @@ process WHATSHAP_HAPLOTAG {
     // def vcf_file = phased_merged_vcf.name != 'test.vcf' ? "$phased_merged_vcf" : "${meta.id}.vcf.gz"
     """
 
-    # Filter by MG>=95
-    samtools view --reference ${fasta} -h -e '[mg] && [mg]>=95' ${meta.id}.cram | \\
+    whatshap haplotag \\
+        --tag-supplementary \\
+        --ignore-read-groups \\
+        --output-threads=${task.cpus} \\
+        -o ${meta.id}.${chrom}.haplotagged.cram \\
+        --reference ${fasta} \\
+        ${split_vcf} \\
+        ${split_cram}
 
-    whatshap haplotag --tag-supplementary --ignore-read-groups --output-threads=${task.cpus} \\
-    -o ${meta.id}.haplotagged.cram --reference ${fasta} ${meta.id}.vcf.gz /dev/stdin
 
-    samtools view --reference ${fasta} -h -e '[mg] && [mg]<95' -O cram -o ${meta.id}.not_haplotagged.cram ${meta.id}.cram
+    samtools index -@ ${task.cpus} ${meta.id}.${chrom}.haplotagged.cram
     
-    samtools merge -@ ${task.cpus} -O cram -o ${meta.id}.haplotagged_merged.cram ${meta.id}.haplotagged.cram ${meta.id}.not_haplotagged.cram
-
-    rm ${meta.id}.not_haplotagged.cram ${meta.id}.haplotagged.cram
-
-    mv ${meta.id}.haplotagged_merged.cram ${meta.id}.haplotagged.cram
-
-    samtools index -@ ${task.cpus} ${meta.id}.haplotagged.cram
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
