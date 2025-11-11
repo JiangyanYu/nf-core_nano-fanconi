@@ -607,7 +607,7 @@ workflow FANIVA {
             [chrom, [meta, cram, crai]] 
         }
         .join(
-            cch_whatshap_phase_vcf_tbi_caller_chrom
+            ch_whatshap_phase_vcf_tbi_caller_chrom
                 .map { meta, vcf, tbi, caller, chrom -> 
                     // Create matching join key: chromosome
                     [chrom, [vcf, tbi, caller]] 
