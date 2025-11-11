@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 
-import subprocess
 from cyvcf2 import VCF, Writer
 import sys
 import argparse
@@ -15,6 +14,13 @@ parser.add_argument("--snv_vcf", required=True, help="Input SNV VCF file (bgzipp
 parser.add_argument("--regions_csv", required=True, help="CSV file with chrom,start,end per line.")
 parser.add_argument("--output_vcf", required=True, help="Output VCF file with adjusted genotypes.")
 args = parser.parse_args()
+
+
+# Ensure output directory exists following project conventions
+output_dir = os.path.dirname(args.output_vcf)
+if output_dir and not os.path.exists(output_dir):
+    os.makedirs(output_dir)
+
 
 # Load query regions from CSV
 regions = []
