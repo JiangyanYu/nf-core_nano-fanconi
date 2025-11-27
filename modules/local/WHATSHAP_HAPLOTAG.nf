@@ -3,7 +3,7 @@ process WHATSHAP_HAPLOTAG {
     label 'process_medium'
 
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-        'jiangyanyu/docker-whatshap:v251127' :
+        'https://hub.docker.com/repository/docker/jiangyanyu/docker-whatshap/' :
         'jiangyanyu/docker-whatshap:v251127' }"
 
     input:
@@ -16,8 +16,7 @@ process WHATSHAP_HAPLOTAG {
         path  ("versions.yml")                                       , emit: versions
 
     script:
-    // def vcf_file = phased_merged_vcf.name != 'NO_FILE.vcf' ? "$phased_merged_vcf" : "${meta.id}.phased.vcf.gz"
-    // def vcf_file = phased_merged_vcf.name != 'test.vcf' ? "$phased_merged_vcf" : "${meta.id}.vcf.gz"
+    
     """
 
     whatshap haplotag \\
