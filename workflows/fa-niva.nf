@@ -286,23 +286,6 @@ workflow FANIVA {
 
     }
 
-// /*
-// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-//     FANIVA: pbmm2 alignment from BAM
-// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-// */
-
-    // PBMM2_FROM_BAM (
-
-    //     ch_basecall_single_bams,
-    //     ch_fasta,
-    //     ch_fasta_index,
-    //     ch_fasta_mmi
-    // )
-    // ch_pbmm2_cram = PBMM2_FROM_BAM.out.cram
-    // ch_pbmm2_crai = PBMM2_FROM_BAM.out.crai
-    // ch_versions = ch_versions.mix(PBMM2_FROM_BAM.out.versions)
-
 
 // /*
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
