@@ -2,8 +2,8 @@ process PBMM2_INDEX_REFERENCE {
     label 'process_medium'
 
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-        'jiangyanyu/pacbio_wgs:v1.2' :
-        'jiangyanyu/pacbio_wgs:v1.2' }"
+        'jiangyanyu/faniva:v1' :
+        'jiangyanyu/faniva:v1' }"
 
     input:
         path (fasta)

@@ -3,8 +3,8 @@ process EDIT_SNV_GENOTYPE {
     label 'process_single'
 
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-        'jiangyanyu/pacbio_wgs:v1.3' :
-        'jiangyanyu/pacbio_wgs:v1.3' }"
+        'jiangyanyu/faniva:v1.1' :
+        'jiangyanyu/faniva:v1.1' }"
 
     // conda "bioconda::bcftools=1.16"
     // container "quay.io/biocontainers/bcftools:1.16--hfe4b78e_1"

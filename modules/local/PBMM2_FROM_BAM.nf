@@ -4,8 +4,8 @@ process PBMM2_FROM_BAM {
     label 'process_high'
 
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-        'jiangyanyu/pacbio_wgs:v1.2' :
-        'jiangyanyu/pacbio_wgs:v1.2' }"
+        'jiangyanyu/faniva:v1' :
+        'jiangyanyu/faniva:v1' }"
 
     input:
         tuple val(meta), path (unmapped_bams)
