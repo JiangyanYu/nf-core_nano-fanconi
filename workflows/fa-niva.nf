@@ -61,7 +61,6 @@ include { DORADO_BASECALLER                                    } from '../module
 include { DORADO_BASECALL_SUMMARY                              } from '../modules/local/DORADO_BASECALL_SUMMARY.nf'
 include { PYCOQC                                               } from '../modules/local/PYCOQC.nf'
 include { PBMM2_FROM_BAM                                       } from '../modules/local/PBMM2_FROM_BAM.nf'
-// include { SAMTOOLS_STATS                                } from '../modules/local/SAMTOOLS_STATS.nf'
 include { EXTRACT_LOW_MG_FROM_CRAM                             } from '../modules/local/EXTRACT_LOW_MG_FROM_CRAM.nf'
 include { SPLIT_CRAM_BY_CHROM                                  } from '../modules/local/SPLIT_CRAM_BY_CHROM.nf'
 include { DEEPVARIANT                                          } from '../modules/local/DEEPVARIANT.nf'
@@ -69,22 +68,9 @@ include { SAWFISH                                              } from '../module
 include { SPLIT_VCF_BY_CHROM as SPLIT_VCF_BY_CHROM_DEEPVARIANT } from '../modules/local/SPLIT_VCF_BY_CHROM.nf'
 include { SPLIT_VCF_BY_CHROM as SPLIT_VCF_BY_CHROM_SAWFISH     } from '../modules/local/SPLIT_VCF_BY_CHROM.nf'
 include { EDIT_SNV_GENOTYPE                                    } from '../modules/local/EDIT_SNV_GENOTYPE.nf'
-// include { BCFTOOLS_SORT as SNIFFLES_SORT_VCF            } from '../modules/nf-core/bcftools/sort/main.nf'
-// include { TABIX_BGZIP as SNIFFLES_BGZIP_VCF             } from '../modules/nf-core/tabix/bgzip/main.nf'
-// include { TABIX_TABIX as SNIFFLES_TABIX_VCF             } from '../modules/nf-core/tabix/tabix/main.nf'
-// include { ANNOTSV_SAWFISH                               } from '../modules/local/ANNOTSV_SAWFISH.nf'
-// include { ANNOTSV_DEEPVARIANT                           } from '../modules/local/ANNOTSV_DEEPVARIANT.nf'
-// include { BCFTOOLS_FILTER as DEEPVARIANT_FILTER_VCF     } from '../modules/nf-core/bcftools/filter/main.nf'
-// include { TABIX_BGZIP as EDIT_SNV_GENOTYPE_BGZIP_VCF    } from '../modules/nf-core/tabix/bgzip/main.nf'
-// include { TABIX_TABIX as EDIT_SNV_GENOTYPE_TABIX_VCF    } from '../modules/nf-core/tabix/tabix/main.nf'
 include { WHATSHAP_PHASE                                       } from '../modules/local/WHATSHAP_PHASE.nf'
 include { WHATSHAP_HAPLOTAG                                    } from '../modules/local/WHATSHAP_HAPLOTAG.nf'
-// include { BCFTOOLS_SORT as PHASE_SORT_VCF               } from '../modules/nf-core/bcftools/sort/main.nf'
-// include { TABIX_BGZIP as PHASE_BGZIP_VCF                } from '../modules/nf-core/tabix/bgzip/main.nf'
-// include { TABIX_TABIX as PHASE_TABIX_VCF                } from '../modules/nf-core/tabix/tabix/main.nf'
 // include { MOSDEPTH                                      } from '../modules/local/MOSDEPTH.nf'
-// include { TABIX_TABIX as DEEPVARIANT_TABIX_VCF          } from '../modules/nf-core/tabix/tabix/main.nf'
-// include { TABIX_TABIX as DEEPVARIANT_TABIX_GVCF         } from '../modules/nf-core/tabix/tabix/main.nf'
 // include { CUSTOM_DUMPSOFTWAREVERSIONS                   } from '../modules/nf-core/custom/dumpsoftwareversions/main.nf'
 // include { MULTIQC                                       } from '../modules/local/MULTIQC.nf'
 // include { PEPPER                                        } from '../modules/local/PEPPER'
@@ -507,11 +493,6 @@ workflow FANIVA {
             // Return tuple matching EDIT_SNV_GENOTYPE module input signature
             [meta, deepvariant_vcf, deepvariant_tbi, sawfish_vcf, sawfish_tbi, chrom]
         }
-
-    // Debug output following project conventions
-    ch_matched_vcfs_tbis_by_chrom.view { meta, deepvariant_vcf, deepvariant_tbi, sawfish_vcf, sawfish_tbi, chrom ->
-        "EDIT_SNV_GENOTYPE input: ${meta.id} ${chrom} - DeepVariant VCF: ${deepvariant_vcf.name}, Sawfish VCF: ${sawfish_vcf.name}"
-    }
 
     // Create regions channel ONCE - following project resource management patterns
     ch_SNV_modify_regions = Channel.fromPath(params.SNV_modify_regions)

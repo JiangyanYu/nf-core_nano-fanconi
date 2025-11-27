@@ -3,8 +3,8 @@ process WHATSHAP_HAPLOTAG {
     label 'process_medium'
 
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-        'jiangyanyu/docker-whatshap:v240302' :
-        'jiangyanyu/docker-whatshap:v240302' }"
+        'jiangyanyu/docker-whatshap:v251127' :
+        'jiangyanyu/docker-whatshap:v251127' }"
 
     input:
         tuple val(meta), path(split_cram), path(split_crai), path(split_vcf), path(split_tbi), val(caller), val(chrom)

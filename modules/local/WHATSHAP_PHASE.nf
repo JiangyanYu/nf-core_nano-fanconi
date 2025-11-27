@@ -4,7 +4,7 @@ process WHATSHAP_PHASE {
 
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
         'https://hub.docker.com/repository/docker/jiangyanyu/docker-whatshap/' :
-        'jiangyanyu/docker-whatshap:v240302' }"
+        'jiangyanyu/docker-whatshap:v251127' }"
 
     input:
         tuple val(meta), path(split_cram), path(split_crai), path(split_vcf), path(split_tbi), val(caller), val(chrom)
