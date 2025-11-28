@@ -26,7 +26,7 @@ process WHATSHAP_HAPLOTAG {
         -o ${meta.id}.${chrom}.haplotagged.cram \\
         --reference ${fasta} \\
         ${split_vcf} \\
-        ${split_cram}
+        ${split_cram} || true
 
 
     samtools index -@ ${task.cpus} ${meta.id}.${chrom}.haplotagged.cram
