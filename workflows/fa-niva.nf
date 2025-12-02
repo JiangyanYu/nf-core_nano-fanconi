@@ -380,6 +380,22 @@ workflow FANIVA {
     ch_deepvariant_vcf_tbi  = DEEPVARIANT.out.vcf_tbi
     ch_versions = ch_versions.mix(DEEPVARIANT.out.versions)
 
+// /*
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+//     FANIVA: AnnotSV-Deepvariant
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// */
+
+    if (params.run_annotsv) {
+ 
+        ANNOTSV_DEEPVARIANT (
+            DEEPVARIANT.out.vcf_tbi
+        )
+
+        ch_versions = ch_versions.mix(ANNOTSV_DEEPVARIANT.out.versions)
+        
+    }
+
 
 // /*
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -397,23 +413,22 @@ workflow FANIVA {
     ch_versions = ch_versions.mix(SAWFISH.out.versions)
 
 
-// /*
-// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-//     FANIVA: AnnotSV-Sawfish
-// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-// */
+/*
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    FANIVA: AnnotSV-Sawfish
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+*/
 
-//         if (params.run_annotsv) {
+        if (params.run_annotsv) {
     
-//             ANNOTSV_SAWFISH (
-//                 SAWFISH.out.vcf
-//             )
+            ANNOTSV_SAWFISH (
+                SAWFISH.out.vcf_tbi
+            )
 
-//             ch_versions = ch_versions.mix(ANNOTSV_SAWFISH.out.versions)
+            ch_versions = ch_versions.mix(ANNOTSV_SAWFISH.out.versions)
         
-//         }
-        
-//     }
+        }
+
     
 
 // /*
@@ -602,343 +617,85 @@ workflow FANIVA {
     ch_versions = ch_versions.mix(WHATSHAP_HAPLOTAG.out.versions)
 
 
+/*
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    FANIVA: whatshap depth calculation
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+*/
 
+    ch_mosdepth_input = WHATSHAP_HAPLOTAG.out.cram.mix(WHATSHAP_HAPLOTAG.out.crai).groupTuple(size:2).map{ meta, files -> [ meta, files.flatten() ]}
+        
+    MOSDEPTH (
+            ch_mosdepth_input
+    )
+        ch_versions = ch_versions.mix(MOSDEPTH.out.versions)
+    // ...existing code...
+    
+    
+
+/*
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    FANIVA: CUSTOM_DUMPSOFTWAREVERSIONS
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+*/
+
+    CUSTOM_DUMPSOFTWAREVERSIONS (
+        ch_versions.unique().collectFile(name: 'collated_versions.yml')
+    )
+
+    //
+    // MODULE: MultiQC
+    //
+    workflow_summary    = WorkflowFaniva.paramsSummaryMultiqc(workflow, summary_params)
+    ch_workflow_summary = Channel.value(workflow_summary)
+
+    methods_description    = WorkflowFaniva.methodsDescriptionText(workflow, ch_multiqc_custom_methods_description)
+    ch_methods_description = Channel.value(methods_description)
+
+    ch_multiqc_files = Channel.empty()
+    ch_multiqc_files = ch_multiqc_files.mix(ch_workflow_summary.collectFile(name: 'workflow_summary_mqc.yaml'))
+    ch_multiqc_files = ch_multiqc_files.mix(ch_methods_description.collectFile(name: 'methods_description_mqc.yaml'))
+    ch_multiqc_files = ch_multiqc_files.mix(CUSTOM_DUMPSOFTWAREVERSIONS.out.mqc_yml.collect())
+
+    if (params.reads_format == 'fast5' || params.reads_format == 'pod5') {
+        ch_multiqc_files = ch_multiqc_files.mix(PYCOQC.out.json.collect{it[1]}.ifEmpty([]))
+    }
+
+    if (params.run_whatshap) {
+        ch_multiqc_files = ch_multiqc_files.mix(MOSDEPTH.out.global_txt.collect{it[1]}.ifEmpty([]))
+        ch_multiqc_files = ch_multiqc_files.mix(MOSDEPTH.out.summary_txt.collect{it[1]}.ifEmpty([]))
+        ch_multiqc_files = ch_multiqc_files.mix(MOSDEPTH.out.regions_txt.collect{it[1]}.ifEmpty([]))
+        ch_multiqc_files = ch_multiqc_files.mix(MOSDEPTH.out.regions_bed.collect{it[1]}.ifEmpty([]))
+        ch_multiqc_files = ch_multiqc_files.mix(MOSDEPTH.out.regions_csi.collect{it[1]}.ifEmpty([]))
+        ch_multiqc_files = ch_multiqc_files.mix(MOSDEPTH.out.quantized_bed.collect{it[1]}.ifEmpty([]))
+        ch_multiqc_files = ch_multiqc_files.mix(MOSDEPTH.out.quantized_csi.collect{it[1]}.ifEmpty([]))
+    }
+
+    MULTIQC (
+        ch_multiqc_files.collect(),
+        ch_multiqc_config.toList(),
+        ch_multiqc_custom_config.toList(),
+        ch_multiqc_logo.toList()
+    )
+    multiqc_report = MULTIQC.out.report.toList()
 
 }
 
-
-
-
-
-
-//     // Run WHATSHAP_PHASE on each split VCF
-//     WHATSHAP_PHASE(
-//         ch_split_vcfs.map { meta, vcf_path -> [meta, vcf_path, ch_pbmm2_cram, file(params.fasta), file(params.fasta_index)] }
-//     )
-
-//     // Collect phased VCFs from WHATSHAP_PHASE
-//     ch_phased_chr_vcfs = WHATSHAP_PHASE.out.phased_vcf.collect()
-
-//     // Merge chromosome VCFs into a single VCF
-//     MERGE_VCF(
-//         tuple(val('meta'), ch_phased_chr_vcfs)
-//     )
-//     MERGE_VCF
-//     .out
-//     .merged_vcf
-//     .set { ch_merged_phased_vcf }
-//     // Merge chromosome VCFs into a single VCF
-//     MERGE_VCF(
-//         [ 'meta', ch_phased_chr_vcfs ]
-//     )
-//     MERGE_VCF
-//     .out
-//     .merged_vcf
-//     .set { ch_merged_phased_vcf }
-//     ch_multiqc_files = ch_multiqc_files.mix(ch_final_haplotagged_vcf.collect{it[1]}.ifEmpty([]))
-
-
-
-
-// /*
-// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-//     FANIVA: SAMTOOLS_STATS
-// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-// */
-//     SAMTOOLS_STATS (
-//         WHATSHAP_HAPLOTAG.out.cram
-//     )
-//     ch_versions = ch_versions.mix(SAMTOOLS_STATS.out.versions)
-
-
-// /*
-// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-//     FANIVA: AnnotSV-Deepvariant
-// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-// */
-
-//         if (params.run_annotsv) {
-    
-//             ANNOTSV_DEEPVARIANT (
-//                DEEPVARIANT.out.vcf
-//             )
-
-//         ch_versions = ch_versions.mix(ANNOTSV_DEEPVARIANT.out.versions)
-        
-//         }
-        
-//     }
-
-
-
-
-// /*
-// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-//     FANIVA: whatshap
-// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-// */
-
-
-//     // if (params.run_whatshap) {
-//     //     //
-//     //     // MODULE: whatshap for phasing
-//     //     //
-
-
-//     //     if (params.joint_SNV_SV_phasing) {
-//     //         //
-//     //         // Edit SNV genotype when large deletion occurs
-//     //         //
-
-//     //         add_meta1 = INPUT_CHECK.out.reads
-//     //             .map{ meta, files -> [[sample: meta.sample], meta.vcf] }
-//     //             .dump(tag: "add_meta1")
-
-//     //         ch_snv_vcf = DEEPVARIANT_FILTER_VCF.out.filteredvcf
-//     //             .mix(DEEPVARIANT_TABIX_VCF.out.tbi)
-//     //             .groupTuple(size:2)
-//     //             .map{ meta, files -> [ meta, files.flatten() ]}
-//     //          deepvariant_vcf = ch_snv_vcf.join(add_meta1).dump(tag: "joined")
-
-
-//     //         add_meta2 = INPUT_CHECK.out.reads
-//     //             .map{ meta, files -> [[sample: meta.sample], meta.vcf_tbi] }
-//     //             .dump(tag: "add_meta2")
-
-//     //         ch_sv_vcf = SAWFISH.out.vcf
-//     //             .mix(SAWFISH.out.tbi)
-//     //             .groupTuple(size:2)
-//     //             .map{ meta, files -> [ meta, files.flatten() ]}
-//     //         sawfish_vcf = ch_sv_vcf.join(add_meta2).dump(tag: "joined")
-
-
-//     //         EDIT_SNV_GENOTYPE (
-//     //             deepvariant_vcf,
-//     //             sawfish_vcf
-//     //         )
-
-//     //         ch_versions = ch_versions.mix(EDIT_SNV_GENOTYPE.out.versions)
-
-//     //         /*
-//     //         * Zip and Index edited vcf file
-//     //         */
-//     //         EDIT_SNV_GENOTYPE_BGZIP_VCF ( EDIT_SNV_GENOTYPE.out.vcf )
-//     //         ch_versions = ch_versions.mix( EDIT_SNV_GENOTYPE_BGZIP_VCF.out.versions)
-
-//     //         EDIT_SNV_GENOTYPE_TABIX_VCF ( EDIT_SNV_GENOTYPE_BGZIP_VCF.out.output )
-//     //         ch_versions = ch_versions.mix( EDIT_SNV_GENOTYPE_TABIX_VCF.out.versions)
-
-
-
-//     //         //
-//     //         // Input converted snv.vcf for phasing
-//     //         //
-
-
-//     //         add_meta3 = INPUT_CHECK.out.reads
-//     //             .map{ meta, files -> [[sample: meta.sample],meta.vcf_tbi] }
-//     //             .dump(tag: "add_meta3")
-
-
-//     //         ch_phase_vcf = EDIT_SNV_GENOTYPE_BGZIP_VCF.out.output
-//     //             .mix(EDIT_SNV_GENOTYPE_TABIX_VCF.out.tbi)
-//     //             .groupTuple(size:2)
-//     //             .map{ meta, files -> [ meta, files.flatten() ]}
-//     //         phase_vcf = ch_phase_vcf.join(add_meta3).dump(tag: "joined")
-
-                       
-//     //     } else {
-            
-
-
-//     //         add_meta4 = INPUT_CHECK.out.reads
-//     //             .map{ meta, files -> [[sample: meta.sample],meta.vcf_tbi] }
-//     //             .dump(tag: "add_meta4")
-
-
-//     //         ch_phase_vcf = DEEPVARIANT_FILTER_VCF.out.filteredvcf
-//     //             .mix(DEEPVARIANT_TABIX_VCF.out.tbi)
-//     //             .groupTuple(size:2)
-//     //             .map{ meta, files -> [ meta, files.flatten() ]}
-//     //         phase_vcf = ch_phase_vcf.join(add_meta4).dump(tag: "joined")
-
-//     //     }
-
-//     //     ch_phase_cram = SAMTOOLS_SORT.out.cram
-//     //         .mix(SAMTOOLS_SORT.out.crai)
-//     //         .groupTuple(size:2)
-//     //         .map{ meta, files -> [ meta, files.flatten() ]}
-
-//     //     phase_cram = ch_phase_cram.join(ch_phased_vcf).dump(tag: "joined")
-
-        
-
-//     //      WHATSHAP_PHASE (
-//     //          phase_cram,
-//     //          phase_vcf,
-//     //          file(params.fasta),
-//     //          file(params.fasta_index)
-//     //      )
-//     //     ch_versions = ch_versions.mix(WHATSHAP_PHASE.out.versions)
-
-//     //     /*
-//     //      * Sort phased variants with bcftools
-//     //      */
-//     //     PHASE_SORT_VCF( WHATSHAP_PHASE.out.phased_vcf )
-//     //     ch_sv_phase_vcf = PHASE_SORT_VCF.out.vcf
-//     //     ch_versions = ch_versions.mix(PHASE_SORT_VCF.out.versions)
-
-//     //     /*
-//     //      * Index phased vcf.gz
-//     //      */
-//     //     PHASE_TABIX_VCF( ch_sv_phase_vcf )
-//     //     ch_sv_calls_tbi  = PHASE_TABIX_VCF.out.tbi
-//     //     ch_versions = ch_versions.mix( PHASE_TABIX_VCF.out.versions)
-
-//     //     //
-//     //     // MODULE: whatshap for haplotag
-//     //     //
-//     //     ch_haplotag_cram = SAMTOOLS_SORT.out.cram
-//     //         .mix(SAMTOOLS_SORT.out.crai)
-//     //         .groupTuple(size:2)
-//     //         .map{ meta, files -> [ meta, files.flatten() ]}
-
-//     //     haplotag_cram = ch_haplotag_cram.join(ch_phased_vcf).dump(tag: "joined")
-
-
-//     //     add_meta = INPUT_CHECK.out.reads
-//     //     .map{ meta, files -> [[sample: meta.sample],meta.vcf_tbi] }
-//     //     .dump(tag: "add_meta")
-
-
-//     //     ch_haplotag_vcf = PHASE_SORT_VCF.out.vcf
-//     //         .mix(PHASE_TABIX_VCF.out.tbi)
-//     //         .groupTuple(size:2)
-//     //         .map{ meta, files -> [ meta, files.flatten() ]}
-            
-//     //     haplotag_vcf = ch_haplotag_vcf.join(add_meta).dump(tag: "joined")
-     
-//     //      WHATSHAP_HAPLOTAG (
-//     //          haplotag_cram,
-//     //          haplotag_vcf,
-//     //          file(params.fasta),
-//     //          file(params.fasta_index)
-//     //      )
-         
-//         //ch_versions = ch_versions.mix(WHATSHAP_HAPLOTAG.out.versions)
-
-// /*
-// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-//     FANIVA: whatshap depth calculation
-// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-// */
-
-//         //
-//         // MODULE: MOSDEPTH for depth calculation
-//         //
-//     ch_mosdepth_input = WHATSHAP_HAPLOTAG.out.cram.mix(WHATSHAP_HAPLOTAG.out.crai).groupTuple(size:2).map{ meta, files -> [ meta, files.flatten() ]}
-//         MOSDEPTH (
-//             ch_mosdepth_input
-//         )
-//         ch_versions = ch_versions.mix(MOSDEPTH.out.versions)
-//     // ...existing code...
-    
-    
-// /*
-// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-//     FANIVA: currently remove methylation
-// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-// */
-
-// /*
-//         //
-//         // MODULE: MODKIT to extract methylation data
-//         //
-        
-//         if (params.extract_methylation) {
-//             ch_modkit_input = WHATSHAP.out.cram.mix(WHATSHAP.out.crai).groupTuple(size:2).map{ meta, files -> [ meta, files.flatten() ]}
-//             MODKIT (
-//                 ch_modkit_input,
-//                 file(params.fasta)
-//             )
-//             ch_versions = ch_versions.mix(MODKIT.out.versions)
-
-//             ch_modkit_to_bw_input = MODKIT.out.hap1_bed.join(MODKIT.out.hap2_bed).join(MODKIT.out.combined_bed)
-//             MODKIT_TO_BW (
-//                 ch_modkit_to_bw_input,
-//                 file(params.fasta_index)
-//             )
-//             ch_versions = ch_versions.mix(MODKIT_TO_BW.out.versions)
-
-//             SAMTOOLS_STATS (
-//                 WHATSHAP.out.cram
-//             )
-//             ch_versions = ch_versions.mix(SAMTOOLS_STATS.out.versions)
-//         }
-// */
-
-// /*
-// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-//     FANIVA: CUSTOM_DUMPSOFTWAREVERSIONS
-// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-// */
-
-//     CUSTOM_DUMPSOFTWAREVERSIONS (
-//         ch_versions.unique().collectFile(name: 'collated_versions.yml')
-//     )
-
-//     //
-//     // MODULE: MultiQC
-//     //
-//     workflow_summary    = WorkflowFaniva.paramsSummaryMultiqc(workflow, summary_params)
-//     ch_workflow_summary = Channel.value(workflow_summary)
-
-//     methods_description    = WorkflowFaniva.methodsDescriptionText(workflow, ch_multiqc_custom_methods_description)
-//     ch_methods_description = Channel.value(methods_description)
-
-//     ch_multiqc_files = Channel.empty()
-//     ch_multiqc_files = ch_multiqc_files.mix(ch_workflow_summary.collectFile(name: 'workflow_summary_mqc.yaml'))
-//     ch_multiqc_files = ch_multiqc_files.mix(ch_methods_description.collectFile(name: 'methods_description_mqc.yaml'))
-//     ch_multiqc_files = ch_multiqc_files.mix(CUSTOM_DUMPSOFTWAREVERSIONS.out.mqc_yml.collect())
-
-//     if (params.reads_format == 'fast5' || params.reads_format == 'pod5') {
-//         ch_multiqc_files = ch_multiqc_files.mix(PYCOQC.out.json.collect{it[1]}.ifEmpty([]))
-//     }
-
-//     if (params.run_whatshap) {
-//         ch_multiqc_files = ch_multiqc_files.mix(MOSDEPTH.out.global_txt.collect{it[1]}.ifEmpty([]))
-//         ch_multiqc_files = ch_multiqc_files.mix(MOSDEPTH.out.summary_txt.collect{it[1]}.ifEmpty([]))
-//         ch_multiqc_files = ch_multiqc_files.mix(MOSDEPTH.out.regions_txt.collect{it[1]}.ifEmpty([]))
-//         ch_multiqc_files = ch_multiqc_files.mix(MOSDEPTH.out.regions_bed.collect{it[1]}.ifEmpty([]))
-//         ch_multiqc_files = ch_multiqc_files.mix(MOSDEPTH.out.regions_csi.collect{it[1]}.ifEmpty([]))
-//         ch_multiqc_files = ch_multiqc_files.mix(MOSDEPTH.out.quantized_bed.collect{it[1]}.ifEmpty([]))
-//         ch_multiqc_files = ch_multiqc_files.mix(MOSDEPTH.out.quantized_csi.collect{it[1]}.ifEmpty([]))
-//     }
-
-//     MULTIQC (
-//         ch_multiqc_files.collect(),
-//         ch_multiqc_config.toList(),
-//         ch_multiqc_custom_config.toList(),
-//         ch_multiqc_logo.toList()
-//     )
-//     multiqc_report = MULTIQC.out.report.toList()
-// }
-
-// /*
-// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-//     COMPLETION EMAIL AND SUMMARY
-// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-// */
-
-// workflow.onComplete {
-//     if (params.email || params.email_on_fail) {
-//         NfcoreTemplate.email(workflow, params, summary_params, projectDir, log, multiqc_report)
-//     }
-//     NfcoreTemplate.summary(workflow, params, log)
-//     if (params.hook_url) {
-//         NfcoreTemplate.IM_notification(workflow, params, summary_params, projectDir, log)
-//     }
-// }
+/*
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    COMPLETION EMAIL AND SUMMARY
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+*/
+
+workflow.onComplete {
+    if (params.email || params.email_on_fail) {
+        NfcoreTemplate.email(workflow, params, summary_params, projectDir, log, multiqc_report)
+    }
+    NfcoreTemplate.summary(workflow, params, log)
+    if (params.hook_url) {
+        NfcoreTemplate.IM_notification(workflow, params, summary_params, projectDir, log)
+    }
+}
 
 // /*
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

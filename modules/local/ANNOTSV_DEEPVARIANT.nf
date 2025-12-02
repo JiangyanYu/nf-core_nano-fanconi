@@ -42,7 +42,7 @@ process ANNOTSV_DEEPVARIANT {
     //def extraArgs = params.extraAnnotsvFlags ?: ''
     """
     AnnotSV \\
-        -SVinputFile ${vcf_file} \\
+        -SVinputFile ${meta.id}.deepvariant.vcf.gz \\
         -annotationsDir ${params.annotsvAnnotationsDir} \\
         -bedtools bedtools \\
         -bcftools bcftools \\

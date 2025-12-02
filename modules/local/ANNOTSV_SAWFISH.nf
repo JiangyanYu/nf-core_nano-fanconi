@@ -42,7 +42,7 @@ process ANNOTSV_SAWFISH {
     //def extraArgs = params.extraAnnotsvFlags ?: ''
     """
     AnnotSV \\
-        -SVinputFile ${vcf_file} \\
+        -SVinputFile ${meta.id}.sawfish.vcf.gz \\
         -annotationsDir ${params.annotsvAnnotationsDir} \\
         -bedtools bedtools \\
         -bcftools bcftools \\
