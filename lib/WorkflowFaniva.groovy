@@ -4,7 +4,7 @@
 
 import groovy.text.SimpleTemplateEngine
 
-class WorkflowNanofanconi {
+class WorkflowFaniva {
 
     //
     // Check and validate parameters
