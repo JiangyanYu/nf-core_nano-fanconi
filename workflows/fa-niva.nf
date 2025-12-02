@@ -65,17 +65,17 @@ include { EXTRACT_LOW_MG_FROM_CRAM                             } from '../module
 include { SPLIT_CRAM_BY_CHROM                                  } from '../modules/local/SPLIT_CRAM_BY_CHROM.nf'
 include { DEEPVARIANT                                          } from '../modules/local/DEEPVARIANT.nf'
 include { SAWFISH                                              } from '../modules/local/SAWFISH.nf'
+include { ANNOTSV_SAWFISH                                      } from '../modules/local/ANNOTSV_SAWFISH.nf'
+include { ANNOTSV_DEEPVARIANT                                  } from '../modules/local/ANNOTSV_DEEPVARIANT.nf'
 include { SPLIT_VCF_BY_CHROM as SPLIT_VCF_BY_CHROM_DEEPVARIANT } from '../modules/local/SPLIT_VCF_BY_CHROM.nf'
 include { SPLIT_VCF_BY_CHROM as SPLIT_VCF_BY_CHROM_SAWFISH     } from '../modules/local/SPLIT_VCF_BY_CHROM.nf'
 include { EDIT_SNV_GENOTYPE                                    } from '../modules/local/EDIT_SNV_GENOTYPE.nf'
 include { WHATSHAP_PHASE                                       } from '../modules/local/WHATSHAP_PHASE.nf'
 include { WHATSHAP_HAPLOTAG                                    } from '../modules/local/WHATSHAP_HAPLOTAG.nf'
-// include { MOSDEPTH                                      } from '../modules/local/MOSDEPTH.nf'
-// include { CUSTOM_DUMPSOFTWAREVERSIONS                   } from '../modules/nf-core/custom/dumpsoftwareversions/main.nf'
-// include { MULTIQC                                       } from '../modules/local/MULTIQC.nf'
-// include { PEPPER                                        } from '../modules/local/PEPPER'
-// include { MODKIT                                        } from '../modules/local/MODKIT'
-// include { MODKIT_TO_BW                                  } from '../modules/local/MODKIT_TO_BW'
+include { MOSDEPTH                                      } from '../modules/local/MOSDEPTH.nf'
+include { CUSTOM_DUMPSOFTWAREVERSIONS                   } from '../modules/nf-core/custom/dumpsoftwareversions/main.nf'
+include { MULTIQC                                       } from '../modules/local/MULTIQC.nf'
+
 
 
 /*
