@@ -16,7 +16,7 @@ nodes = {
     "dorado": (1, 3),
     "pycoQC": (1, 2),
     "pbmm2": (2, 2),
-    "Sniffles": (3, 3),
+    "sawfish": (3, 3),
     "AnnotSV": (4, 2),
     "WhatsHap": (5.5, 2),
     "DeepVariant": (3, 1),
@@ -29,16 +29,16 @@ edges = [
     ("bam", "pbmm2"),
     ("dorado", "pycoQC"),
     ("pycoQC", "pbmm2"),
-    ("pbmm2", "Sniffles"),
+    ("pbmm2", "sawfish"),
     ("pbmm2", "DeepVariant"),
-    ("Sniffles", "AnnotSV"),
+    ("sawfish", "AnnotSV"),
     ("DeepVariant", "AnnotSV"),
 ]
 
 # Define special edges (square stepwise connections)
 square_edges = [
     
-    ("Sniffles", "WhatsHap"),
+    ("sawfish", "WhatsHap"),
     ("DeepVariant", "WhatsHap"),
 ]
 
