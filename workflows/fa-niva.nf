@@ -607,7 +607,7 @@ workflow FANIVA {
         }
 
 
-    // Run WHATSHAP_HAPLOTAG on the split cram and split phased vcf
+    // Run WHATSHAP_HAPLOTAG on the joined cram and joined phased vcf
     WHATSHAP_HAPLOTAG(
         ch_cram_crai_vcf_tbi_caller_chrom_for_haplotagging,
         ch_fasta,
