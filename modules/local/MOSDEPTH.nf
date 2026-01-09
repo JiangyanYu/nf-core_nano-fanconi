@@ -9,6 +9,7 @@ process MOSDEPTH {
 
     input:
     tuple val(meta), path("${meta.id}.merged.haplotagged.cram"), path("${meta.id}.merged.haplotagged.cram.crai")
+    path(fasta)
 
     output:
     tuple val(meta), path('*.global.dist.txt')      , emit: global_txt
@@ -28,7 +29,13 @@ process MOSDEPTH {
     export MOSDEPTH_Q2=CALLABLE      # 5..149
     export MOSDEPTH_Q3=HIGH_COVERAGE # 150 ...
 
-    mosdepth -t ${task.cpus} -n -x -Q 1 --by 500 --quantize 0:1:5:150: ${meta.id}*cram
+    mosdepth \\
+        -t ${task.cpus} \\
+        -n -x -Q 1 --by 500 \\
+        --quantize 0:1:5:150: \\
+        --fasta ${fasta} \\
+        ${meta.id} \\
+        ${meta.id}.merged.haplotagged.cram
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":

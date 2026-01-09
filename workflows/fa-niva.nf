@@ -637,7 +637,8 @@ workflow FANIVA {
 
         
     MOSDEPTH (
-            MERGE_HAPLOTAG_CRAM.out.cram_crai
+            MERGE_HAPLOTAG_CRAM.out.cram_crai,
+            ch_fasta
     )
     
     ch_versions = ch_versions.mix(MOSDEPTH.out.versions)
