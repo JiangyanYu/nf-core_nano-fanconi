@@ -22,7 +22,7 @@ process MERGE_HAPLOTAG_CRAM {
             -@ ${task.cpus} \\
             --reference ${fasta} \\
             -O cram \\
-            -o ${meta.id}.haplotagged.cram \\
+            -o ${meta.id}.merged.haplotagged.cram \\
             ${crams} 
             
         samtools index -@ ${task.cpus} ${meta.id}.merged.haplotagged.cram 
