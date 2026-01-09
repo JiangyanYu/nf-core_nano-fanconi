@@ -13,7 +13,7 @@ process MERGE_HAPLOTAG_CRAM {
         path(fasta)
 
     output:
-        tuple val(meta), path("${meta.id}.haplotagged.cram"), path("${meta.id}.haplotagged.cram.crai"), emit: cram_crai
+        tuple val(meta), path("${meta.id}.merged.haplotagged.cram"), path("${meta.id}.merged.haplotagged.cram.crai"), emit: cram_crai
         path("versions.yml"), emit: versions
 
     script:
@@ -25,7 +25,7 @@ process MERGE_HAPLOTAG_CRAM {
             -o ${meta.id}.haplotagged.cram \\
             ${crams} 
             
-        samtools index -@ ${task.cpus} ${meta.id}.haplotagged.cram 
+        samtools index -@ ${task.cpus} ${meta.id}.merged.haplotagged.cram 
         
         cat <<-END_VERSIONS > versions.yml
         "${task.process}":
