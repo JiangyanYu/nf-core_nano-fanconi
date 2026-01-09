@@ -1,5 +1,5 @@
-process SPLIT_CRAM_BY_CHROM {
-    tag "$meta.id:$chrom"
+process MERGE_HAPLOTAG_CRAM {
+    tag "$meta.id"
     maxForks 24  // Limits the number of concurrent executions of this process to 24
     label 'process_medium'
 
@@ -9,11 +9,11 @@ process SPLIT_CRAM_BY_CHROM {
         'quay.io/biocontainers/samtools:1.16.1--h6899075_1' }"
 
     input:
-        tuple val(meta), path(cram), path(crai), val(chrom)
+        tuple val(meta), path(crams), path(crais), val(chrom)
         path(fasta)
 
     output:
-        tuple val(meta), path("${meta.id}.${chrom}.cram"), path("${meta.id}.${chrom}.cram.crai"), val(chrom), emit: cram_crai
+        tuple val(meta), path("${meta.id}.haplotagged.cram"), path("${meta.id}.haplotagged.cram.crai"), emit: cram_crai
         path("versions.yml"), emit: versions
 
     script:
@@ -21,13 +21,11 @@ process SPLIT_CRAM_BY_CHROM {
         samtools view \
             -@ ${task.cpus} \\
             --reference ${fasta} \\
-            -e '[mg]>=95' \\
             -O cram \\
-            -o ${meta.id}.${chrom}.cram \\
-            ${cram} \\
-            ${chrom}
+            -o ${meta.id}.haplotagged.cram \\
+            ${crams} 
             
-        samtools index -@ ${task.cpus} ${meta.id}.${chrom}.cram 
+        samtools index -@ ${task.cpus} ${meta.id}.haplotagged.cram 
         
         cat <<-END_VERSIONS > versions.yml
         "${task.process}":
