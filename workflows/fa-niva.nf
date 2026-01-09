@@ -636,11 +636,11 @@ workflow FANIVA {
 */
 
         
-    MOSDEPTH (
-            MERGE_HAPLOTAG_CRAM.out.cram_crai
-    )
+    // MOSDEPTH (
+    //         MERGE_HAPLOTAG_CRAM.out.cram_crai
+    // )
     
-    ch_versions = ch_versions.mix(MOSDEPTH.out.versions)
+    // ch_versions = ch_versions.mix(MOSDEPTH.out.versions)
     
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
