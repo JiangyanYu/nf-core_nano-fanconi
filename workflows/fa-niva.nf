@@ -623,12 +623,16 @@ workflow FANIVA {
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
-    ch_mosdepth_input = WHATSHAP_HAPLOTAG.out.cram_crai.map{ meta, files -> [ meta, files.flatten() ]}
+    // ch_mosdepth_input = WHATSHAP_HAPLOTAG.out.cram_crai
+    //                         .map{ 
+    //                             meta, files -> [ meta, files.flatten() ]
+    //                         }
         
-    MOSDEPTH (
-            ch_mosdepth_input
-    )
-        ch_versions = ch_versions.mix(MOSDEPTH.out.versions)
+    // MOSDEPTH (
+    //         ch_mosdepth_input
+    // )
+    
+    // ch_versions = ch_versions.mix(MOSDEPTH.out.versions)
     
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
