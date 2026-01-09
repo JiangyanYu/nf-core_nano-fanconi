@@ -72,9 +72,10 @@ include { SPLIT_VCF_BY_CHROM as SPLIT_VCF_BY_CHROM_SAWFISH     } from '../module
 include { EDIT_SNV_GENOTYPE                                    } from '../modules/local/EDIT_SNV_GENOTYPE.nf'
 include { WHATSHAP_PHASE                                       } from '../modules/local/WHATSHAP_PHASE.nf'
 include { WHATSHAP_HAPLOTAG                                    } from '../modules/local/WHATSHAP_HAPLOTAG.nf'
-include { MOSDEPTH                                      } from '../modules/local/MOSDEPTH.nf'
-include { CUSTOM_DUMPSOFTWAREVERSIONS                   } from '../modules/nf-core/custom/dumpsoftwareversions/main.nf'
-include { MULTIQC                                       } from '../modules/local/MULTIQC.nf'
+include { MERGE_HAPLOTAG_CRAM                                  } from '../modules/local/MERGE_HAPLOTAG_CRAM.nf'
+include { MOSDEPTH                                             } from '../modules/local/MOSDEPTH.nf'
+include { CUSTOM_DUMPSOFTWAREVERSIONS                          } from '../modules/nf-core/custom/dumpsoftwareversions/main.nf'
+include { MULTIQC                                              } from '../modules/local/MULTIQC.nf'
 
 
 
@@ -607,7 +608,8 @@ workflow FANIVA {
         }
 
 
-    // Run WHATSHAP_HAPLOTAG on the joined cram and joined phased vcf
+
+    // Run WHATSHAP_HAPLOTAG on the split cram and split phased vcf
     WHATSHAP_HAPLOTAG(
         ch_cram_crai_vcf_tbi_caller_chrom_for_haplotagging,
         ch_fasta,
@@ -616,6 +618,16 @@ workflow FANIVA {
     ch_haplotagged_cram_crai_chrom = WHATSHAP_HAPLOTAG.out.cram_crai
     ch_versions = ch_versions.mix(WHATSHAP_HAPLOTAG.out.versions)
 
+
+    // Merge splitted cram files
+    ch_haplotagged_grouped = WHATSHAP_HAPLOTAG.out.cram_crai
+        .groupTuple(by: 0)
+
+    MERGE_HAPLOTAG_CRAM(
+        ch_haplotagged_grouped,
+        ch_fasta
+    )
+    ch_versions = ch_versions.mix(MERGE_HAPLOTAG_CRAM.out.versions)
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
