@@ -1,4 +1,5 @@
 process MOSDEPTH {
+    tag "$meta.id"
     label 'process_medium'
 
     conda "bioconda::mosdepth=0.3.3"
@@ -7,7 +8,7 @@ process MOSDEPTH {
         'quay.io/biocontainers/mosdepth:0.3.3--hdfd78af_1'}"
 
     input:
-    tuple val(meta), path(cram_crai_files)
+    tuple val(meta), path("${meta.id}.merged.haplotagged.cram"), path("${meta.id}.merged.haplotagged.cram.crai")
 
     output:
     tuple val(meta), path('*.global.dist.txt')      , emit: global_txt
@@ -27,7 +28,7 @@ process MOSDEPTH {
     export MOSDEPTH_Q2=CALLABLE      # 5..149
     export MOSDEPTH_Q3=HIGH_COVERAGE # 150 ...
 
-    mosdepth -t ${task.cpus} -n -x -Q 1 --by 500 --quantize 0:1:5:150: ${meta.id} *cram
+    mosdepth -t ${task.cpus} -n -x -Q 1 --by 500 --quantize 0:1:5:150: ${meta.id}*cram
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
