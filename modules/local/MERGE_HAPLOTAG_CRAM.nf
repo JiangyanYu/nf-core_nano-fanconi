@@ -18,7 +18,7 @@ process MERGE_HAPLOTAG_CRAM {
 
     script:
      """
-        samtools view \
+        samtools merge \
             -@ ${task.cpus} \\
             --reference ${fasta} \\
             -O cram \\
